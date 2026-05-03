@@ -13,7 +13,6 @@ export default function Explorer({ data }: Props) {
   const [highlightType, setHighlightType] = useState<string | null>(null)
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [brandExpanded, setBrandExpanded] = useState(false)
-  const [prevHighlightType, setPrevHighlightType] = useState<string | null>(null)
 
   const allTypes = useMemo(() => [...new Set(data.map(d => d.type))], [data])
   const allDisplacements = useMemo(
@@ -53,64 +52,56 @@ export default function Explorer({ data }: Props) {
     )
   }
 
-  // Zoom to filtered data
-  const zoomToData = useCallback((items: Motorcycle[]) => {
+  // Animate zoom to show specific data range
+  const animateZoomTo = useCallback((items: Motorcycle[]) => {
     const chart = chartRef.current?.getEchartsInstance()
     if (!chart || items.length === 0) return
 
-    const disps = items.map(d => d.displacement)
-    const minDispIdx = Math.min(...disps.map(d => allDisplacements.indexOf(d)))
-    const maxDispIdx = Math.max(...disps.map(d => allDisplacements.indexOf(d)))
-    const totalCats = allDisplacements.length
-
-    // Add 10% padding
-    const startPct = Math.max(0, (minDispIdx / totalCats) * 100 - 5)
-    const endPct = Math.min(100, ((maxDispIdx + 1) / totalCats) * 100 + 5)
+    const disps = [...new Set(items.map(d => d.displacement))]
+    const dispIndices = disps.map(d => allDisplacements.indexOf(d))
+    const minIdx = Math.min(...dispIndices)
+    const maxIdx = Math.max(...dispIndices)
+    const total = allDisplacements.length
 
     chart.dispatchAction({
       type: 'dataZoom',
-      start: startPct,
-      end: endPct,
+      start: Math.max(0, (minIdx / total) * 100 - 8),
+      end: Math.min(100, ((maxIdx + 1) / total) * 100 + 8),
     })
   }, [allDisplacements])
 
-  // Zoom animation on type filter change
+  // Reset to full view
+  const resetZoom = useCallback(() => {
+    const chart = chartRef.current?.getEchartsInstance()
+    if (!chart) return
+    chart.dispatchAction({
+      type: 'dataZoom',
+      start: 0,
+      end: 100,
+    })
+  }, [])
+
+  // Zoom on type filter change
   useEffect(() => {
-    if (highlightType === prevHighlightType) return
-    setPrevHighlightType(highlightType)
-
-    const items = highlightType
-      ? filteredData.filter(d => d.type === highlightType)
-      : filteredData
-
-    if (items.length > 0 && items.length < filteredData.length * 0.8) {
-      zoomToData(items)
-    } else if (!highlightType) {
-      // Reset zoom when showing all
-      const chart = chartRef.current?.getEchartsInstance()
-      if (chart) {
-        chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 })
+    if (highlightType) {
+      const items = filteredData.filter(d => d.type === highlightType)
+      if (items.length > 0) {
+        animateZoomTo(items)
       }
+    } else {
+      resetZoom()
     }
   }, [highlightType])
 
   // Zoom on brand filter change
   useEffect(() => {
     if (selectedBrands.length > 0 && filteredData.length > 0) {
-      zoomToData(filteredData)
+      animateZoomTo(filteredData)
     }
-  }, [selectedBrands, filteredData, zoomToData])
+  }, [selectedBrands])
 
   const option = useMemo(() => {
-    // For each displacement column, get top items by samples for labeling
-    const labelsByDisp = new Map<number, Set<string>>()
-    for (const disp of allDisplacements) {
-      const colItems = filteredData.filter(d => d.displacement === disp)
-      const sorted = [...colItems].sort((a, b) => b.samples - a.samples)
-      const topN = Math.min(sorted.length, 6)
-      labelsByDisp.set(disp, new Set(sorted.slice(0, topN).map(d => `${d.brand}|${d.series}`)))
-    }
-
+    // Build series - ALL items get labels, hideOverlap handles visibility
     const series = allTypes.map(type => {
       const items = filteredData.filter(d => d.type === type)
       const color = typeColorMap[type]
@@ -121,8 +112,6 @@ export default function Explorer({ data }: Props) {
         type: 'scatter' as const,
         data: items.map(d => {
           const xIdx = allDisplacements.indexOf(d.displacement)
-          const colLabels = labelsByDisp.get(d.displacement)
-          const showLabel = colLabels?.has(`${d.brand}|${d.series}`) ?? false
           return {
             value: [xIdx, d.consumption],
             _brand: d.brand,
@@ -130,8 +119,8 @@ export default function Explorer({ data }: Props) {
             _samples: d.samples,
             _disp: d.displacement,
             label: {
-              show: showLabel && !isDimmed,
-              formatter: `{a|${d.brand}} {b|${d.series}}`,
+              show: !isDimmed,
+              formatter: `{a|${d.brand}}{b|${d.series}}`,
               position: 'right' as const,
               distance: 5,
               rich: {
@@ -161,7 +150,6 @@ export default function Explorer({ data }: Props) {
           },
         },
         large: true,
-        animation: false,
       }
     })
 
@@ -201,10 +189,10 @@ export default function Explorer({ data }: Props) {
         min: 0,
       },
       dataZoom: [
-        { type: 'inside' as const, xAxisIndex: 0, zoomOnMouseWheel: true },
+        { type: 'inside' as const, xAxisIndex: 0, zoomOnMouseWheel: true, moveOnMouseMove: true },
         { type: 'inside' as const, yAxisIndex: 0 },
-        { type: 'slider' as const, xAxisIndex: 0, bottom: 4, height: 18, borderColor: '#e2e8f0', fillerColor: 'rgba(37,99,235,0.06)' },
-        { type: 'slider' as const, yAxisIndex: 0, right: 2, width: 18, borderColor: '#e2e8f0', fillerColor: 'rgba(37,99,235,0.06)' },
+        { type: 'slider' as const, xAxisIndex: 0, bottom: 4, height: 18, borderColor: '#e2e8f0', fillerColor: 'rgba(37,99,235,0.06)', realtime: true },
+        { type: 'slider' as const, yAxisIndex: 0, right: 2, width: 18, borderColor: '#e2e8f0', fillerColor: 'rgba(37,99,235,0.06)', realtime: true },
       ],
       legend: { show: false },
       series,
@@ -212,6 +200,7 @@ export default function Explorer({ data }: Props) {
         hideOverlap: true,
         moveOverlap: 'shiftY' as const,
       },
+      animationDuration: 300,
     }
   }, [filteredData, allTypes, typeColorMap, highlightType, allDisplacements, dispLabels])
 
@@ -222,7 +211,7 @@ export default function Explorer({ data }: Props) {
           <h1 className="text-lg font-bold">散点油耗图</h1>
           <span className="text-sm text-text-secondary">{filteredData.length} 款车型</span>
           {selectedBrands.length > 0 && (
-            <button onClick={() => setSelectedBrands([])}
+            <button onClick={() => { setSelectedBrands([]); resetZoom() }}
               className="text-xs text-accent-red hover:underline">清除品牌</button>
           )}
         </div>
