@@ -88,7 +88,7 @@ export default function Home({ data }: Props) {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 gap-6 items-start">
         <div className="bg-white rounded-xl border border-border p-4">
           <div className="flex items-center gap-1 mb-3">
             <button onClick={() => setActiveTab('brand')}
@@ -105,6 +105,7 @@ export default function Home({ data }: Props) {
               }`}>类型</button>
           </div>
 
+          <div className="min-h-[480px]">
           <table className="w-full text-sm table-fixed">
             <thead>
               <tr className="text-left text-text-secondary border-b border-border">
@@ -141,6 +142,7 @@ export default function Home({ data }: Props) {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
 
         <div className="bg-white rounded-xl border border-border p-5">

@@ -11,13 +11,13 @@ export default function ModelConsumptionBar({ data, maxItems = 30 }: Props) {
 
   const option = {
     tooltip: { show: false },
-    grid: { left: 140, right: 60, top: 10, bottom: 20 },
+    grid: { left: 160, right: 70, top: 6, bottom: 8 },
     xAxis: { type: 'value' as const, show: false },
     yAxis: {
       type: 'category' as const,
       data: items.map(d => `${d.brand} ${d.series}`),
       inverse: true,
-      axisLabel: { fontSize: 11 },
+      axisLabel: { fontSize: 13, color: '#334155' },
       axisTick: { show: false },
       axisLine: { show: false },
     },
@@ -29,8 +29,9 @@ export default function ModelConsumptionBar({ data, maxItems = 30 }: Props) {
           show: true,
           position: 'right' as const,
           formatter: '{c}',
-          fontSize: 10,
-          color: '#64748b',
+          fontSize: 13,
+          color: '#475569',
+          fontWeight: 500,
         },
         itemStyle: {
           borderRadius: [0, 3, 3, 0],
@@ -43,8 +44,8 @@ export default function ModelConsumptionBar({ data, maxItems = 30 }: Props) {
           },
         },
       })),
-      barMaxWidth: 14,
+      barMaxWidth: 10,
     }],
   }
-  return <ReactECharts option={option} style={{ height: Math.max(200, items.length * 24) }} />
+  return <ReactECharts option={option} style={{ height: Math.max(200, items.length * 28) }} />
 }

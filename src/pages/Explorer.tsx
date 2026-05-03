@@ -13,6 +13,7 @@ export default function Explorer({ data }: Props) {
   const [highlightType, setHighlightType] = useState<string | null>(null)
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [brandExpanded, setBrandExpanded] = useState(false)
+  const initRef = useRef(true)
 
   const allTypes = useMemo(() => [...new Set(data.map(d => d.type))], [data])
   const allDisplacements = useMemo(
@@ -54,55 +55,66 @@ export default function Explorer({ data }: Props) {
 
   // Zoom to fit filtered items in view
   const zoomToItems = useCallback((items: Motorcycle[]) => {
-    const chart = chartRef.current?.getEchartsInstance()
-    if (!chart || items.length === 0) return
+    try {
+      const chart = chartRef.current?.getEchartsInstance()
+      if (!chart || items.length === 0) return
+      if (!chart.getWidth() || !chart.getHeight()) return
 
-    const disps = [...new Set(items.map(d => d.displacement))]
-    const dispIndices = disps.map(d => allDisplacements.indexOf(d)).filter(i => i >= 0)
-    const total = allDisplacements.length
+      const disps = [...new Set(items.map(d => d.displacement))]
+      const dispIndices = disps.map(d => allDisplacements.indexOf(d)).filter(i => i >= 0)
+      const total = allDisplacements.length
 
-    if (dispIndices.length === 0) return
+      if (dispIndices.length === 0 || total === 0) return
 
-    const xMin = Math.min(...dispIndices)
-    const xMax = Math.max(...dispIndices)
-    // Generous padding so points aren't at edges
-    const pad = Math.max(1, Math.round((xMax - xMin) * 0.2))
-    const start = Math.max(0, ((xMin - pad) / total) * 100)
-    const end = Math.min(100, ((xMax + 1 + pad) / total) * 100)
+      const xMin = Math.min(...dispIndices)
+      const xMax = Math.max(...dispIndices)
+      const pad = Math.max(1, Math.round((xMax - xMin) * 0.2))
+      const start = Math.max(0, ((xMin - pad) / total) * 100)
+      const end = Math.min(100, ((xMax + 1 + pad) / total) * 100)
 
-    chart.dispatchAction({ type: 'dataZoom', start, end })
+      chart.dispatchAction({ type: 'dataZoom', start, end })
 
-    // Also set Y axis to fit
-    const consumptions = items.map(d => d.consumption)
-    const yMin = Math.min(...consumptions)
-    const yMax = Math.max(...consumptions)
-    const yPad = Math.max(0.3, (yMax - yMin) * 0.2)
-    chart.setOption({ yAxis: { min: Math.max(0, yMin - yPad), max: yMax + yPad } })
+      const consumptions = items.map(d => d.consumption)
+      const yMin = Math.min(...consumptions)
+      const yMax = Math.max(...consumptions)
+      const yPad = Math.max(0.3, (yMax - yMin) * 0.2)
+      chart.setOption({ yAxis: { min: Math.max(0, yMin - yPad), max: yMax + yPad } })
+    } catch { /* chart not ready */ }
   }, [allDisplacements])
 
   const resetZoom = useCallback(() => {
-    const chart = chartRef.current?.getEchartsInstance()
-    if (!chart) return
-    chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 })
-    chart.setOption({ yAxis: { min: 0 } })
+    try {
+      const chart = chartRef.current?.getEchartsInstance()
+      if (!chart || !chart.getWidth() || !chart.getHeight()) return
+      chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 })
+      chart.setOption({ yAxis: { min: 0 } })
+    } catch { /* chart not ready */ }
   }, [])
 
-  // Zoom on type filter
+  // Zoom on type filter (skip initial mount)
   useEffect(() => {
-    if (highlightType) {
-      const items = filteredData.filter(d => d.type === highlightType)
-      if (items.length > 0) zoomToItems(items)
-    } else if (selectedBrands.length === 0) {
-      resetZoom()
-    }
-  }, [highlightType, filteredData, zoomToItems, resetZoom, selectedBrands])
+    if (initRef.current) { initRef.current = false; return }
+    const raf = requestAnimationFrame(() => {
+      if (highlightType) {
+        const items = filteredData.filter(d => d.type === highlightType)
+        if (items.length > 0) zoomToItems(items)
+      } else if (selectedBrands.length === 0) {
+        resetZoom()
+      }
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [highlightType])
 
-  // Zoom on brand filter
+  // Zoom on brand filter (skip initial mount)
   useEffect(() => {
-    if (selectedBrands.length > 0 && filteredData.length > 0) {
-      zoomToItems(filteredData)
-    }
-  }, [selectedBrands, filteredData, zoomToItems])
+    if (initRef.current) return
+    const raf = requestAnimationFrame(() => {
+      if (selectedBrands.length > 0 && filteredData.length > 0) {
+        zoomToItems(filteredData)
+      }
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [selectedBrands])
 
   const option = useMemo(() => {
     const series = allTypes.map(type => {
