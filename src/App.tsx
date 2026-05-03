@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { useData } from './hooks/useData'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -9,6 +9,8 @@ import Explorer from './pages/Explorer'
 
 function App() {
   const { data, loading, error } = useData()
+  const location = useLocation()
+  const isExplorer = location.pathname === '/explorer'
 
   if (loading) {
     return (
@@ -33,17 +35,23 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className={isExplorer ? 'min-h-screen flex flex-col' : 'min-h-screen flex flex-col'}>
       <Header />
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <Routes>
-          <Route path="/" element={<Home data={data.data} />} />
-          <Route path="/ranking" element={<Ranking data={data.data} />} />
-          <Route path="/analysis" element={<Analysis data={data.data} />} />
-          <Route path="/explorer" element={<Explorer data={data.data} />} />
-        </Routes>
-      </main>
-      <Footer />
+      {isExplorer ? (
+        <Explorer data={data.data} />
+      ) : (
+        <>
+          <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <Routes>
+              <Route path="/" element={<Home data={data.data} />} />
+              <Route path="/ranking" element={<Ranking data={data.data} />} />
+              <Route path="/analysis" element={<Analysis data={data.data} />} />
+              <Route path="/explorer" element={<></>} />
+            </Routes>
+          </main>
+          <Footer />
+        </>
+      )}
     </div>
   )
 }

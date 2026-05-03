@@ -20,7 +20,7 @@ export default function Home({ data }: Props) {
   const weightedDisp = useMemo(() => weightedAvgByDisplacement(data), [data])
   const typeCount = useMemo(() => countByType(data), [data])
   const brandSamples = useMemo(() => samplesByBrand(data).slice(0, 15), [data])
-  const top20Models = useMemo(() => topBySamples(data, 20), [data])
+  const top15Models = useMemo(() => topBySamples(data, 15), [data])
   const topConsumption = useMemo(
     () => [...data].sort((a, b) => a.consumption - b.consumption).slice(0, 20),
     [data]
@@ -133,7 +133,7 @@ export default function Home({ data }: Props) {
                     <td className="py-1.5 text-right font-mono text-text-secondary">{b.modelCount}</td>
                   </tr>
                 ))}
-                {activeTab === 'model' && top20Models.map((d, i) => (
+                {activeTab === 'model' && top15Models.map((d, i) => (
                   <tr key={d.id} className="border-b border-border/50">
                     <td className="py-1.5 text-text-secondary">{i + 1}</td>
                     <td className="py-1.5 font-medium truncate max-w-40">{d.brand} {d.series}</td>
@@ -155,14 +155,14 @@ export default function Home({ data }: Props) {
               ? <TypeDistributionPie data={typeCount} />
               : activeTab === 'brand'
                 ? <ModelConsumptionBar data={brandSamples.map(b => ({ brand: b.brand, series: `${b.totalSamples}样本`, consumption: 0 }))} maxItems={15} />
-                : <ModelConsumptionBar data={top20Models} maxItems={20} />
+                : <ModelConsumptionBar data={top15Models} maxItems={15} />
           )}
         </div>
 
-        <div className="bg-white rounded-xl border border-border p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base font-semibold">跨排量 Top 20 最省油</h2>
-            <Link to="/ranking" className="text-xs text-primary hover:underline">完整排行 →</Link>
+        <div className="bg-white rounded-xl border border-border p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">跨排量 Top 20 最省油</h2>
+            <Link to="/ranking" className="text-sm text-primary hover:underline">完整排行 →</Link>
           </div>
           <ModelConsumptionBar data={topConsumption} maxItems={20} />
         </div>

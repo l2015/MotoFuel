@@ -15,7 +15,7 @@ export default function Footer() {
           — 感谢小熊油耗平台公开摩托车油耗数据，为车友提供宝贵的参考
         </p>
         <p className="text-xs text-text-secondary mt-2">
-          MotoFuel v0.1.0 · 基于车友真实加油记录的油耗分析 · 仅供学习参考
+          MotoFuel v0.2.0 · 基于车友真实加油记录的油耗分析 · 仅供学习参考
         </p>
       </div>
     </footer>

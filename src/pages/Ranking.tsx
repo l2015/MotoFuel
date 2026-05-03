@@ -25,12 +25,19 @@ export default function Ranking({ data }: Props) {
       updateFilter({ types: [type] })
       setSearchParams({}, { replace: true })
     }
+    const minSamples = searchParams.get('minSamples')
+    if (minSamples) {
+      updateFilter({ minSamples: parseInt(minSamples) })
+      setSearchParams({}, { replace: true })
+    }
   }, [])
 
   const barData = useMemo(
     () => [...filtered].sort((a, b) => a.consumption - b.consumption).slice(0, 40),
     [filtered]
   )
+
+  const maxConsumption = barData.length > 0 ? barData[barData.length - 1].consumption : 1
 
   return (
     <div className="space-y-4">
@@ -44,44 +51,41 @@ export default function Ranking({ data }: Props) {
         onReset={resetFilter}
       />
 
-      <div className="flex gap-4">
-        <div className="flex-1 min-w-0">
+      <div className="flex gap-0">
+        <div className={`min-w-0 transition-all duration-300 ${sidebarOpen ? 'flex-1' : 'w-full'}`}>
           <div className="flex items-center justify-between text-sm text-text-secondary mb-2">
             <span>筛选结果: <strong className="text-text">{filtered.length}</strong> 款车型</span>
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="text-xs text-primary hover:underline"
-            >
-              {sidebarOpen ? '收起图表' : '展开图表'}
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-xs text-primary hover:underline">
+              {sidebarOpen ? '隐藏侧栏' : '显示排名'}
             </button>
           </div>
           <DataTable data={filtered} showDisplacement />
         </div>
 
         {sidebarOpen && barData.length > 0 && (
-          <div className="w-64 shrink-0 hidden lg:block">
-            <div className="sticky top-32 bg-white rounded-xl border border-border p-3">
-              <h3 className="text-sm font-semibold mb-2">油耗排名 Top {barData.length}</h3>
-              <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
-                <table className="w-full text-[11px]">
-                  <tbody>
-                    {barData.map((d, i) => (
-                      <tr key={d.id} className="group">
-                        <td className="py-0.5 pr-1 text-text-secondary w-5 text-right">{i + 1}</td>
-                        <td className="py-0.5 pr-1 truncate max-w-24">{d.brand} {d.series}</td>
-                        <td className="py-0.5 w-20">
-                          <div className="flex items-center gap-1">
-                            <div
-                              className="h-3 rounded-sm bg-primary/70"
-                              style={{ width: `${Math.max(4, (d.consumption / barData[barData.length - 1].consumption) * 60)}px` }}
-                            />
-                            <span className="font-mono text-primary whitespace-nowrap">{d.consumption}</span>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          <div className="w-72 shrink-0 ml-4 hidden lg:block">
+            <div className="sticky top-32 bg-white rounded-xl border border-border overflow-hidden">
+              <div className="px-4 py-2.5 border-b border-border bg-surface-alt">
+                <h3 className="text-sm font-semibold">油耗排名 Top {barData.length}</h3>
+              </div>
+              <div className="max-h-[calc(100vh-220px)] overflow-y-auto">
+                {barData.map((d, i) => (
+                  <div key={d.id} className="flex items-center px-3 py-1.5 hover:bg-blue-50/50 border-b border-border/30 last:border-0">
+                    <span className="text-xs text-text-secondary w-5 text-right shrink-0">{i + 1}</span>
+                    <div className="ml-2 flex-1 min-w-0">
+                      <div className="text-xs truncate">{d.brand} {d.series}</div>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <div className="flex-1 bg-surface-alt rounded-full h-1.5 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-primary"
+                            style={{ width: `${(d.consumption / maxConsumption) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-xs font-mono text-primary font-medium shrink-0">{d.consumption}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

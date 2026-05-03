@@ -71,11 +71,8 @@ export default function ConsumptionTrendLine({ data }: Props) {
             mode === 'weighted' ? 'bg-accent-green text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
           }`}
         >
-          剔除后加权
+          加权平均
         </button>
-        {mode === 'weighted' && (
-          <span className="text-xs text-text-secondary ml-1">按样本数加权，剔除低样本车型</span>
-        )}
       </div>
       <ReactECharts option={option} style={{ height: 300 }} />
     </div>

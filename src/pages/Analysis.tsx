@@ -11,7 +11,7 @@ interface Props {
 export default function Analysis({ data }: Props) {
   const navigate = useNavigate()
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
-  const [minBrandSamples, setMinBrandSamples] = useState(0)
+  const [minBrandSamples, setMinBrandSamples] = useState(1000)
   const [brandExpanded, setBrandExpanded] = useState(false)
 
   const brandSampleStats = useMemo(() => samplesByBrand(data), [data])
@@ -45,27 +45,38 @@ export default function Analysis({ data }: Props) {
     const query = new URLSearchParams()
     if (params.brand) query.set('brand', params.brand)
     if (params.type) query.set('type', params.type)
+    query.set('minSamples', String(minBrandSamples))
     navigate(`/ranking?${query.toString()}`)
-  }, [navigate])
+  }, [navigate, minBrandSamples])
 
-  // Clickable chart: brand rank bar
+  // Brand rank chart
   const brandChartOption = useMemo(() => {
     const items = brandAvgData.slice(0, 30)
     return {
-      tooltip: { trigger: 'axis' as const, axisPointer: { type: 'shadow' as const } },
-      grid: { left: 100, right: 40, top: 10, bottom: 20 },
+      tooltip: {
+        trigger: 'axis' as const,
+        axisPointer: { type: 'shadow' as const },
+        formatter: (p: any) => {
+          const idx = p[0]?.dataIndex ?? 0
+          const item = items[idx]
+          if (!item) return ''
+          return `${item.brand}<br/>平均油耗: ${item.avg} L/100km<br/>车型数: ${item.count}`
+        },
+      },
+      grid: { left: 100, right: 50, top: 10, bottom: 20 },
       xAxis: { type: 'value' as const, name: 'L/100km' },
-      yAxis: { type: 'category' as const, data: items.map(d => d.brand), inverse: true },
+      yAxis: { type: 'category' as const, data: items.map(d => d.brand), inverse: true, axisLabel: { fontSize: 13 } },
       series: [{
         type: 'bar' as const,
         data: items.map(d => ({
           value: d.avg,
+          label: { show: true, position: 'right' as const, formatter: '{c}', fontSize: 11 },
           itemStyle: {
             color: d.avg < 3 ? '#16a34a' : d.avg < 5 ? '#2563eb' : d.avg < 7 ? '#f59e0b' : '#dc2626',
             borderRadius: [0, 4, 4, 0],
           },
         })),
-        barMaxWidth: 14,
+        barMaxWidth: 16,
       }],
     }
   }, [brandAvgData])
@@ -75,17 +86,19 @@ export default function Analysis({ data }: Props) {
     if (brand) goToRanking({ brand })
   }, [brandAvgData, goToRanking])
 
-  // Clickable chart: type pie
+  // Type pie chart
   const typePieOption = useMemo(() => ({
     tooltip: { trigger: 'item' as const, formatter: '{b}: {c} 款 ({d}%)' },
     series: [{
       type: 'pie' as const,
-      radius: ['35%', '65%'],
+      radius: ['30%', '65%'],
+      center: ['50%', '55%'],
       data: typeCount.map(d => ({ name: d.type, value: d.count })),
       label: {
-        fontSize: 11,
+        fontSize: 12,
         formatter: (p: any) => p.percent >= 5 ? `${p.name} ${p.percent}%` : p.name,
       },
+      emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.15)' } },
     }],
   }), [typeCount])
 
@@ -110,7 +123,7 @@ export default function Analysis({ data }: Props) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">深度分析</h1>
+        <h1 className="text-2xl font-bold">数据洞察</h1>
         <span className="text-sm text-text-secondary">基于 {filteredByBrand.length} 款车型</span>
       </div>
 
@@ -119,28 +132,21 @@ export default function Analysis({ data }: Props) {
           <h2 className="text-sm font-semibold">品牌筛选（按总样本数）</h2>
           <div className="flex items-center gap-2">
             <label className="text-xs text-text-secondary">样本 ≥</label>
-            <input type="range" min={0} max={5000} step={50} value={minBrandSamples}
+            <input type="range" min={0} max={5000} step={100} value={minBrandSamples}
               onChange={e => { setMinBrandSamples(parseInt(e.target.value)); setSelectedBrands([]) }}
               className="w-28 accent-primary" />
             <span className="text-xs font-mono w-12">{minBrandSamples}</span>
           </div>
         </div>
         <div className="flex flex-wrap gap-1.5">
-          <button
-            onClick={() => setSelectedBrands([])}
+          <button onClick={() => setSelectedBrands([])}
             className={`px-2.5 py-1 rounded-full text-xs ${selectedBrands.length === 0 ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'}`}
           >全部</button>
           {displayedBrands.map(b => (
-            <button
-              key={b.brand}
-              onClick={() => toggleBrand(b.brand)}
-              className={`px-2 py-1 rounded-full text-xs transition-colors ${
+            <button key={b.brand} onClick={() => toggleBrand(b.brand)}
+              className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
                 selectedBrands.includes(b.brand) ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
-              }`}
-            >
-              {b.brand}
-              <span className="ml-0.5 opacity-50 text-[10px]">{b.totalSamples > 999 ? `${Math.round(b.totalSamples/1000)}k` : b.totalSamples}</span>
-            </button>
+              }`}>{b.brand}</button>
           ))}
           {topBrands.length > 30 && (
             <button onClick={() => setBrandExpanded(!brandExpanded)}
@@ -151,34 +157,30 @@ export default function Analysis({ data }: Props) {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-border p-4">
-          <h2 className="text-base font-semibold mb-3">
-            品牌平均油耗排名
-            <span className="text-xs text-text-secondary font-normal ml-2">点击柱子跳转排行榜</span>
-          </h2>
-          <ReactECharts
-            option={brandChartOption}
-            style={{ height: Math.max(300, Math.min(brandAvgData.length, 30) * 22) }}
-            onEvents={{ click: onBrandChartClick }}
-          />
-        </div>
-        <div className="bg-white rounded-xl border border-border p-4">
-          <h2 className="text-base font-semibold mb-3">
-            车型类型分布
-            <span className="text-xs text-text-secondary font-normal ml-2">点击扇区跳转排行榜</span>
-          </h2>
-          <ReactECharts
-            option={typePieOption}
-            style={{ height: 300 }}
-            onEvents={{ click: onTypePieClick }}
-          />
-        </div>
+      <div className="bg-white rounded-xl border border-border p-5">
+        <h2 className="text-base font-semibold mb-4">
+          品牌平均油耗排名
+          <span className="text-xs text-text-secondary font-normal ml-2">点击柱子查看该品牌排行榜</span>
+        </h2>
+        <ReactECharts
+          option={brandChartOption}
+          style={{ height: Math.max(300, Math.min(brandAvgData.length, 30) * 26) }}
+          onEvents={{ click: onBrandChartClick }}
+        />
       </div>
 
-      <div className="bg-white rounded-xl border border-border p-4">
-        <h2 className="text-base font-semibold mb-3">油耗分布直方图</h2>
-        <ReactECharts option={histogramOption} style={{ height: 300 }} />
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl border border-border p-5">
+          <h2 className="text-base font-semibold mb-3">
+            车型类型分布
+            <span className="text-xs text-text-secondary font-normal ml-2">点击扇区查看</span>
+          </h2>
+          <ReactECharts option={typePieOption} style={{ height: 340 }} onEvents={{ click: onTypePieClick }} />
+        </div>
+        <div className="bg-white rounded-xl border border-border p-5">
+          <h2 className="text-base font-semibold mb-3">油耗分布直方图</h2>
+          <ReactECharts option={histogramOption} style={{ height: 340 }} />
+        </div>
       </div>
     </div>
   )
