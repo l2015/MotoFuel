@@ -13,13 +13,19 @@ export default function Analysis({ data }: Props) {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [minBrandSamples, setMinBrandSamples] = useState(1000)
   const [brandExpanded, setBrandExpanded] = useState(false)
+  const [filterCollapsed, setFilterCollapsed] = useState(false)
 
   const brandSampleStats = useMemo(() => samplesByBrand(data), [data])
   const topBrands = useMemo(
     () => brandSampleStats.filter(b => b.totalSamples >= minBrandSamples),
     [brandSampleStats, minBrandSamples]
   )
-  const displayedBrands = brandExpanded ? topBrands : topBrands.slice(0, 30)
+  const displayedBrands = useMemo(() => {
+    if (brandExpanded) {
+      return [...topBrands].sort((a, b) => a.brand.localeCompare(b.brand, 'zh'))
+    }
+    return topBrands.slice(0, 30)
+  }, [topBrands, brandExpanded])
 
   const filteredByBrand = useMemo(() => {
     if (selectedBrands.length === 0) {
@@ -127,34 +133,44 @@ export default function Analysis({ data }: Props) {
         <span className="text-sm text-text-secondary">基于 {filteredByBrand.length} 款车型</span>
       </div>
 
-      <div className="bg-white rounded-xl border border-border p-4 sticky top-14 z-40">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold">品牌筛选（按总样本数）</h2>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-text-secondary">样本 ≥</label>
-            <input type="range" min={0} max={5000} step={100} value={minBrandSamples}
-              onChange={e => { setMinBrandSamples(parseInt(e.target.value)); setSelectedBrands([]) }}
-              className="w-28 accent-primary" />
-            <span className="text-xs font-mono w-12">{minBrandSamples}</span>
+      <div className="bg-white rounded-xl border border-border sticky top-14 z-40">
+        <div className="flex items-center justify-between px-4 py-2.5">
+          <button onClick={() => setFilterCollapsed(!filterCollapsed)}
+            className="flex items-center gap-1.5 text-sm font-semibold hover:text-primary transition-colors">
+            <svg className={`w-4 h-4 transition-transform ${filterCollapsed ? '-rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            品牌筛选（按总样本数）
+          </button>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-text-secondary">样本 ≥</label>
+              <input type="range" min={0} max={5000} step={100} value={minBrandSamples}
+                onChange={e => { setMinBrandSamples(parseInt(e.target.value)); setSelectedBrands([]) }}
+                className="w-28 accent-primary" />
+              <span className="text-xs font-mono w-12">{minBrandSamples}</span>
+            </div>
+            <button onClick={() => { setSelectedBrands([]); setMinBrandSamples(1000) }}
+              className="text-xs text-text-secondary hover:text-accent-red transition-colors">重置</button>
           </div>
         </div>
-        <div className="flex flex-wrap gap-1.5">
-          <button onClick={() => setSelectedBrands([])}
-            className={`px-2.5 py-1 rounded-full text-xs ${selectedBrands.length === 0 ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'}`}
-          >全部</button>
-          {displayedBrands.map(b => (
-            <button key={b.brand} onClick={() => toggleBrand(b.brand)}
-              className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
-                selectedBrands.includes(b.brand) ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
-              }`}>{b.brand}</button>
-          ))}
-          {topBrands.length > 30 && (
-            <button onClick={() => setBrandExpanded(!brandExpanded)}
-              className="px-2.5 py-1 rounded-full text-xs text-primary hover:bg-primary/10">
-              {brandExpanded ? '收起' : `展开 ${topBrands.length} 个`}
-            </button>
-          )}
-        </div>
+        {!filterCollapsed && (
+          <div className="px-4 pb-4 flex flex-wrap gap-1.5 border-t border-border pt-3">
+            <button onClick={() => setSelectedBrands([])}
+              className={`px-2.5 py-1 rounded-full text-xs ${selectedBrands.length === 0 ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'}`}
+            >全部</button>
+            {displayedBrands.map(b => (
+              <button key={b.brand} onClick={() => toggleBrand(b.brand)}
+                className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                  selectedBrands.includes(b.brand) ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
+                }`}>{b.brand} <span className="opacity-60">{b.totalSamples.toLocaleString()}</span></button>
+            ))}
+            {topBrands.length > 30 && (
+              <button onClick={() => setBrandExpanded(!brandExpanded)}
+                className="px-2.5 py-1 rounded-full text-xs text-primary hover:bg-primary/10">
+                {brandExpanded ? '收起' : `展开全部 ${topBrands.length} 个`}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="bg-white rounded-xl border border-border p-5">

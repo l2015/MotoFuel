@@ -6,7 +6,7 @@ const DEFAULT_FILTER: FilterState = {
   brands: [],
   types: [],
   minSamples: 0,
-  consumptionRange: [0, 999],
+  consumptionRange: [0, 6],
   searchText: '',
 }
 
@@ -48,7 +48,7 @@ export function useFilteredData(data: Motorcycle[], filter: FilterState): Motorc
     if (filter.consumptionRange[0] > 0) {
       result = result.filter(d => d.consumption >= filter.consumptionRange[0])
     }
-    if (filter.consumptionRange[1] < 999) {
+    if (filter.consumptionRange[1] < 6) {
       result = result.filter(d => d.consumption <= filter.consumptionRange[1])
     }
     if (filter.searchText.trim()) {

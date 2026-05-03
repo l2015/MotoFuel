@@ -122,8 +122,8 @@ export default function FilterBar({ filter, allData, types, onFilterChange, onRe
                 const isActive = inRange.length > 0 && inRange.every(d => filter.displacements.includes(d))
                 return (
                   <button key={r.label} onClick={() => toggleQuickRange(r)}
-                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
-                      isActive ? 'bg-accent-amber text-white' : 'bg-accent-amber/10 text-accent-amber hover:bg-accent-amber/20'
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors border ${
+                      isActive ? 'border-primary text-primary bg-primary/5' : 'border-border text-text-secondary hover:border-primary/50'
                     }`}>{r.label}</button>
                 )
               })}

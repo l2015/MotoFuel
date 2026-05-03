@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 const navItems = [
   { path: '/', label: '总览' },
   { path: '/ranking', label: '排行榜' },
-  { path: '/analysis', label: '深度分析' },
+  { path: '/analysis', label: '数据洞察' },
   { path: '/explorer', label: '数据探索' },
 ]
 
@@ -37,6 +37,18 @@ export default function Header() {
               </Link>
             ))}
           </nav>
+        </div>
+      </div>
+      <div className="bg-primary/5 border-t border-primary/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 flex items-center justify-between text-xs text-text-secondary">
+          <span>
+            数据来源：
+            <a href="https://www.xiaoxiongyouhao.com/page_rank_chexi_moto.php" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
+              小熊油耗
+            </a>
+            — 感谢小熊油耗公开数据
+          </span>
+          <span>数据抓取时间：2026-05-04</span>
         </div>
       </div>
     </header>
