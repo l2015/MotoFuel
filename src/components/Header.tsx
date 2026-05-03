@@ -4,7 +4,7 @@ const navItems = [
   { path: '/', label: '总览' },
   { path: '/ranking', label: '排行榜' },
   { path: '/analysis', label: '深度分析' },
-  { path: '/compare', label: '车型对比' },
+  { path: '/explorer', label: '数据探索' },
 ]
 
 export default function Header() {
@@ -19,7 +19,8 @@ export default function Header() {
               <rect width="32" height="32" rx="6" fill="#2563eb" />
               <text x="16" y="23" textAnchor="middle" fontSize="20" fontWeight="bold" fill="white" fontFamily="system-ui">M</text>
             </svg>
-            MotoFuel
+            <span>MotoFuel</span>
+            <span className="text-[10px] font-normal text-text-secondary bg-surface-alt px-1.5 py-0.5 rounded">v0.1.0</span>
           </Link>
           <nav className="flex gap-1">
             {navItems.map(item => (

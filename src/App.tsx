@@ -5,7 +5,7 @@ import Footer from './components/Footer'
 import Home from './pages/Home'
 import Ranking from './pages/Ranking'
 import Analysis from './pages/Analysis'
-import Compare from './pages/Compare'
+import Explorer from './pages/Explorer'
 
 function App() {
   const { data, loading, error } = useData()
@@ -40,7 +40,7 @@ function App() {
           <Route path="/" element={<Home data={data.data} />} />
           <Route path="/ranking" element={<Ranking data={data.data} />} />
           <Route path="/analysis" element={<Analysis data={data.data} />} />
-          <Route path="/compare" element={<Compare data={data.data} />} />
+          <Route path="/explorer" element={<Explorer data={data.data} />} />
         </Routes>
       </main>
       <Footer />

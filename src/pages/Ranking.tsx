@@ -1,4 +1,5 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import type { Motorcycle } from '../types'
 import { useFilter } from '../hooks/useData'
 import FilterBar from '../components/FilterBar'
@@ -12,6 +13,20 @@ interface Props {
 
 export default function Ranking({ data }: Props) {
   const { filter, updateFilter, resetFilter, filtered, brands, types, displacements } = useFilter(data)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  useEffect(() => {
+    const brand = searchParams.get('brand')
+    if (brand && brands.includes(brand)) {
+      updateFilter({ brands: [brand] })
+      setSearchParams({}, { replace: true })
+    }
+    const type = searchParams.get('type')
+    if (type && types.includes(type)) {
+      updateFilter({ types: [type] })
+      setSearchParams({}, { replace: true })
+    }
+  }, []) // only on mount
 
   const barData = useMemo(
     () => [...filtered].sort((a, b) => a.consumption - b.consumption).slice(0, 30),

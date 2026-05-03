@@ -33,6 +33,7 @@ export interface StatSummary {
   totalModels: number
   totalBrands: number
   totalDisplacements: number
+  totalSamples: number
   lowestConsumption: Motorcycle | null
   avgConsumption: number
 }
