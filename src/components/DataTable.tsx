@@ -67,31 +67,31 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
   return (
     <div>
       <div className="overflow-x-auto rounded-xl border border-border">
-        <table className={`w-full text-sm ${showBar ? 'table-fixed' : ''}`}>
+        <table className="w-full text-sm table-fixed">
           <thead className="bg-surface-alt">
             <tr>
               {selectable && <th className="px-3 py-2.5 w-8" />}
-              <th className="px-3 py-2.5 text-left cursor-pointer hover:text-primary" onClick={() => toggleSort('rank')}>
+              <th className="px-3 py-2.5 text-left w-14 cursor-pointer hover:text-primary" onClick={() => toggleSort('rank')}>
                 排名<SortIcon k="rank" />
               </th>
-              <th className="px-3 py-2.5 text-left cursor-pointer hover:text-primary" onClick={() => toggleSort('brand')}>
+              <th className="px-3 py-2.5 text-left w-24 cursor-pointer hover:text-primary" onClick={() => toggleSort('brand')}>
                 品牌<SortIcon k="brand" />
               </th>
               <th className="px-3 py-2.5 text-left cursor-pointer hover:text-primary" onClick={() => toggleSort('series')}>
                 车系<SortIcon k="series" />
               </th>
-              <th className="px-3 py-2.5 text-left cursor-pointer hover:text-primary" onClick={() => toggleSort('type')}>
+              <th className="px-3 py-2.5 text-left w-16 cursor-pointer hover:text-primary" onClick={() => toggleSort('type')}>
                 类型<SortIcon k="type" />
               </th>
               {showDisplacement && (
-                <th className="px-3 py-2.5 text-left cursor-pointer hover:text-primary" onClick={() => toggleSort('displacement')}>
+                <th className="px-3 py-2.5 text-left w-16 cursor-pointer hover:text-primary" onClick={() => toggleSort('displacement')}>
                   排量<SortIcon k="displacement" />
                 </th>
               )}
-              <th className="px-3 py-2.5 text-right cursor-pointer hover:text-primary w-44" onClick={() => toggleSort('consumption')}>
+              <th className="px-3 py-2.5 text-right w-44 cursor-pointer hover:text-primary" onClick={() => toggleSort('consumption')}>
                 油耗(L/100km)<SortIcon k="consumption" />
               </th>
-              <th className="px-3 py-2.5 text-right cursor-pointer hover:text-primary" onClick={() => toggleSort('samples')}>
+              <th className="px-3 py-2.5 text-right w-16 cursor-pointer hover:text-primary" onClick={() => toggleSort('samples')}>
                 样本数<SortIcon k="samples" />
               </th>
             </tr>

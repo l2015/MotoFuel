@@ -95,14 +95,14 @@ export default function Explorer({ data }: Props) {
     } else if (selectedBrands.length === 0) {
       resetZoom()
     }
-  }, [highlightType])
+  }, [highlightType, filteredData, zoomToItems, resetZoom, selectedBrands])
 
   // Zoom on brand filter
   useEffect(() => {
     if (selectedBrands.length > 0 && filteredData.length > 0) {
       zoomToItems(filteredData)
     }
-  }, [selectedBrands])
+  }, [selectedBrands, filteredData, zoomToItems])
 
   const option = useMemo(() => {
     const series = allTypes.map(type => {
@@ -121,22 +121,26 @@ export default function Explorer({ data }: Props) {
             _series: d.series,
             _samples: d.samples,
             _disp: d.displacement,
-            label: {
-              show: !isDimmed,
-              formatter: `{a|${d.brand}} {b|${d.series}}`,
-              position: 'right' as const,
-              distance: 6,
-              rich: {
-                a: { fontSize: 11, color: '#334155', fontWeight: 600 },
-                b: { fontSize: 10, color: '#94a3b8' },
-              },
-            },
           }
         }),
         symbolSize: 8,
         itemStyle: {
           color: isDimmed ? 'rgba(200,200,200,0.2)' : color,
           opacity: isDimmed ? 0.12 : 0.85,
+        },
+        label: {
+          show: !isDimmed,
+          formatter: (p: any) => `{a|${p.data._brand}} {b|${p.data._series}}`,
+          position: 'right',
+          distance: 6,
+          rich: {
+            a: { fontSize: 11, color: '#334155', fontWeight: 600 },
+            b: { fontSize: 10, color: '#94a3b8' },
+          },
+        },
+        labelLayout: {
+          hideOverlap: true,
+          moveOverlap: 'shiftY',
         },
         emphasis: {
           itemStyle: { borderWidth: 2, shadowBlur: 6, shadowColor: color },
@@ -200,10 +204,6 @@ export default function Explorer({ data }: Props) {
       ],
       legend: { show: false },
       series,
-      labelLayout: {
-        hideOverlap: true,
-        moveOverlap: 'shiftY' as const,
-      },
     }
   }, [filteredData, allTypes, typeColorMap, highlightType, allDisplacements, dispLabels])
 
@@ -261,7 +261,7 @@ export default function Explorer({ data }: Props) {
       </div>
 
       <div className="flex-1 min-h-0">
-        <ReactECharts ref={chartRef} option={option} style={{ width: '100%', height: '100%' }} notMerge lazyUpdate />
+        <ReactECharts ref={chartRef} option={option} style={{ width: '100%', height: '100%' }} notMerge />
       </div>
     </div>
   )
