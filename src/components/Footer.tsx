@@ -26,7 +26,7 @@ export default function Footer({ scrapeTime }: Props) {
           — 感谢小熊油耗平台公开摩托车油耗数据
         </p>
         <div className="flex items-center justify-center gap-4 text-xs text-text-secondary">
-          <span>MotoFuel v0.6.3</span>
+          <span>MotoFuel v0.6.4</span>
           <span>·</span>
           <a href="https://github.com/MotoFuel/MotoFuel" target="_blank" rel="noopener noreferrer" className="hover:text-primary hover:underline">GitHub</a>
           <span>·</span>

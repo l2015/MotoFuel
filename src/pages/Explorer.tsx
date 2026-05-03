@@ -13,6 +13,7 @@ export default function Explorer({ data }: Props) {
   const [highlightType, setHighlightType] = useState<string | null>(null)
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [brandExpanded, setBrandExpanded] = useState(false)
+  const [minSamples, setMinSamples] = useState(0)
   const initRef = useRef(true)
 
   const allTypes = useMemo(() => [...new Set(data.map(d => d.type))], [data])
@@ -20,7 +21,16 @@ export default function Explorer({ data }: Props) {
     () => [...new Set(data.map(d => d.displacement))].sort((a, b) => a - b),
     [data]
   )
-  const dispLabels = useMemo(() => allDisplacements.map(d => `${d}`), [allDisplacements])
+
+  // Global sample range for consistent sizing
+  const globalSampleRange = useMemo(() => {
+    let min = Infinity, max = 0
+    for (const d of data) {
+      if (d.samples < min) min = d.samples
+      if (d.samples > max) max = d.samples
+    }
+    return { min, max: Math.max(max, 1) }
+  }, [data])
 
   const typeColorMap = useMemo(() => {
     const map: Record<string, string> = {}
@@ -43,9 +53,15 @@ export default function Explorer({ data }: Props) {
     : brandsBySamples.slice(0, 20)
 
   const filteredData = useMemo(() => {
-    if (selectedBrands.length === 0) return data
-    return data.filter(d => selectedBrands.includes(d.brand))
-  }, [data, selectedBrands])
+    let result = data
+    if (selectedBrands.length > 0) {
+      result = result.filter(d => selectedBrands.includes(d.brand))
+    }
+    if (minSamples > 0) {
+      result = result.filter(d => d.samples >= minSamples)
+    }
+    return result
+  }, [data, selectedBrands, minSamples])
 
   const toggleBrand = (brand: string) => {
     setSelectedBrands(prev =>
@@ -59,16 +75,13 @@ export default function Explorer({ data }: Props) {
       if (!chart || items.length === 0) return
       if (!chart.getWidth() || !chart.getHeight()) return
 
-      const disps = [...new Set(items.map(d => d.displacement))]
-      const dispIndices = disps.map(d => allDisplacements.indexOf(d)).filter(i => i >= 0)
+      const disps = [...new Set(items.map(d => d.displacement))].sort((a, b) => a - b)
       const total = allDisplacements.length
-      if (dispIndices.length === 0 || total === 0) return
+      if (disps.length === 0 || total === 0) return
 
-      const xMin = Math.min(...dispIndices)
-      const xMax = Math.max(...dispIndices)
-      const pad = Math.max(2, Math.round((xMax - xMin) * 0.3))
-      const start = Math.max(0, ((xMin - pad) / total) * 100)
-      const end = Math.min(100, ((xMax + 1 + pad) / total) * 100)
+      const xMin = disps[0], xMax = disps[disps.length - 1]
+      const dispRange = xMax - xMin
+      const pad = Math.max(30, dispRange * 0.15)
 
       const consumptions = items.map(d => d.consumption)
       const yMin = Math.min(...consumptions)
@@ -76,10 +89,10 @@ export default function Explorer({ data }: Props) {
       const yPad = Math.max(0.5, (yMax - yMin) * 0.25)
 
       chart.setOption({
+        xAxis: { min: xMin - pad, max: xMax + pad },
         yAxis: { min: Math.max(0, yMin - yPad), max: yMax + yPad },
         series: allTypes.map(() => ({})),
       })
-      chart.dispatchAction({ type: 'dataZoom', start, end })
     } catch { /* chart not ready */ }
   }, [allDisplacements, allTypes])
 
@@ -87,8 +100,10 @@ export default function Explorer({ data }: Props) {
     try {
       const chart = chartRef.current?.getEchartsInstance()
       if (!chart || !chart.getWidth() || !chart.getHeight()) return
-      chart.setOption({ yAxis: { min: 0, max: undefined } })
-      chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 })
+      chart.setOption({
+        xAxis: { min: undefined, max: undefined },
+        yAxis: { min: 0, max: undefined },
+      })
     } catch { /* chart not ready */ }
   }, [])
 
@@ -98,22 +113,24 @@ export default function Explorer({ data }: Props) {
     if (highlightType) {
       const items = filteredData.filter(d => d.type === highlightType)
       if (items.length > 0) doZoom(items)
-    } else if (selectedBrands.length === 0) {
+    } else if (selectedBrands.length === 0 && minSamples === 0) {
       resetZoom()
     }
   }, [highlightType])
 
-  // Zoom on brand filter (skip initial mount)
+  // Zoom on brand / sample filter (skip initial mount)
   useEffect(() => {
     if (initRef.current) return
-    if (selectedBrands.length > 0 && filteredData.length > 0) {
+    if ((selectedBrands.length > 0 || minSamples > 0) && filteredData.length > 0) {
       doZoom(filteredData)
-    } else if (selectedBrands.length === 0 && !highlightType) {
+    } else if (selectedBrands.length === 0 && minSamples === 0 && !highlightType) {
       resetZoom()
     }
-  }, [selectedBrands])
+  }, [selectedBrands, minSamples])
 
   const option = useMemo(() => {
+    const { min: sMin, max: sMax } = globalSampleRange
+
     const series = allTypes.map(type => {
       const items = filteredData
         .filter(d => d.type === type)
@@ -124,17 +141,24 @@ export default function Explorer({ data }: Props) {
       return {
         name: type,
         type: 'scatter' as const,
-        data: items.map(d => {
-          const xIdx = allDisplacements.indexOf(d.displacement)
+        triggerEvent: false,
+        data: items.map((d, i) => {
+          // Deterministic jitter: hash brand+series to get consistent offset per item
+          const hash = d.brand.length * 31 + d.series.length * 17 + i * 7
+          const norm = (d.samples - sMin) / (sMax - sMin)
+          // Low-sample items scatter wider, high-sample items cluster toward center
+          const spread = 18 * (1 - norm * 0.7)
+          const jitter = ((hash % 100) / 100 - 0.5) * 2 * spread
+
           return {
-            value: [xIdx, d.consumption],
+            value: [d.displacement + jitter, d.consumption],
+            symbolSize: Math.round(5 + norm * 9),
             _brand: d.brand,
             _series: d.series,
             _samples: d.samples,
             _disp: d.displacement,
           }
         }),
-        symbolSize: 10,
         itemStyle: {
           color: isDimmed ? 'rgba(200,200,200,0.2)' : color,
           opacity: isDimmed ? 0.12 : 0.85,
@@ -193,33 +217,41 @@ export default function Explorer({ data }: Props) {
       },
       grid: { left: 60, right: 30, top: 20, bottom: 50 },
       xAxis: {
-        type: 'category' as const,
-        data: dispLabels,
+        type: 'value' as const,
         name: '排量 (cc)',
         nameLocation: 'center' as const,
         nameGap: 35,
         nameTextStyle: { fontSize: 13 },
-        axisLabel: { fontSize: 12, interval: 0 },
+        axisLabel: {
+          fontSize: 12,
+          formatter: (v: number) => {
+            if (allDisplacements.includes(v)) return `${v}`
+            return ''
+          },
+        },
         axisTick: { show: false },
         splitLine: { show: true, lineStyle: { color: '#f1f5f9' } },
+        min: allDisplacements[0] - 30,
+        max: allDisplacements[allDisplacements.length - 1] + 30,
       },
       yAxis: {
         type: 'value' as const,
         name: '油耗 (L/100km)',
-        nameTextStyle: { fontSize: 13 },
+        nameLocation: 'end' as const,
+        nameTextStyle: { fontSize: 13, padding: [0, 0, 0, 0] },
         axisLabel: { fontSize: 12 },
         splitLine: { lineStyle: { color: '#f1f5f9' } },
         min: 0,
       },
       dataZoom: [
-        { type: 'inside' as const, xAxisIndex: 0 },
+        { type: 'inside' as const },
         { type: 'slider' as const, xAxisIndex: 0, bottom: 4, height: 18, borderColor: '#e2e8f0', fillerColor: 'rgba(37,99,235,0.06)' },
         { type: 'slider' as const, yAxisIndex: 0, right: 2, width: 18, borderColor: '#e2e8f0', fillerColor: 'rgba(37,99,235,0.06)' },
       ],
       legend: { show: false },
       series,
     }
-  }, [filteredData, allTypes, typeColorMap, highlightType, allDisplacements, dispLabels])
+  }, [filteredData, allTypes, typeColorMap, highlightType, allDisplacements, globalSampleRange])
 
   return (
     <div className="fixed inset-0 top-14 flex flex-col bg-white">
@@ -227,8 +259,8 @@ export default function Explorer({ data }: Props) {
         <div className="flex items-center gap-3">
           <h1 className="text-lg font-bold">散点油耗图</h1>
           <span className="text-sm text-text-secondary">{filteredData.length} 款车型</span>
-          {(selectedBrands.length > 0 || highlightType) && (
-            <button onClick={() => { setSelectedBrands([]); setHighlightType(null); resetZoom() }}
+          {(selectedBrands.length > 0 || highlightType || minSamples > 0) && (
+            <button onClick={() => { setSelectedBrands([]); setHighlightType(null); setMinSamples(0); resetZoom() }}
               className="text-xs text-accent-red hover:underline">清除筛选</button>
           )}
         </div>
@@ -270,6 +302,20 @@ export default function Explorer({ data }: Props) {
                 </button>
               )}
             </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-text-secondary shrink-0">样本量 ≥</span>
+            <input
+              type="range"
+              min={0}
+              max={5000}
+              step={10}
+              value={minSamples}
+              onChange={e => setMinSamples(Number(e.target.value))}
+              className="w-28 accent-primary"
+            />
+            <span className="text-xs font-mono text-text w-10 text-right">{minSamples}</span>
           </div>
         </div>
       </div>
