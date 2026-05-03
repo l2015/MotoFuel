@@ -1,19 +1,18 @@
-import { useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import type { Motorcycle } from '../types'
 import { useFilter } from '../hooks/useData'
 import FilterBar from '../components/FilterBar'
-import DisplacementTabs from '../components/DisplacementTabs'
 import DataTable from '../components/DataTable'
-import ModelConsumptionBar from '../charts/ModelConsumptionBar'
 
 interface Props {
   data: Motorcycle[]
 }
 
 export default function Ranking({ data }: Props) {
-  const { filter, updateFilter, resetFilter, filtered, brands, types, displacements } = useFilter(data)
+  const { filter, updateFilter, resetFilter, filtered, brands, types } = useFilter(data)
   const [searchParams, setSearchParams] = useSearchParams()
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   useEffect(() => {
     const brand = searchParams.get('brand')
@@ -26,10 +25,10 @@ export default function Ranking({ data }: Props) {
       updateFilter({ types: [type] })
       setSearchParams({}, { replace: true })
     }
-  }, []) // only on mount
+  }, [])
 
   const barData = useMemo(
-    () => [...filtered].sort((a, b) => a.consumption - b.consumption).slice(0, 30),
+    () => [...filtered].sort((a, b) => a.consumption - b.consumption).slice(0, 40),
     [filtered]
   )
 
@@ -39,32 +38,55 @@ export default function Ranking({ data }: Props) {
 
       <FilterBar
         filter={filter}
-        brands={brands}
+        allData={data}
         types={types}
         onFilterChange={updateFilter}
         onReset={resetFilter}
       />
 
-      <div className="bg-white rounded-xl border border-border p-4">
-        <DisplacementTabs
-          displacements={displacements}
-          selected={filter.displacements}
-          onChange={val => updateFilter({ displacements: val })}
-        />
-      </div>
-
-      <div className="flex items-center justify-between text-sm text-text-secondary">
-        <span>筛选结果: <strong className="text-text">{filtered.length}</strong> 款车型</span>
-      </div>
-
-      <DataTable data={filtered} showDisplacement />
-
-      {barData.length > 0 && (
-        <div className="bg-white rounded-xl border border-border p-4">
-          <h2 className="text-base font-semibold mb-3">当前筛选结果油耗排名</h2>
-          <ModelConsumptionBar data={barData} maxItems={30} />
+      <div className="flex gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between text-sm text-text-secondary mb-2">
+            <span>筛选结果: <strong className="text-text">{filtered.length}</strong> 款车型</span>
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="text-xs text-primary hover:underline"
+            >
+              {sidebarOpen ? '收起图表' : '展开图表'}
+            </button>
+          </div>
+          <DataTable data={filtered} showDisplacement />
         </div>
-      )}
+
+        {sidebarOpen && barData.length > 0 && (
+          <div className="w-64 shrink-0 hidden lg:block">
+            <div className="sticky top-32 bg-white rounded-xl border border-border p-3">
+              <h3 className="text-sm font-semibold mb-2">油耗排名 Top {barData.length}</h3>
+              <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
+                <table className="w-full text-[11px]">
+                  <tbody>
+                    {barData.map((d, i) => (
+                      <tr key={d.id} className="group">
+                        <td className="py-0.5 pr-1 text-text-secondary w-5 text-right">{i + 1}</td>
+                        <td className="py-0.5 pr-1 truncate max-w-24">{d.brand} {d.series}</td>
+                        <td className="py-0.5 w-20">
+                          <div className="flex items-center gap-1">
+                            <div
+                              className="h-3 rounded-sm bg-primary/70"
+                              style={{ width: `${Math.max(4, (d.consumption / barData[barData.length - 1].consumption) * 60)}px` }}
+                            />
+                            <span className="font-mono text-primary whitespace-nowrap">{d.consumption}</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

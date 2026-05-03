@@ -5,8 +5,8 @@ const DEFAULT_FILTER: FilterState = {
   displacements: [],
   brands: [],
   types: [],
-  minSamples: 5,
-  consumptionRange: [0, 15],
+  minSamples: 0,
+  consumptionRange: [0, 999],
   searchText: '',
 }
 
@@ -48,7 +48,7 @@ export function useFilteredData(data: Motorcycle[], filter: FilterState): Motorc
     if (filter.consumptionRange[0] > 0) {
       result = result.filter(d => d.consumption >= filter.consumptionRange[0])
     }
-    if (filter.consumptionRange[1] < 15) {
+    if (filter.consumptionRange[1] < 999) {
       result = result.filter(d => d.consumption <= filter.consumptionRange[1])
     }
     if (filter.searchText.trim()) {

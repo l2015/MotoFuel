@@ -6,39 +6,33 @@ interface Props {
   data: Motorcycle[]
 }
 
+const PALETTE = ['#2563eb', '#dc2626', '#16a34a', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1', '#14b8a6']
+
 export default function Explorer({ data }: Props) {
+  const typeColorMap = useMemo(() => {
+    const types = [...new Set(data.map(d => d.type))]
+    const map: Record<string, string> = {}
+    types.forEach((t, i) => { map[t] = PALETTE[i % PALETTE.length] })
+    return map
+  }, [data])
+
+  const uniqueTypes = useMemo(() => Object.keys(typeColorMap), [typeColorMap])
+
   const scatterData = useMemo(
     () => data.map(d => ({
       value: [d.displacement, d.consumption],
-      itemStyle: {
-        color: getTypeColor(d.type),
-        opacity: 0.7,
-      },
+      itemStyle: { color: typeColorMap[d.type] || '#94a3b8', opacity: 0.7 },
     })),
-    [data]
+    [data, typeColorMap]
   )
 
-  const typeColors: Record<string, string> = {}
-  const uniqueTypes = [...new Set(data.map(d => d.type))]
-  const palette = ['#2563eb', '#dc2626', '#16a34a', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1', '#14b8a6']
-  uniqueTypes.forEach((t, i) => { typeColors[t] = palette[i % palette.length] })
-
-  function getTypeColor(type: string) {
-    return typeColors[type] || '#94a3b8'
-  }
-
-  const option = {
+  const option = useMemo(() => ({
     tooltip: {
       trigger: 'item' as const,
       formatter: (p: any) => {
         const d = data[p.dataIndex]
-        return [
-          `<strong>${d.brand} ${d.series}</strong>`,
-          `排量: ${d.displacement}cc`,
-          `油耗: ${d.consumption} L/100km`,
-          `样本数: ${d.samples}`,
-          `类型: ${d.type}`,
-        ].join('<br/>')
+        if (!d) return ''
+        return `<strong>${d.brand} ${d.series}</strong><br/>排量: ${d.displacement}cc<br/>油耗: ${d.consumption} L/100km<br/>样本数: ${d.samples}<br/>类型: ${d.type}`
       },
     },
     grid: { left: 70, right: 30, top: 40, bottom: 60 },
@@ -57,16 +51,16 @@ export default function Explorer({ data }: Props) {
       splitLine: { lineStyle: { color: '#f1f5f9' } },
     },
     dataZoom: [
-      { type: 'inside' as const, xAxisIndex: 0 },
-      { type: 'inside' as const, yAxisIndex: 0 },
+      { type: 'inside' as const },
       { type: 'slider' as const, xAxisIndex: 0, bottom: 10, height: 20 },
     ],
     series: [{
       type: 'scatter' as const,
       data: scatterData,
-      symbolSize: 6,
+      symbolSize: 5,
+      large: true,
     }],
-  }
+  }), [data, scatterData])
 
   return (
     <div className="space-y-4">
@@ -76,18 +70,18 @@ export default function Explorer({ data }: Props) {
       </div>
 
       <div className="bg-white rounded-xl border border-border p-4">
-        <div className="flex items-center gap-4 mb-3">
+        <div className="flex items-center gap-4 mb-3 flex-wrap">
           <h2 className="text-base font-semibold">排量 vs 油耗散点图</h2>
           <div className="flex flex-wrap gap-2">
             {uniqueTypes.map(t => (
-              <span key={t} className="flex items-center gap-1 text-xs">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getTypeColor(t) }} />
+              <span key={t} className="flex items-center gap-1 text-xs text-text-secondary">
+                <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: typeColorMap[t] }} />
                 {t}
               </span>
             ))}
           </div>
         </div>
-        <ReactECharts option={option} style={{ height: 520 }} />
+        <ReactECharts option={option} style={{ height: 560 }} notMerge lazyUpdate />
       </div>
     </div>
   )

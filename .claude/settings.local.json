@@ -22,7 +22,10 @@
       "Bash(git add *)",
       "Bash(git commit -m 'feat: initial project setup with scraper, UI components, charts, and PWA support *)",
       "Bash(git config *)",
-      "Bash(git commit -m 'feat: initial project setup *)"
+      "Bash(git commit -m 'feat: initial project setup *)",
+      "Bash(git commit -m 'refactor: UI improvements based on user feedback *)",
+      "Bash(curl -s http://localhost:5175/MotoFuel/explorer)",
+      "Bash(git commit -m 'refactor: major UI overhaul based on user feedback *)"
     ]
   }
 }

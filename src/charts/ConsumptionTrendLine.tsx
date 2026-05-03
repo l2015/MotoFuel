@@ -29,7 +29,6 @@ export default function ConsumptionTrendLine({ data }: Props) {
           `${d.displacement}cc`,
           `${mode === 'simple' ? '简单平均' : '加权平均'}: ${val} L/100km`,
           `车型数: ${d.count}`,
-          `有效样本≥5: ${d.filteredCount}`,
         ].join('<br/>')
       },
     },
@@ -72,10 +71,10 @@ export default function ConsumptionTrendLine({ data }: Props) {
             mode === 'weighted' ? 'bg-accent-green text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
           }`}
         >
-          加权平均
+          剔除后加权
         </button>
         {mode === 'weighted' && (
-          <span className="text-xs text-text-secondary ml-1">按样本数加权，剔除样本&lt;5的车型</span>
+          <span className="text-xs text-text-secondary ml-1">按样本数加权，剔除低样本车型</span>
         )}
       </div>
       <ReactECharts option={option} style={{ height: 300 }} />
