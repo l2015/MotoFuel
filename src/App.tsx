@@ -49,7 +49,7 @@ function App() {
               <Route path="/explorer" element={<></>} />
             </Routes>
           </main>
-          <Footer />
+          <Footer scrapeTime={data.metadata.scrapedAt} />
         </>
       )}
     </div>

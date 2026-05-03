@@ -20,7 +20,7 @@ export default function Header() {
               <text x="16" y="23" textAnchor="middle" fontSize="20" fontWeight="bold" fill="white" fontFamily="system-ui">M</text>
             </svg>
             <span>MotoFuel</span>
-            <span className="text-[10px] font-normal text-text-secondary bg-surface-alt px-1.5 py-0.5 rounded">v0.2.0</span>
+            <span className="text-[10px] font-normal text-text-secondary bg-surface-alt px-1.5 py-0.5 rounded">v0.3.0</span>
           </Link>
           <nav className="flex gap-1">
             {navItems.map(item => (
@@ -37,18 +37,6 @@ export default function Header() {
               </Link>
             ))}
           </nav>
-        </div>
-      </div>
-      <div className="bg-primary/5 border-t border-primary/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 flex items-center justify-between text-xs text-text-secondary">
-          <span>
-            数据来源：
-            <a href="https://www.xiaoxiongyouhao.com/page_rank_chexi_moto.php" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
-              小熊油耗
-            </a>
-            — 感谢小熊油耗公开数据
-          </span>
-          <span>数据抓取时间：2026-05-04</span>
         </div>
       </div>
     </header>

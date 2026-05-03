@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ReactECharts from 'echarts-for-react'
 import type { Motorcycle } from '../types'
@@ -8,24 +8,43 @@ interface Props {
   data: Motorcycle[]
 }
 
+const STORAGE_KEY = 'motofuel-analysis-filter'
+
+function loadSavedFilter(): { selectedBrands: string[]; minBrandSamples: number } | null {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY)
+    if (raw) return JSON.parse(raw)
+  } catch {}
+  return null
+}
+
 export default function Analysis({ data }: Props) {
   const navigate = useNavigate()
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([])
-  const [minBrandSamples, setMinBrandSamples] = useState(1000)
+  const saved = loadSavedFilter()
+
+  const [selectedBrands, setSelectedBrands] = useState<string[]>(saved?.selectedBrands ?? [])
+  const [minBrandSamples, setMinBrandSamples] = useState(saved?.minBrandSamples ?? 1000)
   const [brandExpanded, setBrandExpanded] = useState(false)
   const [filterCollapsed, setFilterCollapsed] = useState(false)
+
+  // Persist filter state
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ selectedBrands, minBrandSamples }))
+  }, [selectedBrands, minBrandSamples])
 
   const brandSampleStats = useMemo(() => samplesByBrand(data), [data])
   const topBrands = useMemo(
     () => brandSampleStats.filter(b => b.totalSamples >= minBrandSamples),
     [brandSampleStats, minBrandSamples]
   )
+
+  // When expanded, show ALL brands sorted alphabetically
   const displayedBrands = useMemo(() => {
     if (brandExpanded) {
-      return [...topBrands].sort((a, b) => a.brand.localeCompare(b.brand, 'zh'))
+      return [...brandSampleStats].sort((a, b) => a.brand.localeCompare(b.brand, 'zh'))
     }
     return topBrands.slice(0, 30)
-  }, [topBrands, brandExpanded])
+  }, [topBrands, brandExpanded, brandSampleStats])
 
   const filteredByBrand = useMemo(() => {
     if (selectedBrands.length === 0) {
@@ -138,7 +157,7 @@ export default function Analysis({ data }: Props) {
           <button onClick={() => setFilterCollapsed(!filterCollapsed)}
             className="flex items-center gap-1.5 text-sm font-semibold hover:text-primary transition-colors">
             <svg className={`w-4 h-4 transition-transform ${filterCollapsed ? '-rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-            品牌筛选（按总样本数）
+            品牌筛选
           </button>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
@@ -163,10 +182,16 @@ export default function Analysis({ data }: Props) {
                   selectedBrands.includes(b.brand) ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
                 }`}>{b.brand} <span className="opacity-60">{b.totalSamples.toLocaleString()}</span></button>
             ))}
-            {topBrands.length > 30 && (
-              <button onClick={() => setBrandExpanded(!brandExpanded)}
+            {!brandExpanded && topBrands.length < brandSampleStats.length && (
+              <button onClick={() => setBrandExpanded(true)}
                 className="px-2.5 py-1 rounded-full text-xs text-primary hover:bg-primary/10">
-                {brandExpanded ? '收起' : `展开全部 ${topBrands.length} 个`}
+                展开全部 {brandSampleStats.length} 个
+              </button>
+            )}
+            {brandExpanded && (
+              <button onClick={() => setBrandExpanded(false)}
+                className="px-2.5 py-1 rounded-full text-xs text-primary hover:bg-primary/10">
+                收起
               </button>
             )}
           </div>

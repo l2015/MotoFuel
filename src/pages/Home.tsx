@@ -104,20 +104,20 @@ export default function Home({ data }: Props) {
               }`}>类型</button>
           </div>
 
-          <table className="w-full text-sm">
+          <table className="w-full text-sm table-fixed">
             <thead>
               <tr className="text-left text-text-secondary border-b border-border">
                 <th className="pb-2 w-8">#</th>
-                <th className="pb-2">{activeTab === 'brand' ? '品牌' : activeTab === 'model' ? '车型' : '类型'}</th>
-                <th className="pb-2 text-right">样本数</th>
-                <th className="pb-2 text-right">{activeTab === 'model' ? '油耗' : '车型数'}</th>
+                <th className="pb-2 w-auto">{activeTab === 'brand' ? '品牌' : activeTab === 'model' ? '车型' : '类型'}</th>
+                <th className="pb-2 w-24 text-right">样本数</th>
+                <th className="pb-2 w-20 text-right">{activeTab === 'model' ? '油耗' : '车型数'}</th>
               </tr>
             </thead>
             <tbody>
               {activeTab === 'brand' && brandSamples.map((b, i) => (
                 <tr key={b.brand} className="border-b border-border/50">
                   <td className="py-1.5 text-text-secondary">{i + 1}</td>
-                  <td className="py-1.5 font-medium">{b.brand}</td>
+                  <td className="py-1.5 font-medium truncate">{b.brand}</td>
                   <td className="py-1.5 text-right font-mono text-accent-amber">{b.totalSamples.toLocaleString()}</td>
                   <td className="py-1.5 text-right font-mono text-text-secondary">{b.modelCount}</td>
                 </tr>
@@ -125,7 +125,7 @@ export default function Home({ data }: Props) {
               {activeTab === 'model' && top15Models.map((d, i) => (
                 <tr key={d.id} className="border-b border-border/50">
                   <td className="py-1.5 text-text-secondary">{i + 1}</td>
-                  <td className="py-1.5 font-medium truncate max-w-40">{d.brand} {d.series}</td>
+                  <td className="py-1.5 font-medium truncate">{d.brand} {d.series}</td>
                   <td className="py-1.5 text-right font-mono text-accent-amber">{d.samples}</td>
                   <td className="py-1.5 text-right font-mono text-primary">{d.consumption}</td>
                 </tr>
@@ -133,7 +133,7 @@ export default function Home({ data }: Props) {
               {activeTab === 'type' && typeStats.map((t, i) => (
                 <tr key={t.type} className="border-b border-border/50">
                   <td className="py-1.5 text-text-secondary">{i + 1}</td>
-                  <td className="py-1.5 font-medium">{t.type}</td>
+                  <td className="py-1.5 font-medium truncate">{t.type}</td>
                   <td className="py-1.5 text-right font-mono text-accent-amber">{t.samples.toLocaleString()}</td>
                   <td className="py-1.5 text-right font-mono text-text-secondary">{t.count}</td>
                 </tr>
