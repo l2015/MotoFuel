@@ -53,8 +53,7 @@ export default function Explorer({ data }: Props) {
     )
   }
 
-  // Zoom to fit filtered items in view
-  const zoomToItems = useCallback((items: Motorcycle[]) => {
+  const doZoom = useCallback((items: Motorcycle[]) => {
     try {
       const chart = chartRef.current?.getEchartsInstance()
       if (!chart || items.length === 0) return
@@ -63,62 +62,62 @@ export default function Explorer({ data }: Props) {
       const disps = [...new Set(items.map(d => d.displacement))]
       const dispIndices = disps.map(d => allDisplacements.indexOf(d)).filter(i => i >= 0)
       const total = allDisplacements.length
-
       if (dispIndices.length === 0 || total === 0) return
 
       const xMin = Math.min(...dispIndices)
       const xMax = Math.max(...dispIndices)
-      const pad = Math.max(1, Math.round((xMax - xMin) * 0.2))
+      const pad = Math.max(2, Math.round((xMax - xMin) * 0.3))
       const start = Math.max(0, ((xMin - pad) / total) * 100)
       const end = Math.min(100, ((xMax + 1 + pad) / total) * 100)
-
-      chart.dispatchAction({ type: 'dataZoom', start, end })
 
       const consumptions = items.map(d => d.consumption)
       const yMin = Math.min(...consumptions)
       const yMax = Math.max(...consumptions)
-      const yPad = Math.max(0.3, (yMax - yMin) * 0.2)
-      chart.setOption({ yAxis: { min: Math.max(0, yMin - yPad), max: yMax + yPad } })
+      const yPad = Math.max(0.5, (yMax - yMin) * 0.25)
+
+      chart.setOption({
+        yAxis: { min: Math.max(0, yMin - yPad), max: yMax + yPad },
+        series: allTypes.map(() => ({})),
+      })
+      chart.dispatchAction({ type: 'dataZoom', start, end })
     } catch { /* chart not ready */ }
-  }, [allDisplacements])
+  }, [allDisplacements, allTypes])
 
   const resetZoom = useCallback(() => {
     try {
       const chart = chartRef.current?.getEchartsInstance()
       if (!chart || !chart.getWidth() || !chart.getHeight()) return
+      chart.setOption({ yAxis: { min: 0, max: undefined } })
       chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 })
-      chart.setOption({ yAxis: { min: 0 } })
     } catch { /* chart not ready */ }
   }, [])
 
   // Zoom on type filter (skip initial mount)
   useEffect(() => {
     if (initRef.current) { initRef.current = false; return }
-    const raf = requestAnimationFrame(() => {
-      if (highlightType) {
-        const items = filteredData.filter(d => d.type === highlightType)
-        if (items.length > 0) zoomToItems(items)
-      } else if (selectedBrands.length === 0) {
-        resetZoom()
-      }
-    })
-    return () => cancelAnimationFrame(raf)
+    if (highlightType) {
+      const items = filteredData.filter(d => d.type === highlightType)
+      if (items.length > 0) doZoom(items)
+    } else if (selectedBrands.length === 0) {
+      resetZoom()
+    }
   }, [highlightType])
 
   // Zoom on brand filter (skip initial mount)
   useEffect(() => {
     if (initRef.current) return
-    const raf = requestAnimationFrame(() => {
-      if (selectedBrands.length > 0 && filteredData.length > 0) {
-        zoomToItems(filteredData)
-      }
-    })
-    return () => cancelAnimationFrame(raf)
+    if (selectedBrands.length > 0 && filteredData.length > 0) {
+      doZoom(filteredData)
+    } else if (selectedBrands.length === 0 && !highlightType) {
+      resetZoom()
+    }
   }, [selectedBrands])
 
   const option = useMemo(() => {
     const series = allTypes.map(type => {
-      const items = filteredData.filter(d => d.type === type)
+      const items = filteredData
+        .filter(d => d.type === type)
+        .sort((a, b) => a.samples - b.samples)
       const color = typeColorMap[type]
       const isDimmed = highlightType !== null && highlightType !== type
 
@@ -135,7 +134,7 @@ export default function Explorer({ data }: Props) {
             _disp: d.displacement,
           }
         }),
-        symbolSize: 8,
+        symbolSize: 9,
         itemStyle: {
           color: isDimmed ? 'rgba(200,200,200,0.2)' : color,
           opacity: isDimmed ? 0.12 : 0.85,
@@ -146,8 +145,8 @@ export default function Explorer({ data }: Props) {
           position: 'right',
           distance: 6,
           rich: {
-            a: { fontSize: 11, color: '#334155', fontWeight: 600 },
-            b: { fontSize: 10, color: '#94a3b8' },
+            a: { fontSize: 12, color: '#334155', fontWeight: 600 },
+            b: { fontSize: 11, color: '#94a3b8' },
           },
         },
         labelLayout: {
@@ -155,21 +154,25 @@ export default function Explorer({ data }: Props) {
           moveOverlap: 'shiftY',
         },
         emphasis: {
-          itemStyle: { borderWidth: 2, shadowBlur: 6, shadowColor: color },
+          itemStyle: { borderWidth: 2, shadowBlur: 8, shadowColor: color },
           label: {
             show: true,
             formatter: (p: any) => `${p.data._brand} ${p.data._series}  ${p.data._disp}cc  ${p.value[1]}L  (${p.data._samples}样本)`,
-            fontSize: 12,
+            fontSize: 13,
             color: '#1e293b',
             backgroundColor: 'rgba(255,255,255,0.95)',
-            padding: [4, 8],
-            borderRadius: 4,
+            padding: [6, 10],
+            borderRadius: 6,
             borderColor: '#e2e8f0',
             borderWidth: 1,
           },
         },
         large: true,
-        animation: false,
+        animation: true,
+        animationDuration: 400,
+        animationEasing: 'cubicOut',
+        animationDurationUpdate: 300,
+        animationEasingUpdate: 'cubicOut',
       }
     })
 
@@ -188,7 +191,7 @@ export default function Explorer({ data }: Props) {
             <div>类型: ${p.seriesName}</div>`
         },
       },
-      grid: { left: 60, right: 30, top: 16, bottom: 50 },
+      grid: { left: 60, right: 30, top: 20, bottom: 50 },
       xAxis: {
         type: 'category' as const,
         data: dispLabels,
@@ -210,7 +213,6 @@ export default function Explorer({ data }: Props) {
       },
       dataZoom: [
         { type: 'inside' as const, xAxisIndex: 0 },
-        { type: 'inside' as const, yAxisIndex: 0 },
         { type: 'slider' as const, xAxisIndex: 0, bottom: 4, height: 18, borderColor: '#e2e8f0', fillerColor: 'rgba(37,99,235,0.06)' },
         { type: 'slider' as const, yAxisIndex: 0, right: 2, width: 18, borderColor: '#e2e8f0', fillerColor: 'rgba(37,99,235,0.06)' },
       ],
