@@ -3,7 +3,7 @@ import * as cheerio from 'cheerio'
 const DISPLACEMENT_MAP = {
   1: 50, 2: 100, 3: 110, 4: 125, 5: 150, 6: 160,
   7: 190, 8: 200, 9: 250, 10: 300, 11: 350, 12: 400,
-  13: 450, 14: 500, 15: 600, 16: 650, 17: 750, 18: 1000,
+  13: 500, 14: 600, 15: 700, 16: 800, 17: 900, 18: 1000,
 }
 
 export function parsePage(html, levelId) {

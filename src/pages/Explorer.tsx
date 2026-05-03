@@ -52,56 +52,59 @@ export default function Explorer({ data }: Props) {
     )
   }
 
-  // Animate zoom to show specific data range
-  const animateZoomTo = useCallback((items: Motorcycle[]) => {
+  // Zoom to fit filtered items in view
+  const zoomToItems = useCallback((items: Motorcycle[]) => {
     const chart = chartRef.current?.getEchartsInstance()
     if (!chart || items.length === 0) return
 
     const disps = [...new Set(items.map(d => d.displacement))]
-    const dispIndices = disps.map(d => allDisplacements.indexOf(d))
-    const minIdx = Math.min(...dispIndices)
-    const maxIdx = Math.max(...dispIndices)
+    const dispIndices = disps.map(d => allDisplacements.indexOf(d)).filter(i => i >= 0)
     const total = allDisplacements.length
 
-    chart.dispatchAction({
-      type: 'dataZoom',
-      start: Math.max(0, (minIdx / total) * 100 - 8),
-      end: Math.min(100, ((maxIdx + 1) / total) * 100 + 8),
-    })
+    if (dispIndices.length === 0) return
+
+    const xMin = Math.min(...dispIndices)
+    const xMax = Math.max(...dispIndices)
+    // Generous padding so points aren't at edges
+    const pad = Math.max(1, Math.round((xMax - xMin) * 0.2))
+    const start = Math.max(0, ((xMin - pad) / total) * 100)
+    const end = Math.min(100, ((xMax + 1 + pad) / total) * 100)
+
+    chart.dispatchAction({ type: 'dataZoom', start, end })
+
+    // Also set Y axis to fit
+    const consumptions = items.map(d => d.consumption)
+    const yMin = Math.min(...consumptions)
+    const yMax = Math.max(...consumptions)
+    const yPad = Math.max(0.3, (yMax - yMin) * 0.2)
+    chart.setOption({ yAxis: { min: Math.max(0, yMin - yPad), max: yMax + yPad } })
   }, [allDisplacements])
 
-  // Reset to full view
   const resetZoom = useCallback(() => {
     const chart = chartRef.current?.getEchartsInstance()
     if (!chart) return
-    chart.dispatchAction({
-      type: 'dataZoom',
-      start: 0,
-      end: 100,
-    })
+    chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 })
+    chart.setOption({ yAxis: { min: 0 } })
   }, [])
 
-  // Zoom on type filter change
+  // Zoom on type filter
   useEffect(() => {
     if (highlightType) {
       const items = filteredData.filter(d => d.type === highlightType)
-      if (items.length > 0) {
-        animateZoomTo(items)
-      }
-    } else {
+      if (items.length > 0) zoomToItems(items)
+    } else if (selectedBrands.length === 0) {
       resetZoom()
     }
   }, [highlightType])
 
-  // Zoom on brand filter change
+  // Zoom on brand filter
   useEffect(() => {
     if (selectedBrands.length > 0 && filteredData.length > 0) {
-      animateZoomTo(filteredData)
+      zoomToItems(filteredData)
     }
   }, [selectedBrands])
 
   const option = useMemo(() => {
-    // Build series - ALL items get labels, hideOverlap handles visibility
     const series = allTypes.map(type => {
       const items = filteredData.filter(d => d.type === type)
       const color = typeColorMap[type]
@@ -120,29 +123,29 @@ export default function Explorer({ data }: Props) {
             _disp: d.displacement,
             label: {
               show: !isDimmed,
-              formatter: `{a|${d.brand}}{b|${d.series}}`,
+              formatter: `{a|${d.brand}} {b|${d.series}}`,
               position: 'right' as const,
-              distance: 5,
+              distance: 6,
               rich: {
-                a: { fontSize: 9, color: '#475569', fontWeight: 500 },
-                b: { fontSize: 8, color: '#94a3b8' },
+                a: { fontSize: 11, color: '#334155', fontWeight: 600 },
+                b: { fontSize: 10, color: '#94a3b8' },
               },
             },
           }
         }),
-        symbolSize: 7,
+        symbolSize: 8,
         itemStyle: {
           color: isDimmed ? 'rgba(200,200,200,0.2)' : color,
-          opacity: isDimmed ? 0.12 : 0.8,
+          opacity: isDimmed ? 0.12 : 0.85,
         },
         emphasis: {
           itemStyle: { borderWidth: 2, shadowBlur: 6, shadowColor: color },
           label: {
             show: true,
             formatter: (p: any) => `${p.data._brand} ${p.data._series}  ${p.data._disp}cc  ${p.value[1]}L  (${p.data._samples}样本)`,
-            fontSize: 11,
+            fontSize: 12,
             color: '#1e293b',
-            backgroundColor: 'rgba(255,255,255,0.92)',
+            backgroundColor: 'rgba(255,255,255,0.95)',
             padding: [4, 8],
             borderRadius: 4,
             borderColor: '#e2e8f0',
@@ -150,6 +153,7 @@ export default function Explorer({ data }: Props) {
           },
         },
         large: true,
+        animation: false,
       }
     })
 
@@ -176,7 +180,7 @@ export default function Explorer({ data }: Props) {
         nameLocation: 'center' as const,
         nameGap: 35,
         nameTextStyle: { fontSize: 13 },
-        axisLabel: { fontSize: 11, interval: 0 },
+        axisLabel: { fontSize: 12, interval: 0 },
         axisTick: { show: false },
         splitLine: { show: true, lineStyle: { color: '#f1f5f9' } },
       },
@@ -184,15 +188,15 @@ export default function Explorer({ data }: Props) {
         type: 'value' as const,
         name: '油耗 (L/100km)',
         nameTextStyle: { fontSize: 13 },
-        axisLabel: { fontSize: 11 },
+        axisLabel: { fontSize: 12 },
         splitLine: { lineStyle: { color: '#f1f5f9' } },
         min: 0,
       },
       dataZoom: [
-        { type: 'inside' as const, xAxisIndex: 0, zoomOnMouseWheel: true, moveOnMouseMove: true },
+        { type: 'inside' as const, xAxisIndex: 0 },
         { type: 'inside' as const, yAxisIndex: 0 },
-        { type: 'slider' as const, xAxisIndex: 0, bottom: 4, height: 18, borderColor: '#e2e8f0', fillerColor: 'rgba(37,99,235,0.06)', realtime: true },
-        { type: 'slider' as const, yAxisIndex: 0, right: 2, width: 18, borderColor: '#e2e8f0', fillerColor: 'rgba(37,99,235,0.06)', realtime: true },
+        { type: 'slider' as const, xAxisIndex: 0, bottom: 4, height: 18, borderColor: '#e2e8f0', fillerColor: 'rgba(37,99,235,0.06)' },
+        { type: 'slider' as const, yAxisIndex: 0, right: 2, width: 18, borderColor: '#e2e8f0', fillerColor: 'rgba(37,99,235,0.06)' },
       ],
       legend: { show: false },
       series,
@@ -200,7 +204,6 @@ export default function Explorer({ data }: Props) {
         hideOverlap: true,
         moveOverlap: 'shiftY' as const,
       },
-      animationDuration: 300,
     }
   }, [filteredData, allTypes, typeColorMap, highlightType, allDisplacements, dispLabels])
 
@@ -210,31 +213,26 @@ export default function Explorer({ data }: Props) {
         <div className="flex items-center gap-3">
           <h1 className="text-lg font-bold">散点油耗图</h1>
           <span className="text-sm text-text-secondary">{filteredData.length} 款车型</span>
-          {selectedBrands.length > 0 && (
-            <button onClick={() => { setSelectedBrands([]); resetZoom() }}
-              className="text-xs text-accent-red hover:underline">清除品牌</button>
+          {(selectedBrands.length > 0 || highlightType) && (
+            <button onClick={() => { setSelectedBrands([]); setHighlightType(null); resetZoom() }}
+              className="text-xs text-accent-red hover:underline">清除筛选</button>
           )}
         </div>
 
         <div className="flex flex-wrap gap-x-6 gap-y-2">
-          {/* Type filter */}
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-text-secondary shrink-0">类型</span>
             <div className="flex flex-wrap gap-1">
-              <button
-                onClick={() => setHighlightType(null)}
+              <button onClick={() => setHighlightType(null)}
                 className={`text-xs px-2 py-0.5 rounded-full transition-colors ${
                   highlightType === null ? 'bg-text text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
-                }`}
-              >全部</button>
+                }`}>全部</button>
               {allTypes.map(t => (
-                <button
-                  key={t}
+                <button key={t}
                   onClick={() => setHighlightType(highlightType === t ? null : t)}
                   className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full transition-colors ${
                     highlightType === t ? 'ring-2 ring-offset-1 ring-primary' : 'bg-surface-alt hover:bg-border'
-                  }`}
-                >
+                  }`}>
                   <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: typeColorMap[t] }} />
                   {t}
                 </button>
@@ -242,7 +240,6 @@ export default function Explorer({ data }: Props) {
             </div>
           </div>
 
-          {/* Brand filter */}
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-text-secondary shrink-0">品牌</span>
             <div className="flex flex-wrap gap-1">
@@ -264,13 +261,7 @@ export default function Explorer({ data }: Props) {
       </div>
 
       <div className="flex-1 min-h-0">
-        <ReactECharts
-          ref={chartRef}
-          option={option}
-          style={{ width: '100%', height: '100%' }}
-          notMerge
-          lazyUpdate
-        />
+        <ReactECharts ref={chartRef} option={option} style={{ width: '100%', height: '100%' }} notMerge lazyUpdate />
       </div>
     </div>
   )
