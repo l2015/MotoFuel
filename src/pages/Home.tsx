@@ -21,7 +21,7 @@ export default function Home({ data }: Props) {
   const brandSamples = useMemo(() => samplesByBrand(data).slice(0, 15), [data])
   const top15Models = useMemo(() => topBySamples(data, 15), [data])
   const topConsumption = useMemo(
-    () => [...data].sort((a, b) => a.consumption - b.consumption).slice(0, 20),
+    () => data.filter(d => d.samples >= 10).sort((a, b) => a.consumption - b.consumption).slice(0, 20),
     [data]
   )
 
@@ -41,8 +41,9 @@ export default function Home({ data }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div>
         <h1 className="text-2xl font-bold">摩托车油耗总览</h1>
+        <p className="text-sm text-text-secondary mt-1">基于小熊油耗平台车友真实加油数据</p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">

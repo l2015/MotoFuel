@@ -13,6 +13,17 @@ interface DataTableProps {
 type SortKey = 'rank' | 'brand' | 'series' | 'type' | 'displacement' | 'consumption' | 'samples'
 type SortDir = 'asc' | 'desc'
 
+function getBarColor(consumption: number): string {
+  if (consumption < 2) return '#16a34a'
+  if (consumption < 2.5) return '#22c55e'
+  if (consumption < 3) return '#3b82f6'
+  if (consumption < 3.5) return '#6366f1'
+  if (consumption < 4) return '#8b5cf6'
+  if (consumption < 4.5) return '#f59e0b'
+  if (consumption < 5) return '#f97316'
+  return '#dc2626'
+}
+
 export default function DataTable({ data, showDisplacement = false, showBar = false, selectable = false, selectedIds, onToggleSelect }: DataTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>('consumption')
   const [sortDir, setSortDir] = useState<SortDir>('asc')
@@ -56,7 +67,7 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
   return (
     <div>
       <div className="overflow-x-auto rounded-xl border border-border">
-        <table className="w-full text-sm">
+        <table className={`w-full text-sm ${showBar ? 'table-fixed' : ''}`}>
           <thead className="bg-surface-alt">
             <tr>
               {selectable && <th className="px-3 py-2.5 w-8" />}
@@ -77,7 +88,7 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
                   排量<SortIcon k="displacement" />
                 </th>
               )}
-              <th className={`px-3 py-2.5 text-right cursor-pointer hover:text-primary ${showBar ? 'w-48' : ''}`} onClick={() => toggleSort('consumption')}>
+              <th className="px-3 py-2.5 text-right cursor-pointer hover:text-primary w-44" onClick={() => toggleSort('consumption')}>
                 油耗(L/100km)<SortIcon k="consumption" />
               </th>
               <th className="px-3 py-2.5 text-right cursor-pointer hover:text-primary" onClick={() => toggleSort('samples')}>
@@ -105,23 +116,21 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
                   <span className="px-1.5 py-0.5 rounded text-xs bg-surface-alt">{row.type}</span>
                 </td>
                 {showDisplacement && <td className="px-3 py-2 font-mono">{row.displacement}cc</td>}
-                <td className="px-3 py-2 text-right">
-                  {showBar ? (
-                    <div className="flex items-center gap-2 justify-end">
-                      <div className="flex-1 max-w-32 bg-surface-alt rounded-full h-2 overflow-hidden">
+                <td className="px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    {showBar && (
+                      <div className="w-24 bg-surface-alt rounded-full h-2 overflow-hidden shrink-0">
                         <div
                           className="h-full rounded-full"
                           style={{
-                            width: `${Math.max(4, (row.consumption / maxConsumption) * 100)}%`,
-                            backgroundColor: row.consumption < 2.5 ? '#16a34a' : row.consumption < 3.5 ? '#2563eb' : row.consumption < 5 ? '#f59e0b' : '#dc2626',
+                            width: `${Math.max(6, (row.consumption / maxConsumption) * 100)}%`,
+                            backgroundColor: getBarColor(row.consumption),
                           }}
                         />
                       </div>
-                      <span className="font-mono font-medium text-primary w-10 shrink-0">{row.consumption}</span>
-                    </div>
-                  ) : (
-                    <span className="font-mono font-medium text-primary">{row.consumption}</span>
-                  )}
+                    )}
+                    <span className="font-mono font-medium text-primary ml-auto">{row.consumption}</span>
+                  </div>
                 </td>
                 <td className="px-3 py-2 text-right font-mono text-text-secondary">{row.samples}</td>
               </tr>

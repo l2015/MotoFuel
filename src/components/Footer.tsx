@@ -12,7 +12,7 @@ export default function Footer({ scrapeTime }: Props) {
 
   return (
     <footer className="border-t border-border bg-white mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center space-y-2">
         <p className="text-sm">
           数据来源：
           <a
@@ -23,12 +23,21 @@ export default function Footer({ scrapeTime }: Props) {
           >
             小熊油耗
           </a>
-          — 感谢小熊油耗平台公开摩托车油耗数据，为车友提供宝贵的参考
+          — 感谢小熊油耗平台公开摩托车油耗数据
         </p>
-        <p className="text-xs text-text-secondary mt-2">
-          MotoFuel v0.3.0 · 基于车友真实加油记录的油耗分析 · 仅供学习参考
-          {formattedTime && ` · 数据抓取时间：${formattedTime}`}
-        </p>
+        <div className="flex items-center justify-center gap-4 text-xs text-text-secondary">
+          <span>MotoFuel v0.4.0</span>
+          <span>·</span>
+          <a href="https://github.com/MotoFuel/MotoFuel" target="_blank" rel="noopener noreferrer" className="hover:text-primary hover:underline">GitHub</a>
+          <span>·</span>
+          <span>MIT License</span>
+          {formattedTime && (
+            <>
+              <span>·</span>
+              <span>数据抓取：{formattedTime}</span>
+            </>
+          )}
+        </div>
       </div>
     </footer>
   )

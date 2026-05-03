@@ -60,6 +60,24 @@ export default function Analysis({ data }: Props) {
   const histogram = useMemo(() => consumptionHistogram(filteredByBrand), [filteredByBrand])
   const typeCount = useMemo(() => countByType(filteredByBrand), [filteredByBrand])
 
+  // Samples per brand (for tooltip)
+  const brandSamplesMap = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const d of filteredByBrand) {
+      map.set(d.brand, (map.get(d.brand) || 0) + d.samples)
+    }
+    return map
+  }, [filteredByBrand])
+
+  // Samples per type (for tooltip)
+  const typeSamplesMap = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const d of filteredByBrand) {
+      map.set(d.type, (map.get(d.type) || 0) + d.samples)
+    }
+    return map
+  }, [filteredByBrand])
+
   const toggleBrand = (brand: string) => {
     setSelectedBrands(prev =>
       prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]
@@ -85,7 +103,7 @@ export default function Analysis({ data }: Props) {
           const idx = p[0]?.dataIndex ?? 0
           const item = items[idx]
           if (!item) return ''
-          return `${item.brand}<br/>平均油耗: ${item.avg} L/100km<br/>车型数: ${item.count}`
+          return `${item.brand}<br/>平均油耗: ${item.avg} L/100km<br/>车型数: ${item.count}<br/>样本数: ${(brandSamplesMap.get(item.brand) || 0).toLocaleString()}`
         },
       },
       grid: { left: 100, right: 50, top: 10, bottom: 20 },
@@ -104,7 +122,7 @@ export default function Analysis({ data }: Props) {
         barMaxWidth: 16,
       }],
     }
-  }, [brandAvgData])
+  }, [brandAvgData, brandSamplesMap])
 
   const onBrandChartClick = useCallback((params: any) => {
     const brand = brandAvgData[params.dataIndex]?.brand
@@ -113,7 +131,13 @@ export default function Analysis({ data }: Props) {
 
   // Type pie chart
   const typePieOption = useMemo(() => ({
-    tooltip: { trigger: 'item' as const, formatter: '{b}: {c} 款 ({d}%)' },
+    tooltip: {
+      trigger: 'item' as const,
+      formatter: (p: any) => {
+        const samples = typeSamplesMap.get(p.name) || 0
+        return `${p.name}<br/>车型数: ${p.value} 款 (${p.percent}%)<br/>样本数: ${samples.toLocaleString()}`
+      },
+    },
     series: [{
       type: 'pie' as const,
       radius: ['30%', '65%'],
@@ -125,7 +149,7 @@ export default function Analysis({ data }: Props) {
       },
       emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.15)' } },
     }],
-  }), [typeCount])
+  }), [typeCount, typeSamplesMap])
 
   const onTypePieClick = useCallback((params: any) => {
     if (params.name) goToRanking({ type: params.name })
@@ -133,7 +157,16 @@ export default function Analysis({ data }: Props) {
 
   // Histogram chart
   const histogramOption = useMemo(() => ({
-    tooltip: { trigger: 'axis' as const, axisPointer: { type: 'shadow' as const } },
+    tooltip: {
+      trigger: 'axis' as const,
+      axisPointer: { type: 'shadow' as const },
+      formatter: (p: any) => {
+        const idx = p[0]?.dataIndex ?? 0
+        const d = histogram[idx]
+        if (!d) return ''
+        return `${d.range}L/100km<br/>车型数: ${d.count}`
+      },
+    },
     grid: { left: 50, right: 20, top: 20, bottom: 50 },
     xAxis: { type: 'category' as const, data: histogram.map(d => d.range + 'L'), axisLabel: { rotate: 45 } },
     yAxis: { type: 'value' as const, name: '车型数' },

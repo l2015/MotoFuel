@@ -116,7 +116,12 @@ export default function FilterBar({ filter, allData, types, onFilterChange, onRe
                     filter.displacements.includes(d) ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
                   }`}>{d}cc</button>
               ))}
-              <span className="text-border mx-1">|</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="text-xs font-medium text-text-secondary w-10">快捷</span>
+            <div className="flex flex-wrap gap-1.5 items-center">
               {DISP_QUICK_RANGES.map(r => {
                 const inRange = cascadedDisplacements.filter(d => d >= r.min && d <= r.max)
                 const isActive = inRange.length > 0 && inRange.every(d => filter.displacements.includes(d))
