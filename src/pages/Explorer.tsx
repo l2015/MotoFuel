@@ -117,7 +117,7 @@ export default function Explorer({ data }: Props) {
     const series = allTypes.map(type => {
       const items = filteredData
         .filter(d => d.type === type)
-        .sort((a, b) => a.samples - b.samples)
+        .sort((a, b) => b.samples - a.samples)
       const color = typeColorMap[type]
       const isDimmed = highlightType !== null && highlightType !== type
 
@@ -134,7 +134,7 @@ export default function Explorer({ data }: Props) {
             _disp: d.displacement,
           }
         }),
-        symbolSize: 9,
+        symbolSize: 10,
         itemStyle: {
           color: isDimmed ? 'rgba(200,200,200,0.2)' : color,
           opacity: isDimmed ? 0.12 : 0.85,
@@ -143,10 +143,10 @@ export default function Explorer({ data }: Props) {
           show: !isDimmed,
           formatter: (p: any) => `{a|${p.data._brand}} {b|${p.data._series}}`,
           position: 'right',
-          distance: 6,
+          distance: 8,
           rich: {
-            a: { fontSize: 12, color: '#334155', fontWeight: 600 },
-            b: { fontSize: 11, color: '#94a3b8' },
+            a: { fontSize: 13, color: '#334155', fontWeight: 600 },
+            b: { fontSize: 12, color: '#94a3b8' },
           },
         },
         labelLayout: {
