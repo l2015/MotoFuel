@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.xiaoxiongyouhao.com)",
+      "Bash(curl -s \"https://www.xiaoxiongyouhao.com/page_rank_chexi_moto/byDisplacementLvl/1.html\")",
+      "Bash(curl -s \"https://www.xiaoxiongyouhao.com/page_rank_chexi_moto/byDisplacementLvl/4.html\")",
+      "Bash(python3 -c \"import sys,json; data=json.loads\\('{\\\\\"d\\\\\":'+sys.stdin.read\\(\\).split\\('\\\\\"data\\\\\":'\\)[1].strip\\(\\)+'}'\\); [print\\(r\\) for r in data['d'][:5]]\")",
+      "Bash(npm create *)",
+      "Read(//c/Users/25633/**)",
+      "Bash(npx create-vite@latest MotoFuel-temp --template react-ts)",
+      "Bash(cp -r MotoFuel-temp/* MotoFuel/)",
+      "Bash(cp -r MotoFuel-temp/.* MotoFuel/)",
+      "Bash(rm -rf MotoFuel-temp)",
+      "Bash(npm install *)",
+      "Bash(node index.js)",
+      "Bash(node -e \"const d=JSON.parse\\(require\\('fs'\\).readFileSync\\('public/data/motorcycles.json','utf-8'\\)\\); console.log\\('Total:', d.metadata.totalModels\\); console.log\\('Displacements:', d.displacements\\); console.log\\('Sample entries:'\\); d.data.slice\\(0,3\\).forEach\\(r=>console.log\\(JSON.stringify\\(r\\)\\)\\); console.log\\('Brands count:', new Set\\(d.data.map\\(r=>r.brand\\)\\).size\\); console.log\\('Types:', [...new Set\\(d.data.map\\(r=>r.type\\)\\)]\\);\")",
+      "Bash(npx tsc *)",
+      "Bash(npx vite *)",
+      "Bash(node -e \"console.log\\(require\\('vite-plugin-pwa/package.json'\\).version\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'feat: initial project setup with scraper, UI components, charts, and PWA support *)",
+      "Bash(git config *)",
+      "Bash(git commit -m 'feat: initial project setup *)"
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "motofuel-scraper",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "scrape": "node index.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}
