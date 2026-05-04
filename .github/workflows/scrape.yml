@@ -3,7 +3,7 @@ name: Scrape Motorcycle Data
 on:
   schedule:
     - cron: '0 3 * * 1'  # Every Monday at 11:00 CST (UTC+8)
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch: # Manual trigger
 
 permissions:
   contents: write
