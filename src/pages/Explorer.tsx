@@ -83,7 +83,13 @@ export default function Explorer({ data }: Props) {
       const start = Math.max(0, ((indices[0] - pad) / total) * 100)
       const end = Math.min(100, ((indices[indices.length - 1] + 1 + pad) / total) * 100)
 
+      const consumptions = items.map(d => d.consumption)
+      const yMin = Math.min(...consumptions)
+      const yMax = Math.max(...consumptions)
+      const yPad = Math.max(0.5, (yMax - yMin) * 0.25)
+
       chart.dispatchAction({ type: 'dataZoom', start, end })
+      chart.setOption({ yAxis: { min: Math.max(0, yMin - yPad), max: yMax + yPad } })
     } catch { /* chart not ready */ }
   }, [allDisplacements])
 
@@ -92,6 +98,7 @@ export default function Explorer({ data }: Props) {
       const chart = chartRef.current?.getEchartsInstance()
       if (!chart || !chart.getWidth() || !chart.getHeight()) return
       chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 })
+      chart.setOption({ yAxis: { min: 0 } })
     } catch { /* chart not ready */ }
   }, [])
 
