@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.8.1 (2026-05-05)
+
+### Mobile UX
+- Explorer: switch from fixed to normal flow, bottom nav now visible on Explorer page
+- BottomNav: improved icons (grid, list, pie, scatter, info)
+- Trend chart: wider on mobile, breaks out of container
+- Heatmap: remove "cc" suffix from displacement headers
+- Ranking table: responsive column widths, fits one screen without horizontal scroll
+- DataTable: compact mobile padding and font sizes
+- App: BottomNav always visible across all pages
+
 ## v0.8.0 (2026-05-05)
 
 ### Architecture & Code Quality
