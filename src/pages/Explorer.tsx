@@ -1,12 +1,11 @@
 import { useMemo, useState, useRef, useEffect, useCallback } from 'react'
 import ReactECharts from 'echarts-for-react'
 import type { Motorcycle } from '../types'
+import { CHART_PALETTE, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
 
 interface Props {
   data: Motorcycle[]
 }
-
-const PALETTE = ['#2563eb', '#dc2626', '#16a34a', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1', '#14b8a6']
 
 export default function Explorer({ data }: Props) {
   const chartRef = useRef<ReactECharts>(null)
@@ -14,6 +13,7 @@ export default function Explorer({ data }: Props) {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [brandExpanded, setBrandExpanded] = useState(false)
   const [minSamples, setMinSamples] = useState(0)
+  const [filterOpen, setFilterOpen] = useState(true)
   const initRef = useRef(true)
 
   const allTypes = useMemo(() => [...new Set(data.map(d => d.type))], [data])
@@ -34,7 +34,7 @@ export default function Explorer({ data }: Props) {
 
   const typeColorMap = useMemo(() => {
     const map: Record<string, string> = {}
-    allTypes.forEach((t, i) => { map[t] = PALETTE[i % PALETTE.length] })
+    allTypes.forEach((t, i) => { map[t] = CHART_PALETTE[i % CHART_PALETTE.length] })
     return map
   }, [allTypes])
 
@@ -68,6 +68,8 @@ export default function Explorer({ data }: Props) {
       prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]
     )
   }
+
+  const activeFilterCount = selectedBrands.length + (highlightType ? 1 : 0) + (minSamples > 0 ? 1 : 0)
 
   const doZoom = useCallback((items: Motorcycle[]) => {
     try {
@@ -146,7 +148,6 @@ export default function Explorer({ data }: Props) {
         data: items.map((d, i) => {
           const xIdx = allDisplacements.indexOf(d.displacement)
           const norm = (d.samples - sMin) / (sMax - sMin)
-          // Jitter as fraction of category width: high-sample tight (±0.08), low-sample loose (±0.3)
           const hash = d.brand.length * 31 + d.series.length * 17 + i * 7
           const spread = 0.3 * (1 - norm * 0.73)
           const jitter = ((hash % 100) / 50 - 1) * spread
@@ -170,7 +171,7 @@ export default function Explorer({ data }: Props) {
           position: 'right',
           distance: 8,
           rich: {
-            a: { fontSize: 13, color: '#334155', fontWeight: 600 },
+            a: { fontSize: 13, color: '#e2e8f0', fontWeight: 600 },
             b: { fontSize: 12, color: '#94a3b8' },
           },
         },
@@ -184,11 +185,11 @@ export default function Explorer({ data }: Props) {
             show: true,
             formatter: (p: any) => `${p.data._brand} ${p.data._series}  ${p.data._disp}cc  ${p.value[1]}L  (${p.data._samples}样本)`,
             fontSize: 13,
-            color: '#1e293b',
-            backgroundColor: 'rgba(255,255,255,0.95)',
+            color: '#f1f5f9',
+            backgroundColor: 'rgba(30,41,59,0.95)',
             padding: [6, 10],
             borderRadius: 6,
-            borderColor: '#e2e8f0',
+            borderColor: 'rgba(148,163,184,0.2)',
             borderWidth: 1,
           },
         },
@@ -204,9 +205,9 @@ export default function Explorer({ data }: Props) {
     return {
       tooltip: {
         trigger: 'item' as const,
-        backgroundColor: 'rgba(255,255,255,0.96)',
-        borderColor: '#e2e8f0',
-        textStyle: { color: '#1e293b', fontSize: 13 },
+        backgroundColor: CHART_TOOLTIP.backgroundColor,
+        borderColor: CHART_TOOLTIP.borderColor,
+        textStyle: CHART_TOOLTIP.textStyle,
         formatter: (p: any) => {
           const d = p.data
           return `<div style="font-weight:600;margin-bottom:4px">${d._brand} ${d._series}</div>
@@ -223,23 +224,25 @@ export default function Explorer({ data }: Props) {
         name: '排量 (cc)',
         nameLocation: 'center' as const,
         nameGap: 35,
-        nameTextStyle: { fontSize: 13 },
-        axisLabel: { fontSize: 12, interval: 0 },
+        nameTextStyle: { fontSize: 13, color: CHART_AXIS.name },
+        axisLabel: { fontSize: 12, interval: 0, color: CHART_AXIS.label },
         axisTick: { show: false },
-        splitLine: { show: true, lineStyle: { color: '#f1f5f9' } },
+        axisLine: { lineStyle: { color: CHART_AXIS.line } },
+        splitLine: { show: true, lineStyle: { color: CHART_AXIS.splitLine } },
       },
       yAxis: {
         type: 'value' as const,
         name: '油耗 (L/100km)',
-        nameTextStyle: { fontSize: 13 },
-        axisLabel: { fontSize: 12 },
-        splitLine: { lineStyle: { color: '#f1f5f9' } },
+        nameTextStyle: { fontSize: 13, color: CHART_AXIS.name },
+        axisLabel: { fontSize: 12, color: CHART_AXIS.label },
+        axisLine: { lineStyle: { color: CHART_AXIS.line } },
+        splitLine: { lineStyle: { color: CHART_AXIS.splitLine } },
         min: 0,
       },
       dataZoom: [
         { type: 'inside' as const, xAxisIndex: 0 },
-        { type: 'slider' as const, xAxisIndex: 0, bottom: 4, height: 18, borderColor: '#e2e8f0', fillerColor: 'rgba(37,99,235,0.06)' },
-        { type: 'slider' as const, yAxisIndex: 0, right: 2, width: 18, borderColor: '#e2e8f0', fillerColor: 'rgba(37,99,235,0.06)' },
+        { type: 'slider' as const, xAxisIndex: 0, bottom: 4, height: 18, borderColor: CHART_AXIS.line, fillerColor: 'rgba(99,102,241,0.1)' },
+        { type: 'slider' as const, yAxisIndex: 0, right: 2, width: 18, borderColor: CHART_AXIS.line, fillerColor: 'rgba(99,102,241,0.1)' },
       ],
       legend: { show: false },
       series,
@@ -247,18 +250,23 @@ export default function Explorer({ data }: Props) {
   }, [filteredData, allTypes, typeColorMap, highlightType, allDisplacements, dispLabels, sampleStats])
 
   return (
-    <div className="fixed inset-0 top-14 flex flex-col bg-white">
-      <div className="px-6 py-3 border-b border-border space-y-2">
+    <div className="fixed inset-0 top-14 flex flex-col bg-surface-alt">
+      <div className="px-4 md:px-6 py-2 md:py-3 border-b border-border glass-card rounded-none border-x-0 border-t-0">
         <div className="flex items-center gap-3">
-          <h1 className="text-lg font-bold">散点油耗图</h1>
-          <span className="text-sm text-text-secondary">{filteredData.length} 款车型</span>
+          <h1 className="text-base md:text-lg font-bold">散点油耗图</h1>
+          <span className="text-xs md:text-sm text-text-secondary">{filteredData.length} 款车型</span>
+          <button onClick={() => setFilterOpen(!filterOpen)}
+            className="text-xs px-2 py-1 rounded-full bg-surface-alt text-text-secondary hover:bg-border md:hidden min-h-[44px] flex items-center">
+            {filterOpen ? '收起' : `筛选${activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}`}
+          </button>
           {(selectedBrands.length > 0 || highlightType || minSamples > 0) && (
             <button onClick={() => { setSelectedBrands([]); setHighlightType(null); setMinSamples(0); resetZoom() }}
               className="text-xs text-accent-red hover:underline">清除筛选</button>
           )}
         </div>
 
-        <div className="flex flex-wrap gap-x-6 gap-y-2">
+        {(filterOpen) && (
+        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-text-secondary shrink-0">类型</span>
             <div className="flex flex-wrap gap-1">
@@ -311,6 +319,7 @@ export default function Explorer({ data }: Props) {
             <span className="text-xs font-mono text-text w-10 text-right">{minSamples}</span>
           </div>
         </div>
+        )}
       </div>
 
       <div className="flex-1 min-h-0">

@@ -80,7 +80,7 @@ export default function FilterBar({ filter, allData, types, onFilterChange, onRe
   }
 
   return (
-    <div className="bg-white rounded-xl border border-border sticky top-14 z-40">
+    <div className="glass-card sticky top-14 z-40">
       <button
         onClick={() => setCollapsed(!collapsed)}
         className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium hover:bg-surface-alt rounded-t-xl transition-colors"
@@ -167,7 +167,7 @@ export default function FilterBar({ filter, allData, types, onFilterChange, onRe
             </div>
             <div className="flex items-center gap-2">
               <label className="text-xs font-medium text-text-secondary">油耗</label>
-              <div className="relative w-32 h-6">
+              <div className="relative w-32 h-10">
                 <input type="range" min={0} max={6} step={0.1}
                   value={filter.consumptionRange[0]}
                   onChange={e => {

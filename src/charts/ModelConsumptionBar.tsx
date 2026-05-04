@@ -1,4 +1,5 @@
 import ReactECharts from 'echarts-for-react'
+import { CHART_AXIS } from '../utils/chartTheme'
 
 interface Props {
   data: { brand: string; series: string; consumption: number }[]
@@ -17,7 +18,7 @@ export default function ModelConsumptionBar({ data, maxItems = 30 }: Props) {
       type: 'category' as const,
       data: items.map(d => `${d.brand} ${d.series}`),
       inverse: true,
-      axisLabel: { fontSize: 13, color: '#334155' },
+      axisLabel: { fontSize: 13, color: CHART_AXIS.label },
       axisTick: { show: false },
       axisLine: { show: false },
     },
@@ -30,7 +31,7 @@ export default function ModelConsumptionBar({ data, maxItems = 30 }: Props) {
           position: 'right' as const,
           formatter: '{c}',
           fontSize: 13,
-          color: '#475569',
+          color: CHART_AXIS.label,
           fontWeight: 500,
         },
         itemStyle: {
@@ -38,8 +39,8 @@ export default function ModelConsumptionBar({ data, maxItems = 30 }: Props) {
           color: {
             type: 'linear' as const, x: 0, y: 0, x2: 1, y2: 0,
             colorStops: [
-              { offset: 0, color: '#1d4ed8' },
-              { offset: 1, color: `hsl(${210 + (d.consumption / maxVal) * 30}, 80%, 55%)` },
+              { offset: 0, color: '#6366f1' },
+              { offset: 1, color: `hsl(${240 + (d.consumption / maxVal) * 30}, 80%, 65%)` },
             ],
           },
         },

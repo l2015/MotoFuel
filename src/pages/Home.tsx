@@ -47,23 +47,23 @@ export default function Home({ data }: Props) {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-        <div className="bg-white rounded-xl border border-border p-4 text-center">
+        <div className="glass-card p-4 text-center">
           <p className="text-xs text-text-secondary">总车型数</p>
           <p className="text-2xl font-bold text-primary mt-1">{summary.totalModels}</p>
         </div>
-        <div className="bg-white rounded-xl border border-border p-4 text-center">
+        <div className="glass-card p-4 text-center">
           <p className="text-xs text-text-secondary">品牌数</p>
           <p className="text-2xl font-bold text-primary mt-1">{summary.totalBrands}</p>
         </div>
-        <div className="bg-white rounded-xl border border-border p-4 text-center">
+        <div className="glass-card p-4 text-center">
           <p className="text-xs text-text-secondary">排量级别</p>
           <p className="text-2xl font-bold text-primary mt-1">{summary.totalDisplacements}</p>
         </div>
-        <div className="bg-white rounded-xl border border-border p-4 text-center">
+        <div className="glass-card p-4 text-center">
           <p className="text-xs text-text-secondary">总样本数</p>
           <p className="text-2xl font-bold text-accent-amber mt-1">{summary.totalSamples.toLocaleString()}</p>
         </div>
-        <div className="bg-white rounded-xl border border-border p-4 text-center col-span-2 sm:col-span-1">
+        <div className="glass-card p-4 text-center col-span-2 sm:col-span-1">
           <p className="text-xs text-text-secondary">最低油耗</p>
           <p className="text-xl font-bold text-accent-green mt-1 whitespace-nowrap">
             {summary.lowestConsumption ? `${summary.lowestConsumption.consumption}` : '-'}
@@ -78,18 +78,18 @@ export default function Home({ data }: Props) {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-border p-4">
+        <div className="glass-card p-4">
           <h2 className="text-base font-semibold mb-1">排量与平均油耗趋势</h2>
           <ConsumptionTrendLine data={weightedDisp} />
         </div>
-        <div className="bg-white rounded-xl border border-border p-4">
+        <div className="glass-card p-4">
           <h2 className="text-base font-semibold mb-3">车型类型分布</h2>
           <TypeDistributionPie data={typeCount} />
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6 items-start">
-        <div className="bg-white rounded-xl border border-border p-4">
+        <div className="glass-card p-4">
           <div className="flex items-center gap-1 mb-3">
             <button onClick={() => setActiveTab('brand')}
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
@@ -145,7 +145,7 @@ export default function Home({ data }: Props) {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-border p-5">
+        <div className="glass-card p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">跨排量 Top 20 最省油</h2>
             <Link to="/ranking" className="text-sm text-primary hover:underline">完整排行 →</Link>

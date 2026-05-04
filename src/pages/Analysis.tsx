@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import ReactECharts from 'echarts-for-react'
 import type { Motorcycle } from '../types'
 import { avgByBrand, samplesByBrand, consumptionHistogram, countByType } from '../utils/stats'
+import { brandRankColor, CHART_PALETTE, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
 
 interface Props {
   data: Motorcycle[]
@@ -99,6 +100,9 @@ export default function Analysis({ data }: Props) {
       tooltip: {
         trigger: 'axis' as const,
         axisPointer: { type: 'shadow' as const },
+        backgroundColor: CHART_TOOLTIP.backgroundColor,
+        borderColor: CHART_TOOLTIP.borderColor,
+        textStyle: CHART_TOOLTIP.textStyle,
         formatter: (p: any) => {
           const idx = p[0]?.dataIndex ?? 0
           const item = items[idx]
@@ -107,15 +111,28 @@ export default function Analysis({ data }: Props) {
         },
       },
       grid: { left: 100, right: 50, top: 10, bottom: 20 },
-      xAxis: { type: 'value' as const, name: 'L/100km' },
-      yAxis: { type: 'category' as const, data: items.map(d => d.brand), inverse: true, axisLabel: { fontSize: 13 } },
+      xAxis: {
+        type: 'value' as const,
+        name: 'L/100km',
+        nameTextStyle: { color: CHART_AXIS.name },
+        axisLabel: { color: CHART_AXIS.label },
+        axisLine: { lineStyle: { color: CHART_AXIS.line } },
+        splitLine: { lineStyle: { color: CHART_AXIS.splitLine } },
+      },
+      yAxis: {
+        type: 'category' as const,
+        data: items.map(d => d.brand),
+        inverse: true,
+        axisLabel: { fontSize: 13, color: CHART_AXIS.label },
+        axisLine: { lineStyle: { color: CHART_AXIS.line } },
+      },
       series: [{
         type: 'bar' as const,
         data: items.map(d => ({
           value: d.avg,
-          label: { show: true, position: 'right' as const, formatter: '{c}', fontSize: 11 },
+          label: { show: true, position: 'right' as const, formatter: '{c}', fontSize: 11, color: CHART_AXIS.label },
           itemStyle: {
-            color: d.avg < 3 ? '#16a34a' : d.avg < 5 ? '#2563eb' : d.avg < 7 ? '#f59e0b' : '#dc2626',
+            color: brandRankColor(d.avg),
             borderRadius: [0, 4, 4, 0],
           },
         })),
@@ -133,11 +150,15 @@ export default function Analysis({ data }: Props) {
   const typePieOption = useMemo(() => ({
     tooltip: {
       trigger: 'item' as const,
+      backgroundColor: CHART_TOOLTIP.backgroundColor,
+      borderColor: CHART_TOOLTIP.borderColor,
+      textStyle: CHART_TOOLTIP.textStyle,
       formatter: (p: any) => {
         const samples = typeSamplesMap.get(p.name) || 0
         return `${p.name}<br/>车型数: ${p.value} 款 (${p.percent}%)<br/>样本数: ${samples.toLocaleString()}`
       },
     },
+    color: CHART_PALETTE,
     series: [{
       type: 'pie' as const,
       radius: ['30%', '65%'],
@@ -147,7 +168,7 @@ export default function Analysis({ data }: Props) {
         fontSize: 12,
         formatter: (p: any) => p.percent >= 5 ? `${p.name} ${p.percent}%` : p.name,
       },
-      emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.15)' } },
+      emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.4)' } },
     }],
   }), [typeCount, typeSamplesMap])
 
@@ -160,6 +181,9 @@ export default function Analysis({ data }: Props) {
     tooltip: {
       trigger: 'axis' as const,
       axisPointer: { type: 'shadow' as const },
+      backgroundColor: CHART_TOOLTIP.backgroundColor,
+      borderColor: CHART_TOOLTIP.borderColor,
+      textStyle: CHART_TOOLTIP.textStyle,
       formatter: (p: any) => {
         const idx = p[0]?.dataIndex ?? 0
         const d = histogram[idx]
@@ -168,12 +192,25 @@ export default function Analysis({ data }: Props) {
       },
     },
     grid: { left: 50, right: 20, top: 20, bottom: 50 },
-    xAxis: { type: 'category' as const, data: histogram.map(d => d.range + 'L'), axisLabel: { rotate: 45 } },
-    yAxis: { type: 'value' as const, name: '车型数' },
+    xAxis: {
+      type: 'category' as const,
+      data: histogram.map(d => d.range + 'L'),
+      axisLabel: { rotate: 45, color: CHART_AXIS.label },
+      axisLine: { lineStyle: { color: CHART_AXIS.line } },
+      axisTick: { lineStyle: { color: CHART_AXIS.tick } },
+    },
+    yAxis: {
+      type: 'value' as const,
+      name: '车型数',
+      nameTextStyle: { color: CHART_AXIS.name },
+      axisLabel: { color: CHART_AXIS.label },
+      axisLine: { lineStyle: { color: CHART_AXIS.line } },
+      splitLine: { lineStyle: { color: CHART_AXIS.splitLine } },
+    },
     series: [{
       type: 'bar' as const,
       data: histogram.map(d => d.count),
-      itemStyle: { color: '#818cf8', borderRadius: [3, 3, 0, 0] },
+      itemStyle: { color: CHART_PALETTE[0], borderRadius: [3, 3, 0, 0] },
       barMaxWidth: 30,
     }],
   }), [histogram])
@@ -185,19 +222,19 @@ export default function Analysis({ data }: Props) {
         <span className="text-sm text-text-secondary">基于 {filteredByBrand.length} 款车型</span>
       </div>
 
-      <div className="bg-white rounded-xl border border-border sticky top-14 z-40">
-        <div className="flex items-center justify-between px-4 py-2.5">
+      <div className="glass-card sticky top-14 z-40">
+        <div className="flex items-center justify-between flex-wrap gap-2 px-4 py-2.5">
           <button onClick={() => setFilterCollapsed(!filterCollapsed)}
             className="flex items-center gap-1.5 text-sm font-semibold hover:text-primary transition-colors">
             <svg className={`w-4 h-4 transition-transform ${filterCollapsed ? '-rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
             品牌筛选
           </button>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-2">
               <label className="text-xs text-text-secondary">样本 ≥</label>
               <input type="range" min={0} max={5000} step={100} value={minBrandSamples}
                 onChange={e => { setMinBrandSamples(parseInt(e.target.value)); setSelectedBrands([]) }}
-                className="w-28 accent-primary" />
+                className="w-20 sm:w-28 accent-primary" />
               <span className="text-xs font-mono w-12">{minBrandSamples}</span>
             </div>
             <button onClick={() => { setSelectedBrands([]); setMinBrandSamples(1000) }}
@@ -231,7 +268,7 @@ export default function Analysis({ data }: Props) {
         )}
       </div>
 
-      <div className="bg-white rounded-xl border border-border p-5">
+      <div className="glass-card p-5">
         <h2 className="text-base font-semibold mb-4">
           品牌平均油耗排名
           <span className="text-xs text-text-secondary font-normal ml-2">点击柱子查看该品牌排行榜</span>
@@ -244,14 +281,14 @@ export default function Analysis({ data }: Props) {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-border p-5">
+        <div className="glass-card p-5">
           <h2 className="text-base font-semibold mb-3">
             车型类型分布
             <span className="text-xs text-text-secondary font-normal ml-2">点击扇区查看</span>
           </h2>
           <ReactECharts option={typePieOption} style={{ height: 340 }} onEvents={{ click: onTypePieClick }} />
         </div>
-        <div className="bg-white rounded-xl border border-border p-5">
+        <div className="glass-card p-5">
           <h2 className="text-base font-semibold mb-3">油耗分布直方图</h2>
           <ReactECharts option={histogramOption} style={{ height: 340 }} />
         </div>

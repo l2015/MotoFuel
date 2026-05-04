@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import type { Motorcycle } from '../types'
+import { consumptionColor } from '../utils/chartTheme'
 
 interface DataTableProps {
   data: Motorcycle[]
@@ -12,17 +13,6 @@ interface DataTableProps {
 
 type SortKey = 'rank' | 'brand' | 'series' | 'type' | 'displacement' | 'consumption' | 'samples'
 type SortDir = 'asc' | 'desc'
-
-function getBarColor(consumption: number): string {
-  if (consumption < 2) return '#16a34a'
-  if (consumption < 2.5) return '#22c55e'
-  if (consumption < 3) return '#3b82f6'
-  if (consumption < 3.5) return '#6366f1'
-  if (consumption < 4) return '#8b5cf6'
-  if (consumption < 4.5) return '#f59e0b'
-  if (consumption < 5) return '#f97316'
-  return '#dc2626'
-}
 
 export default function DataTable({ data, showDisplacement = false, showBar = false, selectable = false, selectedIds, onToggleSelect }: DataTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>('consumption')
@@ -71,7 +61,7 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
           <thead className="bg-surface-alt">
             <tr>
               {selectable && <th className="px-3 py-2.5 w-8" />}
-              <th className="px-3 py-2.5 text-left w-14 cursor-pointer hover:text-primary" onClick={() => toggleSort('rank')}>
+              <th className="px-3 py-2.5 text-left w-14 cursor-pointer hover:text-primary hidden sm:table-cell" onClick={() => toggleSort('rank')}>
                 排名<SortIcon k="rank" />
               </th>
               <th className="px-3 py-2.5 text-left w-24 cursor-pointer hover:text-primary" onClick={() => toggleSort('brand')}>
@@ -98,7 +88,7 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
           </thead>
           <tbody>
             {paged.map((row, i) => (
-              <tr key={row.id} className={`border-t border-border hover:bg-blue-50/50 ${i % 2 === 0 ? 'bg-white' : 'bg-surface-alt/30'}`}>
+              <tr key={row.id} className={`border-t border-border hover:bg-surface ${i % 2 === 0 ? '' : 'bg-surface-alt/30'}`}>
                 {selectable && (
                   <td className="px-3 py-2">
                     <input
@@ -109,7 +99,7 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
                     />
                   </td>
                 )}
-                <td className="px-3 py-2 font-mono text-text-secondary">{row.rank}</td>
+                <td className="px-3 py-2 font-mono text-text-secondary hidden sm:table-cell">{row.rank}</td>
                 <td className="px-3 py-2 font-medium">{row.brand}</td>
                 <td className="px-3 py-2 truncate max-w-48">{row.series}</td>
                 <td className="px-3 py-2">
@@ -119,12 +109,12 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
                 <td className="px-3 py-2">
                   <div className="flex items-center gap-2">
                     {showBar && (
-                      <div className="w-24 bg-surface-alt rounded-full h-2 overflow-hidden shrink-0">
+                      <div className="w-24 bg-surface-alt rounded-full h-2 overflow-hidden shrink-0 hidden sm:block">
                         <div
                           className="h-full rounded-full"
                           style={{
                             width: `${Math.max(6, (row.consumption / maxConsumption) * 100)}%`,
-                            backgroundColor: getBarColor(row.consumption),
+                            backgroundColor: consumptionColor(row.consumption),
                           }}
                         />
                       </div>
