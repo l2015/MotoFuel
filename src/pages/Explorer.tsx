@@ -21,9 +21,9 @@ export default function Explorer({ data }: Props) {
     () => [...new Set(data.map(d => d.displacement))].sort((a, b) => a - b),
     [data]
   )
+  const dispLabels = useMemo(() => allDisplacements.map(d => `${d}`), [allDisplacements])
 
-  // Global sample range for consistent sizing
-  const globalSampleRange = useMemo(() => {
+  const sampleStats = useMemo(() => {
     let min = Infinity, max = 0
     for (const d of data) {
       if (d.samples < min) min = d.samples
@@ -75,21 +75,21 @@ export default function Explorer({ data }: Props) {
       if (!chart || items.length === 0) return
       if (!chart.getWidth() || !chart.getHeight()) return
 
-      const disps = [...new Set(items.map(d => d.displacement))].sort((a, b) => a - b)
+      const indices = [...new Set(items.map(d => allDisplacements.indexOf(d.displacement)))].filter(i => i >= 0).sort((a, b) => a - b)
       const total = allDisplacements.length
-      if (disps.length === 0 || total === 0) return
+      if (indices.length === 0 || total === 0) return
 
-      const xMin = disps[0], xMax = disps[disps.length - 1]
-      const dispRange = xMax - xMin
-      const pad = Math.max(30, dispRange * 0.15)
+      const pad = Math.max(1, Math.round((indices[indices.length - 1] - indices[0]) * 0.2))
+      const start = Math.max(0, ((indices[0] - pad) / total) * 100)
+      const end = Math.min(100, ((indices[indices.length - 1] + 1 + pad) / total) * 100)
 
       const consumptions = items.map(d => d.consumption)
       const yMin = Math.min(...consumptions)
       const yMax = Math.max(...consumptions)
       const yPad = Math.max(0.5, (yMax - yMin) * 0.25)
 
+      chart.dispatchAction({ type: 'dataZoom', start, end })
       chart.setOption({
-        xAxis: { min: xMin - pad, max: xMax + pad },
         yAxis: { min: Math.max(0, yMin - yPad), max: yMax + yPad },
         series: allTypes.map(() => ({})),
       })
@@ -100,10 +100,8 @@ export default function Explorer({ data }: Props) {
     try {
       const chart = chartRef.current?.getEchartsInstance()
       if (!chart || !chart.getWidth() || !chart.getHeight()) return
-      chart.setOption({
-        xAxis: { min: undefined, max: undefined },
-        yAxis: { min: 0, max: undefined },
-      })
+      chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 })
+      chart.setOption({ yAxis: { min: 0, max: undefined } })
     } catch { /* chart not ready */ }
   }, [])
 
@@ -118,8 +116,18 @@ export default function Explorer({ data }: Props) {
     }
   }, [highlightType])
 
+  // Zoom on brand / sample filter (skip initial mount)
+  useEffect(() => {
+    if (initRef.current) return
+    if ((selectedBrands.length > 0 || minSamples > 0) && filteredData.length > 0) {
+      doZoom(filteredData)
+    } else if (selectedBrands.length === 0 && minSamples === 0 && !highlightType) {
+      resetZoom()
+    }
+  }, [selectedBrands, minSamples])
+
   const option = useMemo(() => {
-    const { min: sMin, max: sMax } = globalSampleRange
+    const { min: sMin, max: sMax } = sampleStats
 
     const series = allTypes.map(type => {
       const items = filteredData
@@ -133,16 +141,16 @@ export default function Explorer({ data }: Props) {
         type: 'scatter' as const,
         triggerEvent: false,
         data: items.map((d, i) => {
-          const hash = d.brand.length * 31 + d.series.length * 17 + i * 7
+          const xIdx = allDisplacements.indexOf(d.displacement)
           const norm = (d.samples - sMin) / (sMax - sMin)
-          // Jitter: ±6cc max, high-sample items tighter
-          const spread = 6 * (1 - norm * 0.5)
-          const jitter = ((hash % 100) / 100 - 0.5) * 2 * spread
+          // Jitter as fraction of category width: high-sample tight (±0.08), low-sample loose (±0.3)
+          const hash = d.brand.length * 31 + d.series.length * 17 + i * 7
+          const spread = 0.3 * (1 - norm * 0.73)
+          const jitter = ((hash % 100) / 50 - 1) * spread
 
           return {
-            value: [d.displacement + jitter, d.consumption],
-            // Size: 4px (few samples) → 22px (5000+), using sqrt for smoother curve
-            symbolSize: Math.round(4 + Math.sqrt(norm) * 18),
+            value: [xIdx + jitter, d.consumption],
+            symbolSize: Math.round(6 + Math.sqrt(norm) * 20),
             _brand: d.brand,
             _series: d.series,
             _samples: d.samples,
@@ -203,41 +211,33 @@ export default function Explorer({ data }: Props) {
       },
       grid: { left: 60, right: 30, top: 20, bottom: 50 },
       xAxis: {
-        type: 'value' as const,
+        type: 'category' as const,
+        data: dispLabels,
         name: '排量 (cc)',
         nameLocation: 'center' as const,
         nameGap: 35,
         nameTextStyle: { fontSize: 13 },
-        axisLabel: {
-          fontSize: 12,
-          formatter: (v: number) => {
-            if (allDisplacements.includes(v)) return `${v}`
-            return ''
-          },
-        },
+        axisLabel: { fontSize: 12, interval: 0 },
         axisTick: { show: false },
         splitLine: { show: true, lineStyle: { color: '#f1f5f9' } },
-        min: allDisplacements[0] - 30,
-        max: allDisplacements[allDisplacements.length - 1] + 30,
       },
       yAxis: {
         type: 'value' as const,
         name: '油耗 (L/100km)',
-        nameLocation: 'end' as const,
-        nameTextStyle: { fontSize: 13, padding: [0, 0, 0, 0] },
+        nameTextStyle: { fontSize: 13 },
         axisLabel: { fontSize: 12 },
         splitLine: { lineStyle: { color: '#f1f5f9' } },
         min: 0,
       },
       dataZoom: [
-        { type: 'inside' as const },
+        { type: 'inside' as const, xAxisIndex: 0 },
         { type: 'slider' as const, xAxisIndex: 0, bottom: 4, height: 18, borderColor: '#e2e8f0', fillerColor: 'rgba(37,99,235,0.06)' },
         { type: 'slider' as const, yAxisIndex: 0, right: 2, width: 18, borderColor: '#e2e8f0', fillerColor: 'rgba(37,99,235,0.06)' },
       ],
       legend: { show: false },
       series,
     }
-  }, [filteredData, allTypes, typeColorMap, highlightType, allDisplacements, globalSampleRange])
+  }, [filteredData, allTypes, typeColorMap, highlightType, allDisplacements, dispLabels, sampleStats])
 
   return (
     <div className="fixed inset-0 top-14 flex flex-col bg-white">
