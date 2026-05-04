@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useData } from './hooks/useData'
 import Header from './components/Header'
 import Footer from './components/Footer'
+import BottomNav from './components/BottomNav'
 import ErrorBoundary from './components/ErrorBoundary'
 import Home from './pages/Home'
 import Ranking from './pages/Ranking'
@@ -46,7 +47,7 @@ function App() {
           <Explorer data={data.data} />
         ) : (
           <>
-            <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6">
+            <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 mobile-content-pad">
               <Routes>
                 <Route path="/" element={<Home data={data.data} />} />
                 <Route path="/ranking" element={<Ranking data={data.data} scrapeTime={data.metadata.scrapedAt} />} />
@@ -56,6 +57,7 @@ function App() {
               </Routes>
             </main>
             <Footer scrapeTime={data.metadata.scrapedAt} />
+            <BottomNav />
           </>
         )}
       </div>

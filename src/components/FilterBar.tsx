@@ -19,7 +19,8 @@ const DISP_QUICK_RANGES = [
 
 export default function FilterBar({ filter, allData, types, onFilterChange, onReset }: FilterBarProps) {
   const { t } = useTranslation()
-  const [collapsed, setCollapsed] = useState(false)
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+  const [collapsed, setCollapsed] = useState(isMobile)
   const [brandExpanded, setBrandExpanded] = useState(false)
   const minRef = useRef<HTMLInputElement>(null)
   const maxRef = useRef<HTMLInputElement>(null)

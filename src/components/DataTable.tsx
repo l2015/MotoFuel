@@ -45,8 +45,21 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
   }
 
   const SortIcon = ({ k }: { k: SortKey }) => {
-    if (sortKey !== k) return <span className="text-border ml-0.5">↕</span>
-    return <span className="text-primary ml-0.5">{sortDir === 'asc' ? '↑' : '↓'}</span>
+    if (sortKey !== k) return (
+      <svg className="w-3 h-3 ml-0.5 inline text-border" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+      </svg>
+    )
+    if (sortDir === 'asc') return (
+      <svg className="w-3 h-3 ml-0.5 inline text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+      </svg>
+    )
+    return (
+      <svg className="w-3 h-3 ml-0.5 inline text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+      </svg>
+    )
   }
 
   if (data.length === 0) {
@@ -59,27 +72,27 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
         <table className="w-full text-sm table-fixed">
           <thead>
             <tr className="border-b-2 border-b-text">
-              <th className="px-3 py-2.5 text-left w-14 cursor-pointer hover:text-primary hidden sm:table-cell text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary" onClick={() => toggleSort('rank')}>
+              <th className="px-3 py-2.5 text-left w-14 cursor-pointer hover:text-primary hidden sm:table-cell text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('rank')}>
                 {t('table.header.rank')}<SortIcon k="rank" />
               </th>
-              <th className="px-3 py-2.5 text-left w-24 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary" onClick={() => toggleSort('brand')}>
+              <th className="px-3 py-2.5 text-left w-24 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('brand')}>
                 {t('table.header.brand')}<SortIcon k="brand" />
               </th>
-              <th className="px-3 py-2.5 text-left cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary" onClick={() => toggleSort('series')}>
+              <th className="px-3 py-2.5 text-left cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('series')}>
                 {t('table.header.series')}<SortIcon k="series" />
               </th>
-              <th className="px-3 py-2.5 text-left w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary" onClick={() => toggleSort('type')}>
+              <th className="px-3 py-2.5 text-left w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('type')}>
                 {t('table.header.type')}<SortIcon k="type" />
               </th>
               {showDisplacement && (
-                <th className="px-3 py-2.5 text-left w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary" onClick={() => toggleSort('displacement')}>
+                <th className="px-3 py-2.5 text-left w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('displacement')}>
                   {t('table.header.displacement')}<SortIcon k="displacement" />
                 </th>
               )}
-              <th className="px-3 py-2.5 text-right w-44 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary" onClick={() => toggleSort('consumption')}>
+              <th className="px-3 py-2.5 text-right w-44 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('consumption')}>
                 {t('table.header.consumption')}<SortIcon k="consumption" />
               </th>
-              <th className="px-3 py-2.5 text-right w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary" onClick={() => toggleSort('samples')}>
+              <th className="px-3 py-2.5 text-right w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('samples')}>
                 {t('table.header.samples')}<SortIcon k="samples" />
               </th>
             </tr>

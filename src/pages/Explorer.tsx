@@ -374,7 +374,7 @@ export default function Explorer({ data }: Props) {
   }), [onChartClick, onDataZoom, onLegendChange])
 
   return (
-    <div className="fixed inset-0 top-14 flex flex-col bg-bg">
+    <div className="fixed inset-0 top-14 flex flex-col bg-bg md:bottom-0 bottom-14">
       <div className="px-4 md:px-6 py-2 md:py-3 border-b-[3px] double-rule bg-[rgba(255,254,249,0.92)] backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <h1 className="font-serif text-base md:text-lg font-bold">{t('explorer.title')}</h1>

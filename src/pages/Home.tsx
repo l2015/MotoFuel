@@ -100,36 +100,36 @@ export default function Home({ data }: Props) {
       </section>
 
       {/* KEY STATS BAR */}
-      <div className="flex border-t-2 border-t-text border-b border-b-border mb-8">
-        <div className="flex-1 py-5 text-center border-r border-r-border">
-          <span ref={stat1.ref} className="font-serif text-[42px] font-black text-text leading-none">
+      <div className="grid grid-cols-2 md:grid-cols-4 border-t-2 border-t-text border-b border-b-border mb-8">
+        <div className="py-5 text-center border-r border-b border-r-border border-b-border md:border-b-0">
+          <span ref={stat1.ref} className="font-serif text-[32px] md:text-[42px] font-black text-text leading-none">
             {stat1.value.toFixed(1)}
           </span>
-          <div className="text-[11px] font-semibold text-text-tertiary uppercase tracking-[0.1em] mt-1.5">
+          <div className="text-[10px] md:text-[11px] font-semibold text-text-tertiary uppercase tracking-[0.1em] mt-1.5">
             {t('home.stat.lowestConsumption')} L/100km
           </div>
         </div>
-        <div className="flex-1 py-5 text-center border-r border-r-border">
-          <span ref={stat2.ref} className="font-serif text-[42px] font-black text-text leading-none">
+        <div className="py-5 text-center border-b border-b-border md:border-r md:border-r-border md:border-b-0">
+          <span ref={stat2.ref} className="font-serif text-[32px] md:text-[42px] font-black text-text leading-none">
             {Math.round(stat2.value).toLocaleString()}
           </span>
-          <div className="text-[11px] font-semibold text-text-tertiary uppercase tracking-[0.1em] mt-1.5">
+          <div className="text-[10px] md:text-[11px] font-semibold text-text-tertiary uppercase tracking-[0.1em] mt-1.5">
             {t('home.stat.totalBrands')}
           </div>
         </div>
-        <div className="flex-1 py-5 text-center border-r border-r-border">
-          <span ref={stat3.ref} className="font-serif text-[42px] font-black text-text leading-none">
+        <div className="py-5 text-center border-r border-r-border">
+          <span ref={stat3.ref} className="font-serif text-[32px] md:text-[42px] font-black text-text leading-none">
             {Math.round(stat3.value).toLocaleString()}
           </span>
-          <div className="text-[11px] font-semibold text-text-tertiary uppercase tracking-[0.1em] mt-1.5">
+          <div className="text-[10px] md:text-[11px] font-semibold text-text-tertiary uppercase tracking-[0.1em] mt-1.5">
             {t('home.stat.totalModels')}
           </div>
         </div>
-        <div className="flex-1 py-5 text-center">
-          <span ref={stat4.ref} className="font-serif text-[42px] font-black text-text leading-none">
+        <div className="py-5 text-center">
+          <span ref={stat4.ref} className="font-serif text-[32px] md:text-[42px] font-black text-text leading-none">
             {Math.round(stat4.value).toLocaleString()}
           </span>
-          <div className="text-[11px] font-semibold text-text-tertiary uppercase tracking-[0.1em] mt-1.5">
+          <div className="text-[10px] md:text-[11px] font-semibold text-text-tertiary uppercase tracking-[0.1em] mt-1.5">
             {t('home.stat.totalSamples')}
           </div>
         </div>

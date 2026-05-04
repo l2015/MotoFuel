@@ -11,6 +11,7 @@ interface Props {
 
 export default function TypeDistributionPie({ data, typeSamplesMap, onTypeClick }: Props) {
   const { t } = useTranslation()
+  const total = useMemo(() => data.reduce((s, d) => s + d.count, 0), [data])
   const option = useMemo(() => ({
     tooltip: {
       trigger: 'item' as const,
@@ -28,19 +29,32 @@ export default function TypeDistributionPie({ data, typeSamplesMap, onTypeClick 
       type: 'pie' as const,
       radius: typeSamplesMap ? ['30%', '65%'] : ['35%', '62%'],
       center: typeSamplesMap ? ['50%', '55%'] : ['50%', '52%'],
-      data: data.map(d => ({ name: d.type, value: d.count })),
+      data: data.map(d => {
+        const pct = (d.count / total) * 100
+        const showLabel = pct >= 4
+        return {
+          name: d.type,
+          value: d.count,
+          label: showLabel ? undefined : { show: false },
+          labelLine: showLabel ? undefined : { show: false },
+        }
+      }),
       label: {
         fontSize: 11,
         color: CHART_AXIS.label,
         formatter: (p: any) => p.percent >= 4 ? `${p.name}\n${p.percent}%` : '',
         lineHeight: 15,
       },
-      labelLine: { lineStyle: { color: CHART_AXIS.line }, length: 10, length2: 6 },
+      labelLine: {
+        lineStyle: { color: CHART_AXIS.line },
+        length: 10,
+        length2: 6,
+      },
       labelLayout: { hideOverlap: true },
       itemStyle: { borderColor: CHART_TOOLTIP.backgroundColor, borderWidth: 2 },
       emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(255,107,53,0.15)' } },
     }],
-  }), [data, t, typeSamplesMap])
+  }), [data, t, typeSamplesMap, total])
 
   const onEvents = useMemo(() => {
     if (!onTypeClick) return undefined
