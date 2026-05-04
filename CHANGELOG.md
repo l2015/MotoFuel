@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.8.4 (2026-05-05)
+
+- Explorer: track container size via ResizeObserver state, pass explicit pixel dimensions to ECharts (no more CSS percentage height)
+
 ## v0.8.3 (2026-05-05)
 
 - Explorer: add ResizeObserver to force ECharts resize on container change, scatter chart renders correctly

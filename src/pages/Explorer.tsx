@@ -39,6 +39,7 @@ export default function Explorer({ data }: Props) {
   const [filterOpen, setFilterOpen] = useState(true)
   const [clickDetail, setClickDetail] = useState<ClickDetail | null>(null)
   const [zoomStats, setZoomStats] = useState<ZoomStats | null>(null)
+  const [chartSize, setChartSize] = useState({ width: 0, height: 0 })
   const initRef = useRef(true)
 
   const allTypes = useMemo(() => [...new Set(data.map(d => d.type))], [data])
@@ -178,13 +179,13 @@ export default function Explorer({ data }: Props) {
     return () => { clearTimeout(timer); window.removeEventListener('click', handler) }
   }, [clickDetail])
 
-  // Force ECharts to resize when container dimensions change
+  // Track container size explicitly for ECharts
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
-    const observer = new ResizeObserver(() => {
-      const chart = chartRef.current?.getEchartsInstance()
-      chart?.resize()
+    const observer = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect
+      if (width > 0 && height > 0) setChartSize({ width: Math.floor(width), height: Math.floor(height) })
     })
     observer.observe(el)
     return () => observer.disconnect()
@@ -459,7 +460,9 @@ export default function Explorer({ data }: Props) {
       </div>
 
       <div className="flex-1 min-h-0 relative" ref={containerRef}>
-        <ReactECharts ref={chartRef} option={option} style={{ width: '100%', height: '100%' }} notMerge onEvents={chartEvents} />
+        {chartSize.height > 0 && (
+          <ReactECharts ref={chartRef} option={option} style={{ width: chartSize.width, height: chartSize.height }} notMerge onEvents={chartEvents} />
+        )}
 
         {/* Click detail popup */}
         {clickDetail && (
