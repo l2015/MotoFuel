@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Environment
+.env
+.env.*
+
 # Scraper
 scraper/node_modules
 
@@ -25,3 +29,6 @@ scraper/node_modules
 *.njsproj
 *.sln
 *.sw?
+
+# Claude
+.claude/
