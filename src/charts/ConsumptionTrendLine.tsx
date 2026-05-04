@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import ReactECharts from 'echarts-for-react'
 import { CHART_PALETTE, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
 
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export default function ConsumptionTrendLine({ data }: Props) {
+  const { t } = useTranslation()
   const [mode, setMode] = useState<'simple' | 'weighted'>('simple')
 
   const values = data.map(d => mode === 'simple' ? d.avg : d.weightedAvg)
@@ -38,8 +40,8 @@ export default function ConsumptionTrendLine({ data }: Props) {
         const val = mode === 'simple' ? d.avg : d.weightedAvg
         return [
           `${d.displacement}cc`,
-          `${mode === 'simple' ? '简单平均' : '加权平均'}: ${val} L/100km`,
-          `车型数: ${d.count}`,
+          `${mode === 'simple' ? t('chart.tooltip.simpleAverage') : t('chart.tooltip.weightedAverage')}: ${val} L/100km`,
+          t('chart.tooltip.modelCount', { count: d.count }),
         ].join('<br/>')
       },
     },
@@ -47,7 +49,7 @@ export default function ConsumptionTrendLine({ data }: Props) {
     xAxis: {
       type: 'category' as const,
       data: data.map(d => d.displacement + 'cc'),
-      name: '排量',
+      name: t('chart.axis.displacement'),
       nameTextStyle: { color: CHART_AXIS.name },
       axisLabel: { color: CHART_AXIS.label },
       axisLine: { lineStyle: { color: CHART_AXIS.line } },
@@ -91,7 +93,7 @@ export default function ConsumptionTrendLine({ data }: Props) {
             mode === 'simple' ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
           }`}
         >
-          简单平均
+          {t('chart.mode.simpleAverage')}
         </button>
         <button
           onClick={() => setMode('weighted')}
@@ -99,7 +101,7 @@ export default function ConsumptionTrendLine({ data }: Props) {
             mode === 'weighted' ? 'bg-accent-green text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
           }`}
         >
-          加权平均
+          {t('chart.mode.weightedAverage')}
         </button>
       </div>
       <ReactECharts option={option} style={{ height: 300 }} />

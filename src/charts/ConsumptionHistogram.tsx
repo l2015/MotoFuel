@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import ReactECharts from 'echarts-for-react'
 import { CHART_GRADIENTS, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
 
@@ -6,6 +7,7 @@ interface Props {
 }
 
 export default function ConsumptionHistogram({ data }: Props) {
+  const { t } = useTranslation()
   const option = {
     tooltip: {
       trigger: 'axis' as const,
@@ -24,7 +26,7 @@ export default function ConsumptionHistogram({ data }: Props) {
     },
     yAxis: {
       type: 'value' as const,
-      name: '车型数',
+      name: t('chart.axis.modelCount'),
       nameTextStyle: { color: CHART_AXIS.name },
       axisLabel: { color: CHART_AXIS.label },
       axisLine: { lineStyle: { color: CHART_AXIS.line } },

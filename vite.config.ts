@@ -14,8 +14,8 @@ export default defineConfig({
         name: 'MotoFuel 摩托车油耗分析',
         short_name: 'MotoFuel',
         description: '摩托车油耗数据分析平台 - 跨排量油耗排行、品牌对比和可视化分析',
-        theme_color: '#0f172a',
-        background_color: '#0f172a',
+        theme_color: '#f8fafc',
+        background_color: '#f8fafc',
         display: 'standalone',
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },

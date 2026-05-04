@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { Motorcycle } from '../types'
 import { consumptionColor } from '../utils/chartTheme'
 
@@ -15,6 +16,7 @@ type SortKey = 'rank' | 'brand' | 'series' | 'type' | 'displacement' | 'consumpt
 type SortDir = 'asc' | 'desc'
 
 export default function DataTable({ data, showDisplacement = false, showBar = false, selectable = false, selectedIds, onToggleSelect }: DataTableProps) {
+  const { t } = useTranslation()
   const [sortKey, setSortKey] = useState<SortKey>('consumption')
   const [sortDir, setSortDir] = useState<SortDir>('asc')
   const [page, setPage] = useState(0)
@@ -51,7 +53,7 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
   }
 
   if (data.length === 0) {
-    return <div className="text-center py-12 text-text-secondary">暂无数据</div>
+    return <div className="text-center py-12 text-text-secondary">{t('table.noData')}</div>
   }
 
   return (
@@ -62,27 +64,27 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
             <tr>
               {selectable && <th className="px-3 py-2.5 w-8" />}
               <th className="px-3 py-2.5 text-left w-14 cursor-pointer hover:text-primary hidden sm:table-cell" onClick={() => toggleSort('rank')}>
-                排名<SortIcon k="rank" />
+                {t('table.header.rank')}<SortIcon k="rank" />
               </th>
               <th className="px-3 py-2.5 text-left w-24 cursor-pointer hover:text-primary" onClick={() => toggleSort('brand')}>
-                品牌<SortIcon k="brand" />
+                {t('table.header.brand')}<SortIcon k="brand" />
               </th>
               <th className="px-3 py-2.5 text-left cursor-pointer hover:text-primary" onClick={() => toggleSort('series')}>
-                车系<SortIcon k="series" />
+                {t('table.header.series')}<SortIcon k="series" />
               </th>
               <th className="px-3 py-2.5 text-left w-16 cursor-pointer hover:text-primary" onClick={() => toggleSort('type')}>
-                类型<SortIcon k="type" />
+                {t('table.header.type')}<SortIcon k="type" />
               </th>
               {showDisplacement && (
                 <th className="px-3 py-2.5 text-left w-16 cursor-pointer hover:text-primary" onClick={() => toggleSort('displacement')}>
-                  排量<SortIcon k="displacement" />
+                  {t('table.header.displacement')}<SortIcon k="displacement" />
                 </th>
               )}
               <th className="px-3 py-2.5 text-right w-44 cursor-pointer hover:text-primary" onClick={() => toggleSort('consumption')}>
-                油耗(L/100km)<SortIcon k="consumption" />
+                {t('table.header.consumption')}<SortIcon k="consumption" />
               </th>
               <th className="px-3 py-2.5 text-right w-16 cursor-pointer hover:text-primary" onClick={() => toggleSort('samples')}>
-                样本数<SortIcon k="samples" />
+                {t('table.header.samples')}<SortIcon k="samples" />
               </th>
             </tr>
           </thead>
@@ -130,12 +132,12 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
       </div>
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-3 text-sm">
-          <span className="text-text-secondary">共 {data.length} 条，第 {page + 1}/{totalPages} 页</span>
+          <span className="text-text-secondary">{t('table.pagination.status', { total: data.length, page: page + 1, totalPages })}</span>
           <div className="flex gap-1">
-            <button disabled={page === 0} onClick={() => setPage(0)} className="px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">首页</button>
-            <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">上一页</button>
-            <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">下一页</button>
-            <button disabled={page >= totalPages - 1} onClick={() => setPage(totalPages - 1)} className="px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">末页</button>
+            <button disabled={page === 0} onClick={() => setPage(0)} className="px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.first')}</button>
+            <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.prev')}</button>
+            <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.next')}</button>
+            <button disabled={page >= totalPages - 1} onClick={() => setPage(totalPages - 1)} className="px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.last')}</button>
           </div>
         </div>
       )}

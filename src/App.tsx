@@ -1,4 +1,5 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useData } from './hooks/useData'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -8,6 +9,7 @@ import Analysis from './pages/Analysis'
 import Explorer from './pages/Explorer'
 
 function App() {
+  const { t } = useTranslation()
   const { data, loading, error } = useData()
   const location = useLocation()
   const isExplorer = location.pathname === '/explorer'
@@ -17,7 +19,7 @@ function App() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-text-secondary">加载数据中...</p>
+          <p className="text-text-secondary">{t('common.loadingData')}</p>
         </div>
       </div>
     )
@@ -27,8 +29,8 @@ function App() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-accent-red text-lg font-semibold">数据加载失败</p>
-          <p className="text-text-secondary mt-2">{error || '未知错误'}</p>
+          <p className="text-accent-red text-lg font-semibold">{t('common.dataLoadFailed')}</p>
+          <p className="text-text-secondary mt-2">{error || t('common.unknownError')}</p>
         </div>
       </div>
     )

@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import type { Motorcycle } from '../types'
 import { calcSummary, weightedAvgByDisplacement, topBySamples, samplesByBrand, countByType } from '../utils/stats'
 import ConsumptionTrendLine from '../charts/ConsumptionTrendLine'
@@ -12,7 +13,60 @@ interface Props {
 
 type TabKey = 'brand' | 'model' | 'type'
 
+function useAnimatedCounter(target: number, duration = 1200, decimals = 0) {
+  const [value, setValue] = useState(0)
+  const ref = useRef<HTMLSpanElement>(null)
+  const animated = useRef(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !animated.current) {
+          animated.current = true
+          const start = performance.now()
+          const step = (now: number) => {
+            const progress = Math.min((now - start) / duration, 1)
+            const eased = 1 - Math.pow(1 - progress, 3)
+            setValue(Number((eased * target).toFixed(decimals)))
+            if (progress < 1) requestAnimationFrame(step)
+          }
+          requestAnimationFrame(step)
+        }
+      },
+      { threshold: 0.3 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [target, duration, decimals])
+
+  return { ref, value }
+}
+
+function HeroStat({ label, target, decimals = 0, suffix = '', sub }: {
+  label: string
+  target: number
+  decimals?: number
+  suffix?: string
+  sub?: string
+}) {
+  const { ref, value } = useAnimatedCounter(target, 1200, decimals)
+  return (
+    <div className="text-center">
+      <span ref={ref} className="text-3xl md:text-4xl font-bold text-primary tabular-nums">
+        {decimals > 0 ? value.toFixed(decimals) : Math.round(value).toLocaleString()}
+      </span>
+      {suffix && <span className="text-sm text-text-secondary ml-0.5">{suffix}</span>}
+      <p className="text-xs text-text-secondary mt-1">{label}</p>
+      {sub && <p className="text-[10px] text-text-secondary/70 truncate max-w-[120px] mx-auto">{sub}</p>}
+    </div>
+  )
+}
+
 export default function Home({ data }: Props) {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<TabKey>('brand')
 
   const summary = useMemo(() => calcSummary(data), [data])
@@ -40,118 +94,109 @@ export default function Home({ data }: Props) {
   }, [data])
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">摩托车油耗总览</h1>
-        <p className="text-sm text-text-secondary mt-1">基于小熊油耗平台车友真实加油数据</p>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-        <div className="glass-card p-4 text-center">
-          <p className="text-xs text-text-secondary">总车型数</p>
-          <p className="text-2xl font-bold text-primary mt-1">{summary.totalModels}</p>
-        </div>
-        <div className="glass-card p-4 text-center">
-          <p className="text-xs text-text-secondary">品牌数</p>
-          <p className="text-2xl font-bold text-primary mt-1">{summary.totalBrands}</p>
-        </div>
-        <div className="glass-card p-4 text-center">
-          <p className="text-xs text-text-secondary">排量级别</p>
-          <p className="text-2xl font-bold text-primary mt-1">{summary.totalDisplacements}</p>
-        </div>
-        <div className="glass-card p-4 text-center">
-          <p className="text-xs text-text-secondary">总样本数</p>
-          <p className="text-2xl font-bold text-accent-amber mt-1">{summary.totalSamples.toLocaleString()}</p>
-        </div>
-        <div className="glass-card p-4 text-center col-span-2 sm:col-span-1">
-          <p className="text-xs text-text-secondary">最低油耗</p>
-          <p className="text-xl font-bold text-accent-green mt-1 whitespace-nowrap">
-            {summary.lowestConsumption ? `${summary.lowestConsumption.consumption}` : '-'}
-            <span className="text-xs font-normal text-text-secondary ml-0.5">L/100km</span>
-          </p>
-          {summary.lowestConsumption && (
-            <p className="text-[10px] text-text-secondary mt-0.5 truncate">
-              {summary.lowestConsumption.brand} {summary.lowestConsumption.series}
-            </p>
-          )}
+    <div className="space-y-8">
+      {/* Hero */}
+      <div className="glass-card p-6 md:p-10 text-center">
+        <h1 className="text-3xl md:text-5xl font-bold gradient-text mb-2">
+          {t('home.hero.title')}
+        </h1>
+        <p className="text-sm md:text-base text-text-secondary mb-8">
+          {t('home.hero.subtitle')}
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto">
+          <HeroStat
+            label={t('home.stat.lowestConsumption')}
+            target={summary.lowestConsumption?.consumption ?? 0}
+            decimals={1}
+            suffix="L"
+            sub={summary.lowestConsumption ? `${summary.lowestConsumption.brand} ${summary.lowestConsumption.series}` : undefined}
+          />
+          <HeroStat label={t('home.stat.totalBrands')} target={summary.totalBrands} />
+          <HeroStat label={t('home.stat.totalModels')} target={summary.totalModels} />
+          <HeroStat label={t('home.stat.totalSamples')} target={summary.totalSamples} />
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="glass-card p-4">
-          <h2 className="text-base font-semibold mb-1">排量与平均油耗趋势</h2>
-          <ConsumptionTrendLine data={weightedDisp} />
-        </div>
-        <div className="glass-card p-4">
-          <h2 className="text-base font-semibold mb-3">车型类型分布</h2>
-          <TypeDistributionPie data={typeCount} />
-        </div>
+      {/* Full-width trend */}
+      <div className="glass-card p-5">
+        <h2 className="text-base font-semibold mb-1">{t('home.trend.title')}</h2>
+        <p className="text-xs text-text-secondary mb-3">{t('home.trend.description')}</p>
+        <ConsumptionTrendLine data={weightedDisp} />
       </div>
 
+      {/* Top 20 + Tabbed ranking side by side */}
       <div className="grid md:grid-cols-2 gap-6 items-start">
-        <div className="glass-card p-4">
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">{t('home.top20.title')}</h2>
+            <Link to="/ranking" className="text-sm text-primary hover:underline">{t('home.link.fullRanking')}</Link>
+          </div>
+          <ModelConsumptionBar data={topConsumption} maxItems={20} />
+        </div>
+
+        <div className="glass-card p-5">
           <div className="flex items-center gap-1 mb-3">
             <button onClick={() => setActiveTab('brand')}
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                 activeTab === 'brand' ? 'bg-primary text-white' : 'text-text-secondary hover:bg-surface-alt'
-              }`}>品牌</button>
+              }`}>{t('table.header.brand')}</button>
             <button onClick={() => setActiveTab('model')}
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                 activeTab === 'model' ? 'bg-primary text-white' : 'text-text-secondary hover:bg-surface-alt'
-              }`}>车型</button>
+              }`}>{t('home.tab.model')}</button>
             <button onClick={() => setActiveTab('type')}
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                 activeTab === 'type' ? 'bg-primary text-white' : 'text-text-secondary hover:bg-surface-alt'
-              }`}>类型</button>
+              }`}>{t('table.header.type')}</button>
           </div>
 
           <div className="min-h-[480px]">
-          <table className="w-full text-sm table-fixed">
-            <thead>
-              <tr className="text-left text-text-secondary border-b border-border">
-                <th className="pb-2 w-8">#</th>
-                <th className="pb-2 w-auto">{activeTab === 'brand' ? '品牌' : activeTab === 'model' ? '车型' : '类型'}</th>
-                <th className="pb-2 w-24 text-right">样本数</th>
-                <th className="pb-2 w-20 text-right">{activeTab === 'model' ? '油耗' : '车型数'}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {activeTab === 'brand' && brandSamples.map((b, i) => (
-                <tr key={b.brand} className="border-b border-border/50">
-                  <td className="py-1.5 text-text-secondary">{i + 1}</td>
-                  <td className="py-1.5 font-medium truncate">{b.brand}</td>
-                  <td className="py-1.5 text-right font-mono text-accent-amber">{b.totalSamples.toLocaleString()}</td>
-                  <td className="py-1.5 text-right font-mono text-text-secondary">{b.modelCount}</td>
+            <table className="w-full text-sm table-fixed">
+              <thead>
+                <tr className="text-left text-text-secondary border-b border-border">
+                  <th className="pb-2 w-8">#</th>
+                  <th className="pb-2 w-auto">
+                    {activeTab === 'brand' ? t('table.header.brand') : activeTab === 'model' ? t('home.tab.model') : t('table.header.type')}
+                  </th>
+                  <th className="pb-2 w-24 text-right">{t('table.header.samples')}</th>
+                  <th className="pb-2 w-20 text-right">{activeTab === 'model' ? t('table.header.consumption') : t('table.header.models')}</th>
                 </tr>
-              ))}
-              {activeTab === 'model' && top15Models.map((d, i) => (
-                <tr key={d.id} className="border-b border-border/50">
-                  <td className="py-1.5 text-text-secondary">{i + 1}</td>
-                  <td className="py-1.5 font-medium truncate">{d.brand} {d.series}</td>
-                  <td className="py-1.5 text-right font-mono text-accent-amber">{d.samples}</td>
-                  <td className="py-1.5 text-right font-mono text-primary">{d.consumption}</td>
-                </tr>
-              ))}
-              {activeTab === 'type' && typeStats.map((t, i) => (
-                <tr key={t.type} className="border-b border-border/50">
-                  <td className="py-1.5 text-text-secondary">{i + 1}</td>
-                  <td className="py-1.5 font-medium truncate">{t.type}</td>
-                  <td className="py-1.5 text-right font-mono text-accent-amber">{t.samples.toLocaleString()}</td>
-                  <td className="py-1.5 text-right font-mono text-text-secondary">{t.count}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {activeTab === 'brand' && brandSamples.map((b, i) => (
+                  <tr key={b.brand} className="border-b border-border/50">
+                    <td className="py-1.5 text-text-secondary">{i + 1}</td>
+                    <td className="py-1.5 font-medium truncate">{b.brand}</td>
+                    <td className="py-1.5 text-right font-mono text-accent-amber">{b.totalSamples.toLocaleString()}</td>
+                    <td className="py-1.5 text-right font-mono text-text-secondary">{b.modelCount}</td>
+                  </tr>
+                ))}
+                {activeTab === 'model' && top15Models.map((d, i) => (
+                  <tr key={d.id} className="border-b border-border/50">
+                    <td className="py-1.5 text-text-secondary">{i + 1}</td>
+                    <td className="py-1.5 font-medium truncate">{d.brand} {d.series}</td>
+                    <td className="py-1.5 text-right font-mono text-accent-amber">{d.samples}</td>
+                    <td className="py-1.5 text-right font-mono text-primary">{d.consumption}</td>
+                  </tr>
+                ))}
+                {activeTab === 'type' && typeStats.map((ty, i) => (
+                  <tr key={ty.type} className="border-b border-border/50">
+                    <td className="py-1.5 text-text-secondary">{i + 1}</td>
+                    <td className="py-1.5 font-medium truncate">{ty.type}</td>
+                    <td className="py-1.5 text-right font-mono text-accent-amber">{ty.samples.toLocaleString()}</td>
+                    <td className="py-1.5 text-right font-mono text-text-secondary">{ty.count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
+      </div>
 
-        <div className="glass-card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">跨排量 Top 20 最省油</h2>
-            <Link to="/ranking" className="text-sm text-primary hover:underline">完整排行 →</Link>
-          </div>
-          <ModelConsumptionBar data={topConsumption} maxItems={20} />
-        </div>
+      {/* Type distribution */}
+      <div className="glass-card p-5">
+        <h2 className="text-base font-semibold mb-3">{t('home.typeDistribution.title')}</h2>
+        <TypeDistributionPie data={typeCount} />
       </div>
     </div>
   )

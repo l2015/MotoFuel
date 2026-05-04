@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import ReactECharts from 'echarts-for-react'
 import { brandRankColor, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
 
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export default function BrandRankBar({ data, maxItems = 25 }: Props) {
+  const { t } = useTranslation()
   const items = data.slice(0, maxItems)
   const option = {
     tooltip: {
@@ -18,7 +20,7 @@ export default function BrandRankBar({ data, maxItems = 25 }: Props) {
       formatter: (p: any) => {
         const idx = p[0]?.dataIndex ?? 0
         const item = items[idx]
-        return `${item.brand}<br/>平均油耗: ${item.avg} L/100km<br/>车型数: ${item.count}`
+        return `${item.brand}<br/>${t('chart.tooltip.avgConsumption', { avg: item.avg })}<br/>${t('chart.tooltip.modelCount', { count: item.count })}`
       },
     },
     grid: { left: 100, right: 40, top: 10, bottom: 20 },

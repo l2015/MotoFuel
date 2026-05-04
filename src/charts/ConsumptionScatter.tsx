@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import ReactECharts from 'echarts-for-react'
 import type { Motorcycle } from '../types'
 import { CHART_PALETTE, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export default function ConsumptionScatter({ data }: Props) {
+  const { t } = useTranslation()
   const option = {
     tooltip: {
       trigger: 'item' as const,
@@ -14,12 +16,12 @@ export default function ConsumptionScatter({ data }: Props) {
       borderColor: CHART_TOOLTIP.borderColor,
       textStyle: CHART_TOOLTIP.textStyle,
       formatter: (p: { data: [number, number, string, string] }) =>
-        `${p.data[2]} ${p.data[3]}<br/>油耗: ${p.data[0]} L/100km<br/>样本数: ${p.data[1]}`,
+        `${p.data[2]} ${p.data[3]}<br/>${t('chart.tooltip.consumption', { value: p.data[0] })}<br/>${t('chart.tooltip.sampleCount', { count: p.data[1] })}`,
     },
     grid: { left: 60, right: 30, top: 20, bottom: 50 },
     xAxis: {
       type: 'value' as const,
-      name: '油耗 (L/100km)',
+      name: t('chart.axis.consumption'),
       nameLocation: 'center' as const,
       nameGap: 30,
       nameTextStyle: { color: CHART_AXIS.name },
@@ -29,7 +31,7 @@ export default function ConsumptionScatter({ data }: Props) {
     },
     yAxis: {
       type: 'value' as const,
-      name: '样本数',
+      name: t('chart.axis.samples'),
       nameTextStyle: { color: CHART_AXIS.name },
       axisLabel: { color: CHART_AXIS.label },
       axisLine: { lineStyle: { color: CHART_AXIS.line } },

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { FilterState, Motorcycle } from '../types'
 
 interface FilterBarProps {
@@ -17,6 +18,7 @@ const DISP_QUICK_RANGES = [
 ]
 
 export default function FilterBar({ filter, allData, types, onFilterChange, onReset }: FilterBarProps) {
+  const { t } = useTranslation()
   const [collapsed, setCollapsed] = useState(false)
   const [brandExpanded, setBrandExpanded] = useState(false)
 
@@ -85,31 +87,31 @@ export default function FilterBar({ filter, allData, types, onFilterChange, onRe
         onClick={() => setCollapsed(!collapsed)}
         className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium hover:bg-surface-alt rounded-t-xl transition-colors"
       >
-        <span>筛选条件 {filter.types.length + filter.brands.length + filter.displacements.length + (filter.minSamples > 0 ? 1 : 0) + (filter.consumptionRange[1] < 6 ? 1 : 0) + (filter.searchText ? 1 : 0) > 0 ? `（已启用）` : ''}</span>
+        <span>{t('filter.title')} {filter.types.length + filter.brands.length + filter.displacements.length + (filter.minSamples > 0 ? 1 : 0) + (filter.consumptionRange[1] < 6 ? 1 : 0) + (filter.searchText ? 1 : 0) > 0 ? t('filter.active') : ''}</span>
         <svg className={`w-4 h-4 transition-transform ${collapsed ? '' : 'rotate-180'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
       </button>
 
       {!collapsed && (
         <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-xs font-medium text-text-secondary w-10">类型</span>
+            <span className="text-xs font-medium text-text-secondary w-10">{t('filter.label.type')}</span>
             <div className="flex flex-wrap gap-1.5">
-              {types.map(t => (
-                <button key={t} onClick={() => toggleType(t)}
+              {types.map(ty => (
+                <button key={ty} onClick={() => toggleType(ty)}
                   className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
-                    filter.types.includes(t) ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
-                  }`}>{t}</button>
+                    filter.types.includes(ty) ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
+                  }`}>{ty}</button>
               ))}
             </div>
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-xs font-medium text-text-secondary w-10">排量</span>
+            <span className="text-xs font-medium text-text-secondary w-10">{t('filter.label.displacement')}</span>
             <div className="flex flex-wrap gap-1.5 items-center">
               <button onClick={() => onFilterChange({ displacements: [] })}
                 className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
                   filter.displacements.length === 0 ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
-                }`}>全部</button>
+                }`}>{t('filter.all')}</button>
               {cascadedDisplacements.map(d => (
                 <button key={d} onClick={() => toggleDisplacement(d)}
                   className={`px-2 py-1 rounded-full text-xs font-medium transition-colors ${
@@ -120,7 +122,7 @@ export default function FilterBar({ filter, allData, types, onFilterChange, onRe
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-xs font-medium text-text-secondary w-10">快捷</span>
+            <span className="text-xs font-medium text-text-secondary w-10">{t('filter.label.quick')}</span>
             <div className="flex flex-wrap gap-1.5 items-center">
               {DISP_QUICK_RANGES.map(r => {
                 const inRange = cascadedDisplacements.filter(d => d >= r.min && d <= r.max)
@@ -136,11 +138,11 @@ export default function FilterBar({ filter, allData, types, onFilterChange, onRe
           </div>
 
           <div className="flex items-start gap-3 flex-wrap">
-            <span className="text-xs font-medium text-text-secondary w-10 pt-1">品牌</span>
+            <span className="text-xs font-medium text-text-secondary w-10 pt-1">{t('filter.label.brand')}</span>
             <div className="flex flex-wrap gap-1.5 flex-1">
               {filter.brands.length > 0 && (
                 <button onClick={() => onFilterChange({ brands: [] })}
-                  className="px-2.5 py-1 rounded-full text-xs font-medium bg-accent-red/10 text-accent-red hover:bg-accent-red/20 transition-colors">清除</button>
+                  className="px-2.5 py-1 rounded-full text-xs font-medium bg-accent-red/10 text-accent-red hover:bg-accent-red/20 transition-colors">{t('filter.clear')}</button>
               )}
               {displayedBrands.map(b => (
                 <button key={b} onClick={() => toggleBrand(b)}
@@ -151,7 +153,7 @@ export default function FilterBar({ filter, allData, types, onFilterChange, onRe
               {cascadedBrands.length > 30 && (
                 <button onClick={() => setBrandExpanded(!brandExpanded)}
                   className="px-2.5 py-1 rounded-full text-xs text-primary hover:bg-primary/10">
-                  {brandExpanded ? '收起' : `展开全部 ${cascadedBrands.length} 个`}
+                  {brandExpanded ? t('filter.collapse') : t('filter.expandAll', { count: cascadedBrands.length })}
                 </button>
               )}
             </div>
@@ -159,14 +161,14 @@ export default function FilterBar({ filter, allData, types, onFilterChange, onRe
 
           <div className="flex items-center gap-5 flex-wrap">
             <div className="flex items-center gap-2">
-              <label className="text-xs font-medium text-text-secondary">样本 ≥</label>
+              <label className="text-xs font-medium text-text-secondary">{t('filter.label.minSamples')}</label>
               <input type="range" min={0} max={5000} step={50} value={filter.minSamples}
                 onChange={e => onFilterChange({ minSamples: parseInt(e.target.value) })}
                 className="w-28 accent-primary" />
               <span className="text-xs font-mono w-10">{filter.minSamples}</span>
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-xs font-medium text-text-secondary">油耗</label>
+              <label className="text-xs font-medium text-text-secondary">{t('filter.label.consumption')}</label>
               <div className="relative w-32 h-10">
                 <input type="range" min={0} max={6} step={0.1}
                   value={filter.consumptionRange[0]}
@@ -188,10 +190,10 @@ export default function FilterBar({ filter, allData, types, onFilterChange, onRe
             <div className="flex-1 min-w-32">
               <input type="text" value={filter.searchText}
                 onChange={e => onFilterChange({ searchText: e.target.value })}
-                placeholder="搜索..."
+                placeholder={t('filter.searchPlaceholder')}
                 className="w-full px-3 py-1.5 text-sm border border-border rounded-lg focus:outline-none focus:border-primary" />
             </div>
-            <button onClick={onReset} className="text-xs text-text-secondary hover:text-accent-red transition-colors">重置</button>
+            <button onClick={onReset} className="text-xs text-text-secondary hover:text-accent-red transition-colors">{t('filter.reset')}</button>
           </div>
         </div>
       )}

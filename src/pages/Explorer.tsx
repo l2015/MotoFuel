@@ -1,4 +1,5 @@
 import { useMemo, useState, useRef, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import ReactECharts from 'echarts-for-react'
 import type { Motorcycle } from '../types'
 import { CHART_PALETTE, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
@@ -7,13 +8,37 @@ interface Props {
   data: Motorcycle[]
 }
 
+interface ClickDetail {
+  x: number
+  y: number
+  brand: string
+  series: string
+  displacement: number
+  consumption: number
+  samples: number
+  type: string
+  rank: number
+  total: number
+}
+
+interface ZoomStats {
+  count: number
+  avgConsumption: number
+  best: { brand: string; series: string; consumption: number } | null
+  worst: { brand: string; series: string; consumption: number } | null
+}
+
 export default function Explorer({ data }: Props) {
+  const { t } = useTranslation()
   const chartRef = useRef<ReactECharts>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [highlightType, setHighlightType] = useState<string | null>(null)
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [brandExpanded, setBrandExpanded] = useState(false)
   const [minSamples, setMinSamples] = useState(0)
   const [filterOpen, setFilterOpen] = useState(true)
+  const [clickDetail, setClickDetail] = useState<ClickDetail | null>(null)
+  const [zoomStats, setZoomStats] = useState<ZoomStats | null>(null)
   const initRef = useRef(true)
 
   const allTypes = useMemo(() => [...new Set(data.map(d => d.type))], [data])
@@ -62,6 +87,24 @@ export default function Explorer({ data }: Props) {
     }
     return result
   }, [data, selectedBrands, minSamples])
+
+  // Rank lookup: rank within same displacement
+  const dispRankMap = useMemo(() => {
+    const map = new Map<string, number>()
+    const byDisp = new Map<number, Motorcycle[]>()
+    for (const d of data) {
+      const arr = byDisp.get(d.displacement) || []
+      arr.push(d)
+      byDisp.set(d.displacement, arr)
+    }
+    for (const [disp, items] of byDisp) {
+      items.sort((a, b) => a.consumption - b.consumption)
+      items.forEach((item, i) => {
+        map.set(`${item.brand}|${item.series}|${disp}`, i + 1)
+      })
+    }
+    return { map, totals: Object.fromEntries([...byDisp].map(([d, items]) => [d, items.length])) }
+  }, [data])
 
   const toggleBrand = (brand: string) => {
     setSelectedBrands(prev =>
@@ -131,6 +174,78 @@ export default function Explorer({ data }: Props) {
     }
   }, [selectedBrands, minSamples])
 
+  // Close detail on outside click
+  useEffect(() => {
+    if (!clickDetail) return
+    const handler = () => setClickDetail(null)
+    // Delay to avoid closing on the same click that opened it
+    const timer = setTimeout(() => window.addEventListener('click', handler), 100)
+    return () => { clearTimeout(timer); window.removeEventListener('click', handler) }
+  }, [clickDetail])
+
+  // Chart click handler
+  const onChartClick = useCallback((params: any) => {
+    if (!params.data?._brand) return
+    const d = params.data
+    const disp = d._disp
+    const key = `${d._brand}|${d._series}|${disp}`
+    const rank = dispRankMap.map.get(key) ?? 0
+    const total = dispRankMap.totals[disp] ?? 0
+
+    setClickDetail({
+      x: params.event?.offsetX ?? 0,
+      y: params.event?.offsetY ?? 0,
+      brand: d._brand,
+      series: d._series,
+      displacement: disp,
+      consumption: params.value[1],
+      samples: d._samples,
+      type: params.seriesName,
+      rank,
+      total,
+    })
+  }, [dispRankMap])
+
+  // DataZoom handler for stats
+  const onDataZoom = useCallback((params: any) => {
+    const chart = chartRef.current?.getEchartsInstance()
+    if (!chart) return
+
+    let startPercent = 0
+    let endPercent = 100
+    if (params.batch && params.batch.length > 0) {
+      startPercent = params.batch[0].start ?? 0
+      endPercent = params.batch[0].end ?? 100
+    } else if (params.start !== undefined) {
+      startPercent = params.start
+      endPercent = params.end
+    }
+
+    const total = allDisplacements.length
+    const startIdx = Math.floor((startPercent / 100) * total)
+    const endIdx = Math.ceil((endPercent / 100) * total)
+    const visibleDisps = new Set(allDisplacements.slice(startIdx, endIdx))
+
+    const visible = filteredData.filter(d => visibleDisps.has(d.displacement))
+    if (visible.length === 0) { setZoomStats(null); return }
+
+    const avg = visible.reduce((s, d) => s + d.consumption, 0) / visible.length
+    const sorted = [...visible].sort((a, b) => a.consumption - b.consumption)
+    setZoomStats({
+      count: visible.length,
+      avgConsumption: Math.round(avg * 100) / 100,
+      best: { brand: sorted[0].brand, series: sorted[0].series, consumption: sorted[0].consumption },
+      worst: { brand: sorted[sorted.length - 1].brand, series: sorted[sorted.length - 1].series, consumption: sorted[sorted.length - 1].consumption },
+    })
+  }, [allDisplacements, filteredData])
+
+  const onLegendChange = useCallback((params: any) => {
+    const selected = params?.selected
+    if (!selected) return
+    const deselected = Object.entries(selected).find(([_, v]) => !v)?.[0]
+    setHighlightType(prev => prev === deselected ? null : deselected || null)
+  }, [])
+
   const option = useMemo(() => {
     const { min: sMin, max: sMax } = sampleStats
 
@@ -144,7 +259,7 @@ export default function Explorer({ data }: Props) {
       return {
         name: type,
         type: 'scatter' as const,
-        triggerEvent: false,
+        triggerEvent: true,
         data: items.map((d, i) => {
           const xIdx = allDisplacements.indexOf(d.displacement)
           const norm = (d.samples - sMin) / (sMax - sMin)
@@ -171,8 +286,8 @@ export default function Explorer({ data }: Props) {
           position: 'right',
           distance: 8,
           rich: {
-            a: { fontSize: 13, color: '#e2e8f0', fontWeight: 600 },
-            b: { fontSize: 12, color: '#94a3b8' },
+            a: { fontSize: 13, color: '#1e293b', fontWeight: 600 },
+            b: { fontSize: 12, color: '#64748b' },
           },
         },
         labelLayout: {
@@ -183,13 +298,13 @@ export default function Explorer({ data }: Props) {
           itemStyle: { borderWidth: 2, shadowBlur: 8, shadowColor: color },
           label: {
             show: true,
-            formatter: (p: any) => `${p.data._brand} ${p.data._series}  ${p.data._disp}cc  ${p.value[1]}L  (${p.data._samples}样本)`,
+            formatter: (p: any) => `${p.data._brand} ${p.data._series}  ${p.data._disp}cc  ${p.value[1]}L  (${p.data._samples} ${t('explorer.detail.samples')})`,
             fontSize: 13,
-            color: '#f1f5f9',
-            backgroundColor: 'rgba(30,41,59,0.95)',
+            color: '#1e293b',
+            backgroundColor: '#ffffff',
             padding: [6, 10],
             borderRadius: 6,
-            borderColor: 'rgba(148,163,184,0.2)',
+            borderColor: '#e2e8f0',
             borderWidth: 1,
           },
         },
@@ -202,6 +317,12 @@ export default function Explorer({ data }: Props) {
       }
     })
 
+    // Build legend selected state from highlightType
+    const legendSelected: Record<string, boolean> = {}
+    if (highlightType) {
+      allTypes.forEach(t => { legendSelected[t] = t === highlightType })
+    }
+
     return {
       tooltip: {
         trigger: 'item' as const,
@@ -211,17 +332,17 @@ export default function Explorer({ data }: Props) {
         formatter: (p: any) => {
           const d = p.data
           return `<div style="font-weight:600;margin-bottom:4px">${d._brand} ${d._series}</div>
-            <div>排量: ${d._disp}cc</div>
-            <div>油耗: ${p.value[1]} L/100km</div>
-            <div>样本数: ${d._samples}</div>
-            <div>类型: ${p.seriesName}</div>`
+            <div>${t('explorer.tooltip.displacement')}: ${d._disp}cc</div>
+            <div>${t('explorer.tooltip.consumption')}: ${p.value[1]} L/100km</div>
+            <div>${t('explorer.tooltip.sampleCount')}: ${d._samples}</div>
+            <div>${t('explorer.tooltip.type')}: ${p.seriesName}</div>`
         },
       },
-      grid: { left: 60, right: 30, top: 20, bottom: 50 },
+      grid: { left: 60, right: 30, top: 40, bottom: 50 },
       xAxis: {
         type: 'category' as const,
         data: dispLabels,
-        name: '排量 (cc)',
+        name: t('explorer.axis.displacement'),
         nameLocation: 'center' as const,
         nameGap: 35,
         nameTextStyle: { fontSize: 13, color: CHART_AXIS.name },
@@ -232,7 +353,7 @@ export default function Explorer({ data }: Props) {
       },
       yAxis: {
         type: 'value' as const,
-        name: '油耗 (L/100km)',
+        name: t('explorer.axis.consumption'),
         nameTextStyle: { fontSize: 13, color: CHART_AXIS.name },
         axisLabel: { fontSize: 12, color: CHART_AXIS.label },
         axisLine: { lineStyle: { color: CHART_AXIS.line } },
@@ -244,51 +365,65 @@ export default function Explorer({ data }: Props) {
         { type: 'slider' as const, xAxisIndex: 0, bottom: 4, height: 18, borderColor: CHART_AXIS.line, fillerColor: 'rgba(99,102,241,0.1)' },
         { type: 'slider' as const, yAxisIndex: 0, right: 2, width: 18, borderColor: CHART_AXIS.line, fillerColor: 'rgba(99,102,241,0.1)' },
       ],
-      legend: { show: false },
+      legend: {
+        show: true,
+        top: 8,
+        textStyle: { color: '#64748b', fontSize: 12 },
+        itemWidth: 10,
+        itemHeight: 10,
+        icon: 'circle',
+        ...(highlightType ? { selected: legendSelected } : {}),
+      },
       series,
     }
-  }, [filteredData, allTypes, typeColorMap, highlightType, allDisplacements, dispLabels, sampleStats])
+  }, [filteredData, allTypes, typeColorMap, highlightType, allDisplacements, dispLabels, sampleStats, t])
+
+  const chartEvents = useMemo(() => ({
+    click: onChartClick,
+    dataZoom: onDataZoom,
+    legendselectchanged: onLegendChange,
+  }), [onChartClick, onDataZoom, onLegendChange])
 
   return (
     <div className="fixed inset-0 top-14 flex flex-col bg-surface-alt">
       <div className="px-4 md:px-6 py-2 md:py-3 border-b border-border glass-card rounded-none border-x-0 border-t-0">
         <div className="flex items-center gap-3">
-          <h1 className="text-base md:text-lg font-bold">散点油耗图</h1>
-          <span className="text-xs md:text-sm text-text-secondary">{filteredData.length} 款车型</span>
+          <h1 className="text-base md:text-lg font-bold">{t('explorer.title')}</h1>
+          <span className="text-xs md:text-sm text-text-secondary">{t('explorer.modelCount', { count: filteredData.length })}</span>
           <button onClick={() => setFilterOpen(!filterOpen)}
             className="text-xs px-2 py-1 rounded-full bg-surface-alt text-text-secondary hover:bg-border md:hidden min-h-[44px] flex items-center">
-            {filterOpen ? '收起' : `筛选${activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}`}
+            {filterOpen ? t('filter.collapse') : `${t('filter.titleShort')}${activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}`}
           </button>
           {(selectedBrands.length > 0 || highlightType || minSamples > 0) && (
-            <button onClick={() => { setSelectedBrands([]); setHighlightType(null); setMinSamples(0); resetZoom() }}
-              className="text-xs text-accent-red hover:underline">清除筛选</button>
+            <button onClick={() => { setSelectedBrands([]); setHighlightType(null); setMinSamples(0); resetZoom(); setZoomStats(null) }}
+              className="text-xs text-accent-red hover:underline">{t('explorer.clearFilters')}</button>
           )}
         </div>
 
         {(filterOpen) && (
         <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
           <div className="flex items-center gap-1.5">
-            <span className="text-xs text-text-secondary shrink-0">类型</span>
+            <span className="text-xs text-text-secondary shrink-0">{t('filter.label.type')}</span>
             <div className="flex flex-wrap gap-1">
               <button onClick={() => setHighlightType(null)}
                 className={`text-xs px-2 py-0.5 rounded-full transition-colors ${
                   highlightType === null ? 'bg-text text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
-                }`}>全部</button>
-              {allTypes.map(t => (
-                <button key={t}
-                  onClick={() => setHighlightType(highlightType === t ? null : t)}
+                }`}>{t('filter.all')}</button>
+              {allTypes.map(ty => (
+                <button key={ty}
+                  onClick={() => setHighlightType(highlightType === ty ? null : ty)}
                   className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full transition-colors ${
-                    highlightType === t ? 'ring-2 ring-offset-1 ring-primary' : 'bg-surface-alt hover:bg-border'
+                    highlightType === ty ? 'ring-2 ring-offset-1 ring-primary' : 'bg-surface-alt hover:bg-border'
                   }`}>
-                  <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: typeColorMap[t] }} />
-                  {t}
+                  <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: typeColorMap[ty] }} />
+                  {ty}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="text-xs text-text-secondary shrink-0">品牌</span>
+            <span className="text-xs text-text-secondary shrink-0">{t('filter.label.brand')}</span>
             <div className="flex flex-wrap gap-1">
               {displayedBrands.map(b => (
                 <button key={b.brand} onClick={() => toggleBrand(b.brand)}
@@ -299,14 +434,14 @@ export default function Explorer({ data }: Props) {
               {brandsBySamples.length > 20 && (
                 <button onClick={() => setBrandExpanded(!brandExpanded)}
                   className="text-xs px-2 py-0.5 rounded-full text-primary hover:bg-primary/10">
-                  {brandExpanded ? '收起' : `+${brandsBySamples.length - 20}`}
+                  {brandExpanded ? t('filter.collapse') : `+${brandsBySamples.length - 20}`}
                 </button>
               )}
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-text-secondary shrink-0">样本量 ≥</span>
+            <span className="text-xs text-text-secondary shrink-0">{t('filter.label.minSamples')}</span>
             <input
               type="range"
               min={0}
@@ -322,8 +457,50 @@ export default function Explorer({ data }: Props) {
         )}
       </div>
 
-      <div className="flex-1 min-h-0">
-        <ReactECharts ref={chartRef} option={option} style={{ width: '100%', height: '100%' }} notMerge />
+      <div className="flex-1 min-h-0 relative" ref={containerRef}>
+        <ReactECharts ref={chartRef} option={option} style={{ width: '100%', height: '100%' }} notMerge onEvents={chartEvents} />
+
+        {/* Click detail popup */}
+        {clickDetail && (
+          <div
+            className="absolute glass-card p-3 shadow-xl z-50 min-w-[180px]"
+            style={{
+              left: Math.min(clickDetail.x + 12, (containerRef.current?.clientWidth ?? 800) - 220),
+              top: Math.min(clickDetail.y + 12, (containerRef.current?.clientHeight ?? 600) - 200),
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-semibold text-sm">{clickDetail.brand}</span>
+              <button onClick={() => setClickDetail(null)} className="text-text-secondary hover:text-text text-xs">✕</button>
+            </div>
+            <div className="text-xs space-y-1 text-text-secondary">
+              <div className="flex justify-between"><span>{t('explorer.detail.series')}</span><span className="text-text font-medium">{clickDetail.series}</span></div>
+              <div className="flex justify-between"><span>{t('explorer.detail.displacement')}</span><span className="text-text font-medium">{clickDetail.displacement}cc</span></div>
+              <div className="flex justify-between"><span>{t('explorer.detail.consumption')}</span><span className="text-primary font-medium">{clickDetail.consumption} L/100km</span></div>
+              <div className="flex justify-between"><span>{t('explorer.detail.samples')}</span><span className="text-accent-amber font-medium">{clickDetail.samples.toLocaleString()}</span></div>
+              <div className="flex justify-between"><span>{t('explorer.detail.type')}</span><span className="text-text font-medium">{clickDetail.type}</span></div>
+              <div className="flex justify-between"><span>{t('explorer.detail.sameDispRank')}</span><span className="text-accent-green font-medium">{t('explorer.detail.rankFormat', { rank: clickDetail.rank, total: clickDetail.total })}</span></div>
+            </div>
+          </div>
+        )}
+
+        {/* Zoom stats */}
+        {zoomStats && (
+          <div className="absolute bottom-8 right-6 glass-card px-3 py-2 text-[11px] text-text-secondary z-40 max-w-xs">
+            <div className="font-medium text-text mb-1">{t('explorer.zoomStats.title')}</div>
+            <div className="flex gap-3 flex-wrap">
+              <span>{t('explorer.zoomStats.count', { count: zoomStats.count })}</span>
+              <span>{t('explorer.zoomStats.avg', { avg: zoomStats.avgConsumption })}</span>
+              {zoomStats.best && (
+                <span className="text-accent-green">{t('explorer.zoomStats.best')} {zoomStats.best.brand} {zoomStats.best.consumption}L</span>
+              )}
+              {zoomStats.worst && (
+                <span className="text-accent-red">{t('explorer.zoomStats.worst')} {zoomStats.worst.brand} {zoomStats.worst.consumption}L</span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

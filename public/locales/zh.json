@@ -1,0 +1,167 @@
+{
+  "common": {
+    "loadingData": "加载数据中...",
+    "dataLoadFailed": "数据加载失败",
+    "unknownError": "未知错误"
+  },
+  "nav": {
+    "overview": "总览",
+    "ranking": "排行榜",
+    "analysis": "数据洞察",
+    "explorer": "数据探索"
+  },
+  "header": {
+    "menu": "菜单"
+  },
+  "footer": {
+    "dataSource": "数据来源：",
+    "xiaoxiongYouhao": "小熊油耗",
+    "acknowledgement": "— 感谢小熊油耗平台公开摩托车油耗数据",
+    "scrapedAt": "数据抓取："
+  },
+  "table": {
+    "noData": "暂无数据",
+    "header": {
+      "rank": "排名",
+      "brand": "品牌",
+      "series": "车系",
+      "type": "类型",
+      "displacement": "排量",
+      "consumption": "油耗(L/100km)",
+      "samples": "样本数",
+      "models": "车型数"
+    },
+    "pagination": {
+      "status": "共 {{total}} 条，第 {{page}}/{{totalPages}} 页",
+      "first": "首页",
+      "prev": "上一页",
+      "next": "下一页",
+      "last": "末页"
+    }
+  },
+  "filter": {
+    "title": "筛选条件",
+    "titleShort": "筛选",
+    "active": "（已启用）",
+    "all": "全部",
+    "clear": "清除",
+    "collapse": "收起",
+    "expandAll": "展开全部 {{count}} 个",
+    "reset": "重置",
+    "searchPlaceholder": "搜索...",
+    "label": {
+      "type": "类型",
+      "displacement": "排量",
+      "quick": "快捷",
+      "brand": "品牌",
+      "consumption": "油耗",
+      "minSamples": "样本 ≥"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "摩托车油耗数据全景",
+      "subtitle": "小熊油耗平台 · 车友真实加油数据"
+    },
+    "stat": {
+      "lowestConsumption": "最低油耗",
+      "totalBrands": "品牌数",
+      "totalModels": "车型数",
+      "totalSamples": "总样本数"
+    },
+    "trend": {
+      "title": "排量与平均油耗趋势",
+      "description": "各排量级别加权平均油耗，数据越多越有参考价值"
+    },
+    "top20": {
+      "title": "跨排量 Top 20 最省油"
+    },
+    "typeDistribution": {
+      "title": "车型类型分布"
+    },
+    "brandRanking": {
+      "title": "品牌样本量排行"
+    },
+    "tab": {
+      "model": "车型"
+    },
+    "link": {
+      "fullRanking": "完整排行 →"
+    }
+  },
+  "ranking": {
+    "title": "摩托车油耗排行榜",
+    "filterResult": "筛选结果: {{count}} 款车型",
+    "barChart": "柱状图"
+  },
+  "analysis": {
+    "title": "数据洞察",
+    "basedOn": "基于 {{count}} 款车型",
+    "brandFilter": "品牌筛选",
+    "brandRank": {
+      "title": "品牌平均油耗排名",
+      "hint": "点击柱子查看该品牌排行榜"
+    },
+    "typeDistribution": {
+      "title": "车型类型分布",
+      "hint": "点击扇区查看"
+    },
+    "histogram": {
+      "title": "油耗分布直方图"
+    }
+  },
+  "explorer": {
+    "title": "散点油耗图",
+    "modelCount": "{{count}} 款车型",
+    "clearFilters": "清除筛选",
+    "tooltip": {
+      "displacement": "排量",
+      "consumption": "油耗",
+      "sampleCount": "样本数",
+      "type": "类型"
+    },
+    "axis": {
+      "displacement": "排量 (cc)",
+      "consumption": "油耗 (L/100km)"
+    },
+    "detail": {
+      "series": "车系",
+      "displacement": "排量",
+      "consumption": "油耗",
+      "samples": "样本数",
+      "type": "类型",
+      "sameDispRank": "同排量排名",
+      "rankFormat": "第 {{rank}}/{{total}}"
+    },
+    "zoomStats": {
+      "title": "可见区域",
+      "count": "{{count}} 款",
+      "avg": "均 {{avg}}L",
+      "best": "最优",
+      "worst": "最费"
+    }
+  },
+  "chart": {
+    "axis": {
+      "displacement": "排量",
+      "consumption": "油耗 (L/100km)",
+      "samples": "样本数",
+      "modelCount": "车型数"
+    },
+    "tooltip": {
+      "simpleAverage": "简单平均",
+      "weightedAverage": "加权平均",
+      "avgConsumption": "平均油耗: {{avg}} L/100km",
+      "modelCount": "车型数: {{count}}",
+      "sampleCount": "样本数: {{count}}",
+      "consumption": "油耗: {{value}} L/100km",
+      "typeModelCount": "车型数: {{count}} 款 ({{percent}}%)",
+      "modelsPercent": "款 ({{percent}}%)"
+    },
+    "mode": {
+      "simpleAverage": "简单平均",
+      "weightedAverage": "加权平均"
+    },
+    "other": "其他"
+  }
+}

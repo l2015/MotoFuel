@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import ReactECharts from 'echarts-for-react'
 import { CHART_GRADIENTS, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
 
@@ -6,6 +7,7 @@ interface Props {
 }
 
 export default function ConsumptionByDispBar({ data }: Props) {
+  const { t } = useTranslation()
   const option = {
     tooltip: {
       trigger: 'axis' as const,
@@ -16,7 +18,7 @@ export default function ConsumptionByDispBar({ data }: Props) {
       formatter: (p: any) => {
         const idx = p[0]?.dataIndex ?? 0
         const item = data[idx]
-        return `${item.displacement}cc<br/>平均油耗: ${item.avg} L/100km<br/>车型数: ${item.count}`
+        return `${item.displacement}cc<br/>${t('chart.tooltip.avgConsumption', { avg: item.avg })}<br/>${t('chart.tooltip.modelCount', { count: item.count })}`
       },
     },
     grid: { left: 60, right: 20, top: 30, bottom: 50 },

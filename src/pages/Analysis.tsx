@@ -1,5 +1,6 @@
 import { useMemo, useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import ReactECharts from 'echarts-for-react'
 import type { Motorcycle } from '../types'
 import { avgByBrand, samplesByBrand, consumptionHistogram, countByType } from '../utils/stats'
@@ -20,6 +21,7 @@ function loadSavedFilter(): { selectedBrands: string[]; minBrandSamples: number 
 }
 
 export default function Analysis({ data }: Props) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const saved = loadSavedFilter()
 
@@ -107,7 +109,7 @@ export default function Analysis({ data }: Props) {
           const idx = p[0]?.dataIndex ?? 0
           const item = items[idx]
           if (!item) return ''
-          return `${item.brand}<br/>平均油耗: ${item.avg} L/100km<br/>车型数: ${item.count}<br/>样本数: ${(brandSamplesMap.get(item.brand) || 0).toLocaleString()}`
+          return `${item.brand}<br/>${t('chart.tooltip.avgConsumption', { avg: item.avg })}<br/>${t('chart.tooltip.modelCount', { count: item.count })}<br/>${t('chart.tooltip.sampleCount', { count: (brandSamplesMap.get(item.brand) || 0).toLocaleString() })}`
         },
       },
       grid: { left: 100, right: 50, top: 10, bottom: 20 },
@@ -139,7 +141,7 @@ export default function Analysis({ data }: Props) {
         barMaxWidth: 16,
       }],
     }
-  }, [brandAvgData, brandSamplesMap])
+  }, [brandAvgData, brandSamplesMap, t])
 
   const onBrandChartClick = useCallback((params: any) => {
     const brand = brandAvgData[params.dataIndex]?.brand
@@ -155,7 +157,7 @@ export default function Analysis({ data }: Props) {
       textStyle: CHART_TOOLTIP.textStyle,
       formatter: (p: any) => {
         const samples = typeSamplesMap.get(p.name) || 0
-        return `${p.name}<br/>车型数: ${p.value} 款 (${p.percent}%)<br/>样本数: ${samples.toLocaleString()}`
+        return `${p.name}<br/>${t('chart.tooltip.typeModelCount', { count: p.value, percent: p.percent })}<br/>${t('chart.tooltip.sampleCount', { count: samples.toLocaleString() })}`
       },
     },
     color: CHART_PALETTE,
@@ -170,7 +172,7 @@ export default function Analysis({ data }: Props) {
       },
       emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.4)' } },
     }],
-  }), [typeCount, typeSamplesMap])
+  }), [typeCount, typeSamplesMap, t])
 
   const onTypePieClick = useCallback((params: any) => {
     if (params.name) goToRanking({ type: params.name })
@@ -188,7 +190,7 @@ export default function Analysis({ data }: Props) {
         const idx = p[0]?.dataIndex ?? 0
         const d = histogram[idx]
         if (!d) return ''
-        return `${d.range}L/100km<br/>车型数: ${d.count}`
+        return `${d.range}L/100km<br/>${t('chart.tooltip.modelCount', { count: d.count })}`
       },
     },
     grid: { left: 50, right: 20, top: 20, bottom: 50 },
@@ -201,7 +203,7 @@ export default function Analysis({ data }: Props) {
     },
     yAxis: {
       type: 'value' as const,
-      name: '车型数',
+      name: t('chart.axis.modelCount'),
       nameTextStyle: { color: CHART_AXIS.name },
       axisLabel: { color: CHART_AXIS.label },
       axisLine: { lineStyle: { color: CHART_AXIS.line } },
@@ -213,13 +215,13 @@ export default function Analysis({ data }: Props) {
       itemStyle: { color: CHART_PALETTE[0], borderRadius: [3, 3, 0, 0] },
       barMaxWidth: 30,
     }],
-  }), [histogram])
+  }), [histogram, t])
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">数据洞察</h1>
-        <span className="text-sm text-text-secondary">基于 {filteredByBrand.length} 款车型</span>
+        <h1 className="text-2xl font-bold">{t('analysis.title')}</h1>
+        <span className="text-sm text-text-secondary">{t('analysis.basedOn', { count: filteredByBrand.length })}</span>
       </div>
 
       <div className="glass-card sticky top-14 z-40">
@@ -227,25 +229,25 @@ export default function Analysis({ data }: Props) {
           <button onClick={() => setFilterCollapsed(!filterCollapsed)}
             className="flex items-center gap-1.5 text-sm font-semibold hover:text-primary transition-colors">
             <svg className={`w-4 h-4 transition-transform ${filterCollapsed ? '-rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-            品牌筛选
+            {t('analysis.brandFilter')}
           </button>
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-2">
-              <label className="text-xs text-text-secondary">样本 ≥</label>
+              <label className="text-xs text-text-secondary">{t('filter.label.minSamples')}</label>
               <input type="range" min={0} max={5000} step={100} value={minBrandSamples}
                 onChange={e => { setMinBrandSamples(parseInt(e.target.value)); setSelectedBrands([]) }}
                 className="w-20 sm:w-28 accent-primary" />
               <span className="text-xs font-mono w-12">{minBrandSamples}</span>
             </div>
             <button onClick={() => { setSelectedBrands([]); setMinBrandSamples(1000) }}
-              className="text-xs text-text-secondary hover:text-accent-red transition-colors">重置</button>
+              className="text-xs text-text-secondary hover:text-accent-red transition-colors">{t('filter.reset')}</button>
           </div>
         </div>
         {!filterCollapsed && (
           <div className="px-4 pb-4 flex flex-wrap gap-1.5 border-t border-border pt-3">
             <button onClick={() => setSelectedBrands([])}
               className={`px-2.5 py-1 rounded-full text-xs ${selectedBrands.length === 0 ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'}`}
-            >全部</button>
+            >{t('filter.all')}</button>
             {displayedBrands.map(b => (
               <button key={b.brand} onClick={() => toggleBrand(b.brand)}
                 className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
@@ -255,13 +257,13 @@ export default function Analysis({ data }: Props) {
             {!brandExpanded && topBrands.length < brandSampleStats.length && (
               <button onClick={() => setBrandExpanded(true)}
                 className="px-2.5 py-1 rounded-full text-xs text-primary hover:bg-primary/10">
-                展开全部 {brandSampleStats.length} 个
+                {t('filter.expandAll', { count: brandSampleStats.length })}
               </button>
             )}
             {brandExpanded && (
               <button onClick={() => setBrandExpanded(false)}
                 className="px-2.5 py-1 rounded-full text-xs text-primary hover:bg-primary/10">
-                收起
+                {t('filter.collapse')}
               </button>
             )}
           </div>
@@ -270,8 +272,8 @@ export default function Analysis({ data }: Props) {
 
       <div className="glass-card p-5">
         <h2 className="text-base font-semibold mb-4">
-          品牌平均油耗排名
-          <span className="text-xs text-text-secondary font-normal ml-2">点击柱子查看该品牌排行榜</span>
+          {t('analysis.brandRank.title')}
+          <span className="text-xs text-text-secondary font-normal ml-2">{t('analysis.brandRank.hint')}</span>
         </h2>
         <ReactECharts
           option={brandChartOption}
@@ -283,13 +285,13 @@ export default function Analysis({ data }: Props) {
       <div className="grid md:grid-cols-2 gap-6">
         <div className="glass-card p-5">
           <h2 className="text-base font-semibold mb-3">
-            车型类型分布
-            <span className="text-xs text-text-secondary font-normal ml-2">点击扇区查看</span>
+            {t('analysis.typeDistribution.title')}
+            <span className="text-xs text-text-secondary font-normal ml-2">{t('analysis.typeDistribution.hint')}</span>
           </h2>
           <ReactECharts option={typePieOption} style={{ height: 340 }} onEvents={{ click: onTypePieClick }} />
         </div>
         <div className="glass-card p-5">
-          <h2 className="text-base font-semibold mb-3">油耗分布直方图</h2>
+          <h2 className="text-base font-semibold mb-3">{t('analysis.histogram.title')}</h2>
           <ReactECharts option={histogramOption} style={{ height: 340 }} />
         </div>
       </div>

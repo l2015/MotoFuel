@@ -1,0 +1,167 @@
+{
+  "common": {
+    "loadingData": "Loading data...",
+    "dataLoadFailed": "Failed to load data",
+    "unknownError": "Unknown error"
+  },
+  "nav": {
+    "overview": "Overview",
+    "ranking": "Ranking",
+    "analysis": "Insights",
+    "explorer": "Explorer"
+  },
+  "header": {
+    "menu": "Menu"
+  },
+  "footer": {
+    "dataSource": "Data source: ",
+    "xiaoxiongYouhao": "XiaoXiong Youhao",
+    "acknowledgement": "— Thanks to XiaoXiong Youhao for open motorcycle fuel data",
+    "scrapedAt": "Scraped: "
+  },
+  "table": {
+    "noData": "No data",
+    "header": {
+      "rank": "Rank",
+      "brand": "Brand",
+      "series": "Model",
+      "type": "Type",
+      "displacement": "Disp.",
+      "consumption": "Fuel (L/100km)",
+      "samples": "Samples",
+      "models": "Models"
+    },
+    "pagination": {
+      "status": "{{total}} total, page {{page}}/{{totalPages}}",
+      "first": "First",
+      "prev": "Prev",
+      "next": "Next",
+      "last": "Last"
+    }
+  },
+  "filter": {
+    "title": "Filters",
+    "titleShort": "Filter",
+    "active": " (active)",
+    "all": "All",
+    "clear": "Clear",
+    "collapse": "Collapse",
+    "expandAll": "Show all {{count}}",
+    "reset": "Reset",
+    "searchPlaceholder": "Search...",
+    "label": {
+      "type": "Type",
+      "displacement": "Disp.",
+      "quick": "Quick",
+      "brand": "Brand",
+      "consumption": "Fuel",
+      "minSamples": "Samples ≥"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Motorcycle Fuel Data Overview",
+      "subtitle": "XiaoXiong Youhao · Real rider refueling data"
+    },
+    "stat": {
+      "lowestConsumption": "Lowest",
+      "totalBrands": "Brands",
+      "totalModels": "Models",
+      "totalSamples": "Samples"
+    },
+    "trend": {
+      "title": "Displacement vs. Average Fuel Consumption",
+      "description": "Weighted average by displacement — more data means more reliable"
+    },
+    "top20": {
+      "title": "Top 20 Most Fuel-Efficient"
+    },
+    "typeDistribution": {
+      "title": "Vehicle Type Distribution"
+    },
+    "brandRanking": {
+      "title": "Brand Sample Ranking"
+    },
+    "tab": {
+      "model": "Model"
+    },
+    "link": {
+      "fullRanking": "Full ranking →"
+    }
+  },
+  "ranking": {
+    "title": "Motorcycle Fuel Ranking",
+    "filterResult": "{{count}} models found",
+    "barChart": "Bar chart"
+  },
+  "analysis": {
+    "title": "Data Insights",
+    "basedOn": "Based on {{count}} models",
+    "brandFilter": "Brand filter",
+    "brandRank": {
+      "title": "Brand Average Fuel Ranking",
+      "hint": "Click a bar to view that brand's ranking"
+    },
+    "typeDistribution": {
+      "title": "Vehicle Type Distribution",
+      "hint": "Click a sector to explore"
+    },
+    "histogram": {
+      "title": "Fuel Consumption Distribution"
+    }
+  },
+  "explorer": {
+    "title": "Fuel Scatter Plot",
+    "modelCount": "{{count}} models",
+    "clearFilters": "Clear filters",
+    "tooltip": {
+      "displacement": "Displacement",
+      "consumption": "Fuel",
+      "sampleCount": "Samples",
+      "type": "Type"
+    },
+    "axis": {
+      "displacement": "Displacement (cc)",
+      "consumption": "Fuel (L/100km)"
+    },
+    "detail": {
+      "series": "Model",
+      "displacement": "Displacement",
+      "consumption": "Fuel",
+      "samples": "Samples",
+      "type": "Type",
+      "sameDispRank": "Same-disp. rank",
+      "rankFormat": "#{{rank}} of {{total}}"
+    },
+    "zoomStats": {
+      "title": "Visible area",
+      "count": "{{count}} models",
+      "avg": "avg {{avg}}L",
+      "best": "Best",
+      "worst": "Worst"
+    }
+  },
+  "chart": {
+    "axis": {
+      "displacement": "Displacement",
+      "consumption": "Fuel (L/100km)",
+      "samples": "Samples",
+      "modelCount": "Models"
+    },
+    "tooltip": {
+      "simpleAverage": "Simple avg",
+      "weightedAverage": "Weighted avg",
+      "avgConsumption": "Avg fuel: {{avg}} L/100km",
+      "modelCount": "Models: {{count}}",
+      "sampleCount": "Samples: {{count}}",
+      "consumption": "Fuel: {{value}} L/100km",
+      "typeModelCount": "Models: {{count}} ({{percent}}%)",
+      "modelsPercent": " ({{percent}}%)"
+    },
+    "mode": {
+      "simpleAverage": "Simple avg",
+      "weightedAverage": "Weighted avg"
+    },
+    "other": "Other"
+  }
+}

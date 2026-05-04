@@ -19,9 +19,9 @@ React 19 + Vite 8 + Tailwind CSS v4 + ECharts 6. Static site deployed to GitHub 
 
 **Data flow**: Scraper (`scraper/`) fetches from xiaoxiongyouhao.com → writes `public/data/motorcycles.json` (1779 models, 173 brands) → `useData()` hook fetches on mount → `App.tsx` passes `Motorcycle[]` to all pages as prop.
 
-**Four pages**: Home (总览), Ranking (排行榜), Analysis (数据洞察), Explorer (数据探索 scatter).
+**Four pages**: Home (Overview), Ranking, Analysis (Insights), Explorer (scatter).
 
-**Charts** (`src/charts/`): Thin `echarts-for-react` wrappers, each computes `option` in `useMemo`.
+**Charts** (`src/charts/`): Thin `echarts-for-react` wrappers, each computes `option` in `useMemo`. All import colors from `src/utils/chartTheme.ts`.
 
 **Filtering**: `useFilter` + `useFilteredData` hooks in `src/hooks/useData.ts`. `FilterBar` component implements cascading filters (type narrows brands/displacements). Ranking supports deep-linking via URL params (`?brand=`, `?type=`). Analysis persists filter to `sessionStorage`.
 
@@ -29,7 +29,9 @@ React 19 + Vite 8 + Tailwind CSS v4 + ECharts 6. Static site deployed to GitHub 
 
 **Routing**: `react-router-dom` v7, `basename="/MotoFuel"`. Explorer renders as full-screen `fixed inset-0 top-14` bypassing normal layout (conditional in `App.tsx`).
 
-**Theming**: Tailwind v4 `@theme` directive in `src/index.css` (no tailwind.config.js). Custom colors: `primary`, `surface`, `surface-alt`, `border`, `text`, `text-secondary`, `accent-green/red/amber`. Plugin: `@tailwindcss/vite`.
+**Theming**: Tailwind v4 `@theme` directive in `src/index.css` (no tailwind.config.js). Custom colors: `primary`, `surface`, `surface-alt`, `border`, `text`, `text-secondary`, `accent-green/red/amber`. Plugin: `@tailwindcss/vite`. Glass morphism cards use `.glass-card` class. Chart colors unified in `src/utils/chartTheme.ts` (`CHART_PALETTE`, `CHART_AXIS`, `CHART_TOOLTIP`, `consumptionColor()`, `brandRankColor()`).
+
+**i18n**: `react-i18next` + `i18next-browser-languagedetector`. Translations in `public/locales/{zh,en}.json`, imported inline in `src/i18n.ts`. Language switcher in Header. All UI text uses `t()` — never hardcode user-facing strings.
 
 **PWA**: `vite-plugin-pwa` with `autoUpdate`. Manifest defined inline in `vite.config.ts`. External images cached via workbox CacheFirst.
 
@@ -37,10 +39,10 @@ React 19 + Vite 8 + Tailwind CSS v4 + ECharts 6. Static site deployed to GitHub 
 
 ## Non-Obvious Details
 
-**Explorer scatter jitter**: Category x-axis with deterministic fractional offsets. `doZoom` must call `setOption` BEFORE `dispatchAction` (reverse order breaks). Data sorted DESC by samples for `hideOverlap` label priority. `triggerEvent: false` on series prevents label-hover tooltip.
+**Explorer scatter jitter**: Category x-axis with deterministic fractional offsets. `doZoom` must call `setOption` BEFORE `dispatchAction` (reverse order breaks). Data sorted DESC by samples for `hideOverlap` label priority.
+
+**Explorer click detail**: `triggerEvent: true` on series (not false). Click handler uses `params.data._brand`, `params.event.offsetX/Y` for popup positioning. DispRankMap pre-computes same-displacement ranking.
 
 **Version badge**: Hardcoded in `Header.tsx` and `Footer.tsx` — update alongside `package.json` version.
 
 **Base path**: `/MotoFuel/` in `vite.config.ts` and `main.tsx` BrowserRouter basename. Must match for GitHub Pages.
-
-**Dead code**: `StatCard.tsx` and `DisplacementTabs.tsx` are not imported anywhere.

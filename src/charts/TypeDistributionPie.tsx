@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import ReactECharts from 'echarts-for-react'
 import { CHART_PALETTE, CHART_TOOLTIP } from '../utils/chartTheme'
 
@@ -6,13 +7,14 @@ interface Props {
 }
 
 export default function TypeDistributionPie({ data }: Props) {
+  const { t } = useTranslation()
   const option = {
     tooltip: {
       trigger: 'item' as const,
       backgroundColor: CHART_TOOLTIP.backgroundColor,
       borderColor: CHART_TOOLTIP.borderColor,
       textStyle: CHART_TOOLTIP.textStyle,
-      formatter: '{b}: {c} 款 ({d}%)',
+      formatter: (p: any) => `${p.name}: ${p.value}${t('chart.tooltip.modelsPercent', { percent: p.percent })}`,
     },
     color: CHART_PALETTE,
     series: [{
@@ -22,7 +24,7 @@ export default function TypeDistributionPie({ data }: Props) {
       data: data.map(d => ({ name: d.type, value: d.count })),
       label: {
         fontSize: 11,
-        color: '#94a3b8',
+        color: '#64748b',
         formatter: (p: any) => {
           const pct = p.percent
           if (pct < 5) return p.name
