@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactECharts from 'echarts-for-react'
 import { CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
@@ -13,11 +13,11 @@ interface DataPoint {
 
 interface Props {
   data: DataPoint[]
+  mode: 'simple' | 'weighted'
 }
 
-export default function ConsumptionTrendLine({ data }: Props) {
+export default function ConsumptionTrendLine({ data, mode }: Props) {
   const { t } = useTranslation()
-  const [mode, setMode] = useState<'simple' | 'weighted'>('simple')
 
   const values = useMemo(() => data.map(d => mode === 'simple' ? d.avg : d.weightedAvg), [data, mode])
   const lineColor = mode === 'weighted' ? '#0d9488' : '#ff6b35'
@@ -45,13 +45,13 @@ export default function ConsumptionTrendLine({ data }: Props) {
         ].join('<br/>')
       },
     },
-    grid: { left: 60, right: 20, top: 30, bottom: 40 },
+    grid: { left: 50, right: 16, top: 20, bottom: 36 },
     xAxis: {
       type: 'category' as const,
       data: data.map(d => d.displacement + 'cc'),
       name: t('chart.axis.displacement'),
       nameTextStyle: { color: CHART_AXIS.name },
-      axisLabel: { color: CHART_AXIS.label },
+      axisLabel: { color: CHART_AXIS.label, fontSize: 11 },
       axisLine: { lineStyle: { color: CHART_AXIS.line } },
       axisTick: { lineStyle: { color: CHART_AXIS.tick } },
     },
@@ -60,7 +60,7 @@ export default function ConsumptionTrendLine({ data }: Props) {
       name: 'L/100km',
       min: 0,
       nameTextStyle: { color: CHART_AXIS.name },
-      axisLabel: { color: CHART_AXIS.label },
+      axisLabel: { color: CHART_AXIS.label, fontSize: 11 },
       axisLine: { lineStyle: { color: CHART_AXIS.line } },
       splitLine: { lineStyle: { color: CHART_AXIS.splitLine } },
     },
@@ -84,27 +84,5 @@ export default function ConsumptionTrendLine({ data }: Props) {
     }],
   }), [data, mode, t, values, lineColor, rgba])
 
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-3">
-        <button
-          onClick={() => setMode('simple')}
-          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-            mode === 'simple' ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
-          }`}
-        >
-          {t('chart.mode.simpleAverage')}
-        </button>
-        <button
-          onClick={() => setMode('weighted')}
-          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-            mode === 'weighted' ? 'bg-accent-green text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
-          }`}
-        >
-          {t('chart.mode.weightedAverage')}
-        </button>
-      </div>
-      <ReactECharts option={option} style={{ height: 300 }} />
-    </div>
-  )
+  return <ReactECharts option={option} style={{ height: 260 }} />
 }

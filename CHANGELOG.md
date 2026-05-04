@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.8.3 (2026-05-05)
+
+- Explorer: add ResizeObserver to force ECharts resize on container change, scatter chart renders correctly
+- Home trend chart: full width on mobile, no side padding, less square
+- ConsumptionTrendLine: extract mode state to parent, reduce chart height from 300 to 260, tighter grid margins
+- Buttons moved to padded container, chart goes edge-to-edge
+
 ## v0.8.2 (2026-05-05)
 
 - Explorer: fix zero-height chart container (min-h-0 → min-h-[400px]), scatter chart renders correctly

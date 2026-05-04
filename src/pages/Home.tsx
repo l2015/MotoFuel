@@ -47,6 +47,7 @@ function useAnimatedCounter(target: number, duration = 1200, decimals = 0) {
 export default function Home({ data }: Props) {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<TabKey>('brand')
+  const [trendMode, setTrendMode] = useState<'simple' | 'weighted'>('simple')
 
   const summary = useMemo(() => calcSummary(data), [data])
   const weightedDisp = useMemo(() => weightedAvgByDisplacement(data), [data])
@@ -144,13 +145,29 @@ export default function Home({ data }: Props) {
           <h2 className="font-serif text-[28px] md:text-[32px] font-extrabold leading-tight mb-3 text-text">
             {t('home.trend.title')}
           </h2>
-          <p className="text-[15px] leading-relaxed text-text-secondary max-w-[600px] mb-5">
+          <p className="text-[15px] leading-relaxed text-text-secondary max-w-[600px] mb-3">
             {t('home.trend.description')}
           </p>
+          <div className="flex items-center gap-2 mb-3">
+            <button
+              onClick={() => setTrendMode('simple')}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                trendMode === 'simple' ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
+              }`}
+            >
+              {t('chart.mode.simpleAverage')}
+            </button>
+            <button
+              onClick={() => setTrendMode('weighted')}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                trendMode === 'weighted' ? 'bg-accent-green text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
+              }`}
+            >
+              {t('chart.mode.weightedAverage')}
+            </button>
+          </div>
         </div>
-        <div className="px-4 sm:px-0">
-          <ConsumptionTrendLine data={weightedDisp} />
-        </div>
+        <ConsumptionTrendLine data={weightedDisp} mode={trendMode} />
         <div className="px-4 sm:px-0 chart-caption">
           {t('home.trend.caption')}
         </div>

@@ -178,6 +178,18 @@ export default function Explorer({ data }: Props) {
     return () => { clearTimeout(timer); window.removeEventListener('click', handler) }
   }, [clickDetail])
 
+  // Force ECharts to resize when container dimensions change
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const observer = new ResizeObserver(() => {
+      const chart = chartRef.current?.getEchartsInstance()
+      chart?.resize()
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
   const onChartClick = useCallback((params: any) => {
     if (!params.data?._brand) return
     const d = params.data
