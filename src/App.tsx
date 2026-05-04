@@ -57,9 +57,9 @@ function App() {
               </Routes>
             </main>
             <Footer scrapeTime={data.metadata.scrapedAt} />
-            <BottomNav />
           </>
         )}
+        <BottomNav />
       </div>
     </ErrorBoundary>
   )

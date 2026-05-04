@@ -72,27 +72,27 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
         <table className="w-full text-sm table-fixed">
           <thead>
             <tr className="border-b-2 border-b-text">
-              <th className="px-3 py-2.5 text-left w-14 cursor-pointer hover:text-primary hidden sm:table-cell text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('rank')}>
+              <th className="px-3 py-2.5 text-left w-10 sm:w-14 cursor-pointer hover:text-primary hidden sm:table-cell text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('rank')}>
                 {t('table.header.rank')}<SortIcon k="rank" />
               </th>
-              <th className="px-3 py-2.5 text-left w-24 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('brand')}>
+              <th className="px-2 sm:px-3 py-2.5 text-left w-16 sm:w-24 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('brand')}>
                 {t('table.header.brand')}<SortIcon k="brand" />
               </th>
-              <th className="px-3 py-2.5 text-left cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('series')}>
+              <th className="px-2 sm:px-3 py-2.5 text-left cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('series')}>
                 {t('table.header.series')}<SortIcon k="series" />
               </th>
-              <th className="px-3 py-2.5 text-left w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('type')}>
+              <th className="px-1.5 sm:px-3 py-2.5 text-left w-12 sm:w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('type')}>
                 {t('table.header.type')}<SortIcon k="type" />
               </th>
               {showDisplacement && (
-                <th className="px-3 py-2.5 text-left w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('displacement')}>
+                <th className="px-1.5 sm:px-3 py-2.5 text-left w-14 sm:w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('displacement')}>
                   {t('table.header.displacement')}<SortIcon k="displacement" />
                 </th>
               )}
-              <th className="px-3 py-2.5 text-right w-44 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('consumption')}>
+              <th className="px-2 sm:px-3 py-2.5 text-right w-20 sm:w-44 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('consumption')}>
                 {t('table.header.consumption')}<SortIcon k="consumption" />
               </th>
-              <th className="px-3 py-2.5 text-right w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('samples')}>
+              <th className="px-2 sm:px-3 py-2.5 text-right w-14 sm:w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('samples')}>
                 {t('table.header.samples')}<SortIcon k="samples" />
               </th>
             </tr>
@@ -101,13 +101,13 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
             {paged.map((row) => (
               <tr key={row.id} className="border-t border-border-subtle transition-colors hover:bg-primary/[0.02]">
                 <td className="px-3 py-2 font-mono text-text-secondary hidden sm:table-cell">{row.rank}</td>
-                <td className="px-3 py-2 font-medium">{row.brand}</td>
-                <td className="px-3 py-2 truncate max-w-48">{row.series}</td>
-                <td className="px-3 py-2">
-                  <span className="px-1.5 py-0.5 rounded text-xs bg-surface-alt">{row.type}</span>
+                <td className="px-2 sm:px-3 py-2 font-medium">{row.brand}</td>
+                <td className="px-2 sm:px-3 py-2 truncate max-w-32 sm:max-w-48">{row.series}</td>
+                <td className="px-1.5 sm:px-3 py-2">
+                  <span className="px-1 sm:px-1.5 py-0.5 rounded text-[11px] sm:text-xs bg-surface-alt">{row.type}</span>
                 </td>
-                {showDisplacement && <td className="px-3 py-2 font-mono">{row.displacement}cc</td>}
-                <td className="px-3 py-2">
+                {showDisplacement && <td className="px-1.5 sm:px-3 py-2 font-mono">{row.displacement}cc</td>}
+                <td className="px-2 sm:px-3 py-2">
                   <div className="flex items-center gap-2">
                     {showBar && (
                       <div className="w-24 bg-surface-alt rounded-full h-2 overflow-hidden shrink-0 hidden sm:block">
@@ -123,20 +123,20 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
                     <span className="font-mono font-medium text-primary ml-auto">{row.consumption}</span>
                   </div>
                 </td>
-                <td className="px-3 py-2 text-right font-mono text-text-secondary">{row.samples}</td>
+                <td className="px-2 sm:px-3 py-2 text-right font-mono text-text-secondary">{row.samples}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
       {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-3 text-sm">
+        <div className="flex items-center justify-between mt-3 text-xs sm:text-sm">
           <span className="text-text-secondary">{t('table.pagination.status', { total: data.length, page: page + 1, totalPages })}</span>
           <div className="flex gap-1">
-            <button disabled={page === 0} onClick={() => setPage(0)} className="px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.first')}</button>
-            <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.prev')}</button>
-            <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.next')}</button>
-            <button disabled={page >= totalPages - 1} onClick={() => setPage(totalPages - 1)} className="px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.last')}</button>
+            <button disabled={page === 0} onClick={() => setPage(0)} className="px-1.5 sm:px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.first')}</button>
+            <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="px-1.5 sm:px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.prev')}</button>
+            <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="px-1.5 sm:px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.next')}</button>
+            <button disabled={page >= totalPages - 1} onClick={() => setPage(totalPages - 1)} className="px-1.5 sm:px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.last')}</button>
           </div>
         </div>
       )}

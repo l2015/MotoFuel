@@ -232,10 +232,13 @@ input[type="range"]::-moz-range-thumb {
 @media (max-width: 768px) {
   .pull-quote { padding: 16px 18px; margin: 24px 0; }
   .pull-quote p { font-size: 17px; }
-  .heatmap-disp-header { font-size: 8px; padding: 4px 1px; writing-mode: vertical-rl; text-orientation: mixed; }
+  .heatmap-disp-header { font-size: 9px; padding: 4px 1px; }
   .heatmap-cell { font-size: 9px; padding: 3px 1px; }
-  .heatmap-brand-header { width: 56px; }
-  .heatmap-brand-cell { font-size: 11px; padding: 3px 4px; }
+  .heatmap-brand-header { width: 50px; }
+  .heatmap-brand-cell { font-size: 10px; padding: 3px 4px; }
+  /* DataTable mobile compact */
+  .data-table th { padding: 6px 6px; font-size: 9px; }
+  .data-table td { padding: 7px 6px; font-size: 12px; }
 }
 
 /* Prevent horizontal scroll on mobile */

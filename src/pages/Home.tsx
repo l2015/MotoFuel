@@ -136,18 +136,20 @@ export default function Home({ data }: Props) {
       </div>
 
       {/* TREND CHART */}
-      <section className="mb-10">
-        <div className="text-[11px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">
-          {t('home.trend.kicker')}
+      <section className="mb-10 -mx-4 sm:mx-0">
+        <div className="px-4 sm:px-0">
+          <div className="text-[11px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">
+            {t('home.trend.kicker')}
+          </div>
+          <h2 className="font-serif text-[28px] md:text-[32px] font-extrabold leading-tight mb-3 text-text">
+            {t('home.trend.title')}
+          </h2>
+          <p className="text-[15px] leading-relaxed text-text-secondary max-w-[600px] mb-5">
+            {t('home.trend.description')}
+          </p>
         </div>
-        <h2 className="font-serif text-[28px] md:text-[32px] font-extrabold leading-tight mb-3 text-text">
-          {t('home.trend.title')}
-        </h2>
-        <p className="text-[15px] leading-relaxed text-text-secondary max-w-[600px] mb-5">
-          {t('home.trend.description')}
-        </p>
         <ConsumptionTrendLine data={weightedDisp} />
-        <div className="chart-caption">
+        <div className="px-4 sm:px-0 chart-caption">
           {t('home.trend.caption')}
         </div>
       </section>

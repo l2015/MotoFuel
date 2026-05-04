@@ -56,7 +56,7 @@ export default function DispBrandHeatmap({ data }: Props) {
           <tr>
             <th className="heatmap-brand-header" />
             {DISPS.map(d => (
-              <th key={d} className="heatmap-disp-header">{d}cc</th>
+              <th key={d} className="heatmap-disp-header">{d}</th>
             ))}
           </tr>
         </thead>

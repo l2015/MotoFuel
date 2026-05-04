@@ -4,48 +4,68 @@ import { useTranslation } from 'react-i18next'
 const tabs = [
   {
     path: '/',
+    labelKey: 'nav.overview',
+    // grid/dashboard icon
     icon: (
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <rect x="14" y="14" width="7" height="7" rx="1" />
       </svg>
     ),
-    labelKey: 'nav.overview',
   },
   {
     path: '/ranking',
+    labelKey: 'nav.ranking',
+    // list/table icon
     icon: (
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 14h18M9 6h6m-6 12h6" />
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+        <line x1="8" y1="6" x2="21" y2="6" />
+        <line x1="8" y1="12" x2="21" y2="12" />
+        <line x1="8" y1="18" x2="21" y2="18" />
+        <circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none" />
+        <circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none" />
+        <circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none" />
       </svg>
     ),
-    labelKey: 'nav.ranking',
   },
   {
     path: '/analysis',
+    labelKey: 'nav.analysis',
+    // chart/pie icon
     icon: (
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 12A9 9 0 1 1 12 3v9z" />
+        <path d="M21 3v9h-9" />
       </svg>
     ),
-    labelKey: 'nav.analysis',
   },
   {
     path: '/explorer',
+    labelKey: 'nav.explorer',
+    // scatter/bubble icon
     icon: (
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="7" cy="7" r="2" />
+        <circle cx="17" cy="9" r="3" />
+        <circle cx="10" cy="16" r="2.5" />
+        <circle cx="18" cy="18" r="1.5" />
+        <circle cx="5" cy="14" r="1" />
       </svg>
     ),
-    labelKey: 'nav.explorer',
   },
   {
     path: '/about',
+    labelKey: 'nav.about',
+    // info icon
     icon: (
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="16" x2="12" y2="12" />
+        <line x1="12" y1="8" x2="12.01" y2="8" />
       </svg>
     ),
-    labelKey: 'nav.about',
   },
 ]
 
