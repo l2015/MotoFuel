@@ -75,30 +75,36 @@ export default function Explorer({ data }: Props) {
       if (!chart || items.length === 0) return
       if (!chart.getWidth() || !chart.getHeight()) return
 
-      const indices = [...new Set(items.map(d => allDisplacements.indexOf(d.displacement)))].filter(i => i >= 0).sort((a, b) => a - b)
+      const disps = [...new Set(items.map(d => d.displacement))]
+      const dispIndices = disps.map(d => allDisplacements.indexOf(d)).filter(i => i >= 0)
       const total = allDisplacements.length
-      if (indices.length === 0 || total === 0) return
+      if (dispIndices.length === 0 || total === 0) return
 
-      const pad = Math.max(1, Math.round((indices[indices.length - 1] - indices[0]) * 0.2))
-      const start = Math.max(0, ((indices[0] - pad) / total) * 100)
-      const end = Math.min(100, ((indices[indices.length - 1] + 1 + pad) / total) * 100)
+      const xMin = Math.min(...dispIndices)
+      const xMax = Math.max(...dispIndices)
+      const pad = Math.max(2, Math.round((xMax - xMin) * 0.3))
+      const start = Math.max(0, ((xMin - pad) / total) * 100)
+      const end = Math.min(100, ((xMax + 1 + pad) / total) * 100)
 
       const consumptions = items.map(d => d.consumption)
       const yMin = Math.min(...consumptions)
       const yMax = Math.max(...consumptions)
       const yPad = Math.max(0.5, (yMax - yMin) * 0.25)
 
+      chart.setOption({
+        yAxis: { min: Math.max(0, yMin - yPad), max: yMax + yPad },
+        series: allTypes.map(() => ({})),
+      })
       chart.dispatchAction({ type: 'dataZoom', start, end })
-      chart.setOption({ yAxis: { min: Math.max(0, yMin - yPad), max: yMax + yPad } })
     } catch { /* chart not ready */ }
-  }, [allDisplacements])
+  }, [allDisplacements, allTypes])
 
   const resetZoom = useCallback(() => {
     try {
       const chart = chartRef.current?.getEchartsInstance()
       if (!chart || !chart.getWidth() || !chart.getHeight()) return
+      chart.setOption({ yAxis: { min: 0, max: undefined } })
       chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 })
-      chart.setOption({ yAxis: { min: 0 } })
     } catch { /* chart not ready */ }
   }, [])
 
