@@ -118,16 +118,6 @@ export default function Explorer({ data }: Props) {
     }
   }, [highlightType])
 
-  // Zoom on brand / sample filter (skip initial mount)
-  useEffect(() => {
-    if (initRef.current) return
-    if ((selectedBrands.length > 0 || minSamples > 0) && filteredData.length > 0) {
-      doZoom(filteredData)
-    } else if (selectedBrands.length === 0 && minSamples === 0 && !highlightType) {
-      resetZoom()
-    }
-  }, [selectedBrands, minSamples])
-
   const option = useMemo(() => {
     const { min: sMin, max: sMax } = globalSampleRange
 
@@ -143,16 +133,16 @@ export default function Explorer({ data }: Props) {
         type: 'scatter' as const,
         triggerEvent: false,
         data: items.map((d, i) => {
-          // Deterministic jitter: hash brand+series to get consistent offset per item
           const hash = d.brand.length * 31 + d.series.length * 17 + i * 7
           const norm = (d.samples - sMin) / (sMax - sMin)
-          // Low-sample items scatter wider, high-sample items cluster toward center
-          const spread = 18 * (1 - norm * 0.7)
+          // Jitter: ±6cc max, high-sample items tighter
+          const spread = 6 * (1 - norm * 0.5)
           const jitter = ((hash % 100) / 100 - 0.5) * 2 * spread
 
           return {
             value: [d.displacement + jitter, d.consumption],
-            symbolSize: Math.round(5 + norm * 9),
+            // Size: 4px (few samples) → 22px (5000+), using sqrt for smoother curve
+            symbolSize: Math.round(4 + Math.sqrt(norm) * 18),
             _brand: d.brand,
             _series: d.series,
             _samples: d.samples,
@@ -192,11 +182,7 @@ export default function Explorer({ data }: Props) {
           },
         },
         large: true,
-        animation: true,
-        animationDuration: 400,
-        animationEasing: 'cubicOut',
-        animationDurationUpdate: 300,
-        animationEasingUpdate: 'cubicOut',
+        animation: false,
       }
     })
 
