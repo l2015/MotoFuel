@@ -87,7 +87,7 @@ export default function Home({ data }: Props) {
   return (
     <div className="max-w-4xl mx-auto">
       {/* HERO */}
-      <section className="py-12 md:py-16 animate-in">
+      <section className="py-6 md:py-16 animate-in">
         <div className="text-[12px] font-bold text-primary uppercase tracking-[0.12em] mb-3">
           {t('home.hero.kicker')}
         </div>
@@ -148,7 +148,9 @@ export default function Home({ data }: Props) {
             {t('home.trend.description')}
           </p>
         </div>
-        <ConsumptionTrendLine data={weightedDisp} />
+        <div className="px-4 sm:px-0">
+          <ConsumptionTrendLine data={weightedDisp} />
+        </div>
         <div className="px-4 sm:px-0 chart-caption">
           {t('home.trend.caption')}
         </div>

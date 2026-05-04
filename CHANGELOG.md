@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.8.2 (2026-05-05)
+
+- Explorer: fix zero-height chart container (min-h-0 → min-h-[400px]), scatter chart renders correctly
+- Home: reduce hero vertical padding on mobile (py-12 → py-6)
+- Home: trend chart buttons no longer touch edge on mobile
+- DataTable: hide type column on mobile, give brand/series more space
+- DataTable: brand names like "新大洲本田" no longer wrap, series visible
+- Body font changed from sans-serif to serif (Playfair Display / Noto Serif SC)
+
 ## v0.8.1 (2026-05-05)
 
 ### Mobile UX
