@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { FilterState, Motorcycle } from '../types'
 
@@ -14,13 +14,15 @@ const DISP_QUICK_RANGES = [
   { label: '50-110', min: 50, max: 110 },
   { label: '125-250', min: 125, max: 250 },
   { label: '300-600', min: 300, max: 600 },
-  { label: '650+', min: 650, max: 9999 },
+  { label: '600+', min: 600, max: 9999 },
 ]
 
 export default function FilterBar({ filter, allData, types, onFilterChange, onReset }: FilterBarProps) {
   const { t } = useTranslation()
   const [collapsed, setCollapsed] = useState(false)
   const [brandExpanded, setBrandExpanded] = useState(false)
+  const minRef = useRef<HTMLInputElement>(null)
+  const maxRef = useRef<HTMLInputElement>(null)
 
   // Cascading: filter by type first
   const cascadedData = useMemo(() => {
@@ -82,10 +84,10 @@ export default function FilterBar({ filter, allData, types, onFilterChange, onRe
   }
 
   return (
-    <div className="glass-card sticky top-14 z-40">
+    <div className="editorial-card sticky top-14 z-40">
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium hover:bg-surface-alt rounded-t-xl transition-colors"
+        className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium hover:bg-surface-alt transition-colors"
       >
         <span>{t('filter.title')} {filter.types.length + filter.brands.length + filter.displacements.length + (filter.minSamples > 0 ? 1 : 0) + (filter.consumptionRange[1] < 6 ? 1 : 0) + (filter.searchText ? 1 : 0) > 0 ? t('filter.active') : ''}</span>
         <svg className={`w-4 h-4 transition-transform ${collapsed ? '' : 'rotate-180'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -169,21 +171,37 @@ export default function FilterBar({ filter, allData, types, onFilterChange, onRe
             </div>
             <div className="flex items-center gap-2">
               <label className="text-xs font-medium text-text-secondary">{t('filter.label.consumption')}</label>
-              <div className="relative w-32 h-10">
-                <input type="range" min={0} max={6} step={0.1}
+              <div
+                className="relative w-36 h-5"
+                onPointerDown={e => {
+                  const rect = e.currentTarget.getBoundingClientRect()
+                  const ratio = (e.clientX - rect.left) / rect.width
+                  const clickVal = ratio * 6
+                  const distMin = Math.abs(clickVal - filter.consumptionRange[0])
+                  const distMax = Math.abs(clickVal - filter.consumptionRange[1])
+                  if (distMin <= distMax) {
+                    if (minRef.current) minRef.current.style.zIndex = '2'
+                    if (maxRef.current) maxRef.current.style.zIndex = '1'
+                  } else {
+                    if (minRef.current) minRef.current.style.zIndex = '1'
+                    if (maxRef.current) maxRef.current.style.zIndex = '2'
+                  }
+                }}
+              >
+                <input ref={minRef} type="range" min={0} max={6} step={0.1}
                   value={filter.consumptionRange[0]}
                   onChange={e => {
                     const v = parseFloat(e.target.value)
                     if (v < filter.consumptionRange[1]) onFilterChange({ consumptionRange: [v, filter.consumptionRange[1]] })
                   }}
-                  className="absolute inset-0 w-full accent-primary pointer-events-auto" style={{ zIndex: 1 }} />
-                <input type="range" min={0} max={6} step={0.1}
+                  className="dual-range-min" />
+                <input ref={maxRef} type="range" min={0} max={6} step={0.1}
                   value={filter.consumptionRange[1]}
                   onChange={e => {
                     const v = parseFloat(e.target.value)
                     if (v > filter.consumptionRange[0]) onFilterChange({ consumptionRange: [filter.consumptionRange[0], v] })
                   }}
-                  className="absolute inset-0 w-full accent-primary pointer-events-auto" style={{ zIndex: 2 }} />
+                  className="dual-range-max" />
               </div>
               <span className="text-xs font-mono">{filter.consumptionRange[0]}~{filter.consumptionRange[1]}L</span>
             </div>

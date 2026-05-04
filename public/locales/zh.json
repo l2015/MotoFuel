@@ -8,15 +8,14 @@
     "overview": "总览",
     "ranking": "排行榜",
     "analysis": "数据洞察",
-    "explorer": "数据探索"
+    "explorer": "油耗分布",
+    "about": "关于"
   },
-  "header": {
-    "menu": "菜单"
-  },
+  "header": {},
   "footer": {
     "dataSource": "数据来源：",
     "xiaoxiongYouhao": "小熊油耗",
-    "acknowledgement": "— 感谢小熊油耗平台公开摩托车油耗数据",
+    "acknowledgement": " — 感谢小熊油耗平台公开摩托车油耗数据",
     "scrapedAt": "数据抓取："
   },
   "table": {
@@ -60,54 +59,90 @@
   },
   "home": {
     "hero": {
-      "title": "摩托车油耗数据全景",
-      "subtitle": "小熊油耗平台 · 车友真实加油数据"
+      "kicker": "Data Investigation",
+      "title": "中国摩托车油耗全景：1,779 款车型的真实数据",
+      "subtitle": "基于小熊油耗平台 47 万条真实加油记录，覆盖 173 个品牌，揭示从 125cc 到 1000cc+ 各排量级别的真实油耗表现。"
     },
     "stat": {
       "lowestConsumption": "最低油耗",
-      "totalBrands": "品牌数",
-      "totalModels": "车型数",
-      "totalSamples": "总样本数"
+      "totalBrands": "品牌覆盖",
+      "totalModels": "车型收录",
+      "totalSamples": "真实样本"
     },
     "trend": {
-      "title": "排量与平均油耗趋势",
-      "description": "各排量级别加权平均油耗，数据越多越有参考价值"
+      "kicker": "Key Finding",
+      "title": "排量越大，油耗越高——但增长并非线性",
+      "description": "从 125cc 到 300cc，油耗增长相对平缓（2.54 → 3.65 L/100km）。400cc 以上油耗开始加速攀升，进入 600cc 级别后稳定在 4.8–4.9 L/100km 的高位平台。",
+      "caption": "数据来源：小熊油耗平台用户加油记录，按排量级别的简单平均与加权平均"
     },
     "top20": {
-      "title": "跨排量 Top 20 最省油"
+      "kicker": "Efficiency Ranking",
+      "title": "跨排量 Top 20 最省油车型",
+      "description": "样本量 ≥ 10 的车型中，各排量级别油耗最低的车型。样本量越大，排名的统计可靠性越高。"
     },
     "typeDistribution": {
-      "title": "车型类型分布"
+      "kicker": "Distribution",
+      "title": "车型类型分布",
+      "description": "踏板车以 789 款居首，街车（343 款）次之。跨骑类（街车+巡航+复古+跑车+拉力等）合计仍占最大份额。"
     },
-    "brandRanking": {
-      "title": "品牌样本量排行"
+    "brandRank": {
+      "kicker": "Brand Ranking",
+      "title": "主流品牌油耗排名",
+      "description": "仅展示收录 10 款以上车型的品牌。五羊本田以 2.29 L/100km 领跑，日系合资品牌占据前五。豪爵以 102 款车型覆盖最广，平均油耗 2.47 L/100km。"
+    },
+    "sidebar": {
+      "title": "关键数据",
+      "fact1": "<strong>125cc</strong> 是收录车型最多的排量级别（477 款）",
+      "fact2": "从 125cc 到 1000cc，油耗差距接近 <strong>2 倍</strong>（2.54 vs 4.83）",
+      "fact3": "豪爵以 <strong>102 款</strong>车型成为覆盖最广的品牌"
+    },
+    "pullQuote": {
+      "text": "排量并非油耗的唯一决定因素。在相同排量条件下，不同品牌之间的油耗差距可超过 40%。",
+      "cite": "— MotoFuel 数据分析"
+    },
+    "tabSection": {
+      "kicker": "Data Tables",
+      "title": "核心数据总览"
     },
     "tab": {
       "model": "车型"
     },
     "link": {
-      "fullRanking": "完整排行 →"
+      "fullRanking": "完整排行"
+    },
+    "dispHeatmap": {
+      "kicker": "Cross Comparison",
+      "title": "同排量品牌油耗对比",
+      "description": "主要排量级别中，各品牌平均油耗的横向对比。颜色越深表示油耗越高，空白表示该品牌在该排量级别无车型收录。",
+      "caption": "仅展示 5 款以上车型的品牌，每个排量级别至少 2 款车型才参与计算"
     }
   },
   "ranking": {
+    "kicker": "Complete Ranking",
     "title": "摩托车油耗排行榜",
     "filterResult": "筛选结果: {{count}} 款车型",
     "barChart": "柱状图"
   },
   "analysis": {
+    "kicker": "Data Insights",
     "title": "数据洞察",
     "basedOn": "基于 {{count}} 款车型",
     "brandFilter": "品牌筛选",
     "brandRank": {
+      "kicker": "Brand Performance",
       "title": "品牌平均油耗排名",
-      "hint": "点击柱子查看该品牌排行榜"
+      "hint": "点击柱状条可查看该品牌详细排行",
+      "caption": "按品牌平均油耗升序排列，颜色标注油耗等级（绿色=低油耗，蓝色=中等油耗，黄色=偏高油耗，红色=高油耗）"
     },
     "typeDistribution": {
+      "kicker": "Type Distribution",
       "title": "车型类型分布",
-      "hint": "点击扇区查看"
+      "hint": "点击扇区可查看该类型排行"
     },
     "histogram": {
-      "title": "油耗分布直方图"
+      "kicker": "Consumption Distribution",
+      "title": "油耗分布直方图",
+      "description": "各油耗区间的车型数量分布，直观展示集中趋势和离散程度"
     }
   },
   "explorer": {
@@ -128,7 +163,7 @@
       "series": "车系",
       "displacement": "排量",
       "consumption": "油耗",
-      "samples": "样本数",
+      "samples": "样本",
       "type": "类型",
       "sameDispRank": "同排量排名",
       "rankFormat": "第 {{rank}}/{{total}}"
@@ -141,11 +176,26 @@
       "worst": "最费"
     }
   },
+  "about": {
+    "kicker": "About",
+    "title": "关于 MotoFuel",
+    "subtitle": "摩托车油耗数据可视化分析平台",
+    "whatTitle": "项目简介",
+    "whatContent": "MotoFuel 是一个开源的摩托车油耗数据分析平台，收录了来自小熊油耗平台的 1,779 款车型、47 万余条真实加油记录。我们通过数据可视化手段，帮助车友和行业研究者了解不同品牌、排量、车型的真实油耗表现。",
+    "sourceTitle": "数据来源",
+    "sourceContent": "所有数据来自小熊油耗（xiaoxiongyouhao.com）平台。小熊油耗是国内最大的汽车/摩托车油耗记录社区，用户自行记录每次加油的里程和油量，平台计算出真实油耗。我们每周自动抓取最新数据。",
+    "downloadApp": "下载小熊油耗 App",
+    "viewRanking": "查看小熊油耗排行榜",
+    "techTitle": "技术栈",
+    "techContent": "React 19 + TypeScript + Vite 8 + Tailwind CSS v4 + Apache ECharts，纯前端静态部署于 GitHub Pages，无后端服务。",
+    "limitationTitle": "数据局限",
+    "limitationContent": "小熊油耗公开的是基础统计数据，未标注具体时间范围和车型年款。我们获取的是每个车型的平均油耗和样本量，无法进行时间趋势分析，也无法区分不同年款的差异。更精细的维度分析（如按地区、按时间、按年款）需要使用小熊油耗 App 或联系平台获取商业数据授权。因此本站数据适合进行整体比较和宏观参考，不宜作为精确购车决策依据。",
+    "disclaimer": "免责声明",
+    "disclaimerContent": "本项目仅用于数据学习和可视化展示。数据版权归小熊油耗平台所有。如需用于商业用途，请联系原数据平台获取授权。"
+  },
   "chart": {
     "axis": {
       "displacement": "排量",
-      "consumption": "油耗 (L/100km)",
-      "samples": "样本数",
       "modelCount": "车型数"
     },
     "tooltip": {
@@ -161,7 +211,6 @@
     "mode": {
       "simpleAverage": "简单平均",
       "weightedAverage": "加权平均"
-    },
-    "other": "其他"
+    }
   }
 }

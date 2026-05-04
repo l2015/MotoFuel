@@ -7,10 +7,82 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="摩托车油耗数据分析平台 - 基于真实数据的跨排量油耗排行、品牌对比和可视化分析" />
-    <meta name="theme-color" content="#f8fafc" />
-    <link rel="manifest" href="/manifest.webmanifest" />
     <title>MotoFuel - 摩托车油耗分析</title>
+
+    <!-- SEO -->
+    <meta name="description" content="MotoFuel 摩托车油耗数据分析平台。基于小熊油耗 47 万条真实加油记录，覆盖 173 个品牌 1,779 款车型，提供跨排量油耗排行、品牌对比和可视化分析。" />
+    <meta name="keywords" content="摩托车油耗,油耗排行,摩托车数据,品牌对比,排量油耗,小熊油耗,MotoFuel" />
+    <meta name="author" content="MotoFuel" />
+    <meta name="theme-color" content="#fffef9" />
+    <link rel="canonical" href="https://l2015.github.io/MotoFuel/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://l2015.github.io/MotoFuel/" />
+    <meta property="og:title" content="MotoFuel - 摩托车油耗分析" />
+    <meta property="og:description" content="基于 47 万条真实加油记录，1,779 款车型的摩托车油耗数据分析平台。跨排量油耗排行、品牌对比和可视化分析。" />
+    <meta property="og:image" content="https://l2015.github.io/MotoFuel/icons/icon-512.png" />
+    <meta property="og:site_name" content="MotoFuel" />
+    <meta property="og:locale" content="zh_CN" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="MotoFuel - 摩托车油耗分析" />
+    <meta name="twitter:description" content="基于 47 万条真实加油记录，1,779 款车型的摩托车油耗数据分析平台。" />
+    <meta name="twitter:image" content="https://l2015.github.io/MotoFuel/icons/icon-512.png" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "MotoFuel",
+      "url": "https://l2015.github.io/MotoFuel/",
+      "description": "摩托车油耗数据分析平台，基于小熊油耗 47 万条真实加油记录",
+      "inLanguage": ["zh", "en"],
+      "publisher": {
+        "@type": "Organization",
+        "name": "MotoFuel",
+        "url": "https://l2015.github.io/MotoFuel/"
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://l2015.github.io/MotoFuel/ranking?brand={search_term}",
+        "query-input": "required name=search_term"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      "name": "中国摩托车油耗数据集",
+      "description": "1,779 款摩托车车型的真实油耗数据，覆盖 173 个品牌，来自小熊油耗平台 47 万余条加油记录",
+      "url": "https://l2015.github.io/MotoFuel/",
+      "creator": {
+        "@type": "Organization",
+        "name": "MotoFuel"
+      },
+      "variableMeasured": "油耗 (L/100km)",
+      "measurementTechnique": "用户真实加油记录统计",
+      "numberOfItems": "1779",
+      "license": "https://opensource.org/licenses/MIT"
+    }
+    </script>
+
+    <!-- Sitemap -->
+    <link rel="sitemap" type="application/xml" href="/MotoFuel/sitemap.xml" />
+
+    <!-- GA4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GGW973RWJ8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-GGW973RWJ8');
+    </script>
+
+    <link rel="manifest" href="/manifest.webmanifest" />
   </head>
   <body>
     <div id="root"></div>

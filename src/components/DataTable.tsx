@@ -7,15 +7,12 @@ interface DataTableProps {
   data: Motorcycle[]
   showDisplacement?: boolean
   showBar?: boolean
-  selectable?: boolean
-  selectedIds?: Set<number>
-  onToggleSelect?: (id: number) => void
 }
 
 type SortKey = 'rank' | 'brand' | 'series' | 'type' | 'displacement' | 'consumption' | 'samples'
 type SortDir = 'asc' | 'desc'
 
-export default function DataTable({ data, showDisplacement = false, showBar = false, selectable = false, selectedIds, onToggleSelect }: DataTableProps) {
+export default function DataTable({ data, showDisplacement = false, showBar = false }: DataTableProps) {
   const { t } = useTranslation()
   const [sortKey, setSortKey] = useState<SortKey>('consumption')
   const [sortDir, setSortDir] = useState<SortDir>('asc')
@@ -38,7 +35,7 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
   const totalPages = Math.ceil(data.length / pageSize)
 
   const maxConsumption = useMemo(
-    () => data.length > 0 ? Math.max(...data.map(d => d.consumption)) : 1,
+    () => data.length > 0 ? data.reduce((m, d) => d.consumption > m ? d.consumption : m, 0) : 1,
     [data]
   )
 
@@ -58,49 +55,38 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
 
   return (
     <div>
-      <div className="overflow-x-auto rounded-xl border border-border">
+      <div className="overflow-x-auto border border-border">
         <table className="w-full text-sm table-fixed">
-          <thead className="bg-surface-alt">
-            <tr>
-              {selectable && <th className="px-3 py-2.5 w-8" />}
-              <th className="px-3 py-2.5 text-left w-14 cursor-pointer hover:text-primary hidden sm:table-cell" onClick={() => toggleSort('rank')}>
+          <thead>
+            <tr className="border-b-2 border-b-text">
+              <th className="px-3 py-2.5 text-left w-14 cursor-pointer hover:text-primary hidden sm:table-cell text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary" onClick={() => toggleSort('rank')}>
                 {t('table.header.rank')}<SortIcon k="rank" />
               </th>
-              <th className="px-3 py-2.5 text-left w-24 cursor-pointer hover:text-primary" onClick={() => toggleSort('brand')}>
+              <th className="px-3 py-2.5 text-left w-24 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary" onClick={() => toggleSort('brand')}>
                 {t('table.header.brand')}<SortIcon k="brand" />
               </th>
-              <th className="px-3 py-2.5 text-left cursor-pointer hover:text-primary" onClick={() => toggleSort('series')}>
+              <th className="px-3 py-2.5 text-left cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary" onClick={() => toggleSort('series')}>
                 {t('table.header.series')}<SortIcon k="series" />
               </th>
-              <th className="px-3 py-2.5 text-left w-16 cursor-pointer hover:text-primary" onClick={() => toggleSort('type')}>
+              <th className="px-3 py-2.5 text-left w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary" onClick={() => toggleSort('type')}>
                 {t('table.header.type')}<SortIcon k="type" />
               </th>
               {showDisplacement && (
-                <th className="px-3 py-2.5 text-left w-16 cursor-pointer hover:text-primary" onClick={() => toggleSort('displacement')}>
+                <th className="px-3 py-2.5 text-left w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary" onClick={() => toggleSort('displacement')}>
                   {t('table.header.displacement')}<SortIcon k="displacement" />
                 </th>
               )}
-              <th className="px-3 py-2.5 text-right w-44 cursor-pointer hover:text-primary" onClick={() => toggleSort('consumption')}>
+              <th className="px-3 py-2.5 text-right w-44 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary" onClick={() => toggleSort('consumption')}>
                 {t('table.header.consumption')}<SortIcon k="consumption" />
               </th>
-              <th className="px-3 py-2.5 text-right w-16 cursor-pointer hover:text-primary" onClick={() => toggleSort('samples')}>
+              <th className="px-3 py-2.5 text-right w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary" onClick={() => toggleSort('samples')}>
                 {t('table.header.samples')}<SortIcon k="samples" />
               </th>
             </tr>
           </thead>
           <tbody>
-            {paged.map((row, i) => (
-              <tr key={row.id} className={`border-t border-border hover:bg-surface ${i % 2 === 0 ? '' : 'bg-surface-alt/30'}`}>
-                {selectable && (
-                  <td className="px-3 py-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds?.has(row.id) || false}
-                      onChange={() => onToggleSelect?.(row.id)}
-                      className="rounded accent-primary"
-                    />
-                  </td>
-                )}
+            {paged.map((row) => (
+              <tr key={row.id} className="border-t border-border-subtle transition-colors hover:bg-primary/[0.02]">
                 <td className="px-3 py-2 font-mono text-text-secondary hidden sm:table-cell">{row.rank}</td>
                 <td className="px-3 py-2 font-medium">{row.brand}</td>
                 <td className="px-3 py-2 truncate max-w-48">{row.series}</td>

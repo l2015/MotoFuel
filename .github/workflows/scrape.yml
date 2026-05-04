@@ -26,6 +26,22 @@ jobs:
         run: node index.js
         working-directory: scraper
 
+      - name: Validate scraped data
+        run: |
+          FILE="public/data/motorcycles.json"
+          if [ ! -f "$FILE" ]; then
+            echo "ERROR: Data file not found"
+            exit 1
+          fi
+          COUNT=$(node -e "const d=require('./$FILE'); console.log(d.data.length)")
+          echo "Scraped $COUNT models"
+          if [ "$COUNT" -lt 500 ]; then
+            echo "ERROR: Expected at least 500 models, got $COUNT. Aborting."
+            exit 1
+          fi
+          node -e "const d=require('./$FILE'); if(!d.metadata||!d.metadata.scrapedAt){console.error('ERROR: Missing metadata');process.exit(1)}"
+          echo "Data validation passed"
+
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"

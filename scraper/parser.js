@@ -11,27 +11,28 @@ export function parsePage(html, levelId) {
   const displacement = DISPLACEMENT_MAP[levelId]
   if (!displacement) return []
 
+  // Strategy 1: Find script containing "data" array
   const scriptText = $('script').toArray()
     .map(el => $(el).html())
     .find(s => s && s.includes('"data":'))
 
   if (!scriptText) return []
 
-  const dataMatch = scriptText.match(/"data"\s*:\s*(\[[\s\S]*?\])\s*\}/)
-  if (!dataMatch) return []
+  // Strategy 2: Try regex extraction
+  let rows = tryExtractArray(scriptText)
 
-  let rows
-  try {
-    rows = JSON.parse(dataMatch[1])
-  } catch {
-    return []
+  // Strategy 3: If regex fails, try extracting the full JSON object
+  if (!rows) {
+    rows = tryExtractFullJSON(scriptText)
   }
+
+  if (!rows || !Array.isArray(rows)) return []
 
   return rows.map(row => {
     const [rank, imgHtml, brand, series, type, consumption, samples] = row
 
     let logoModelId = ''
-    const imgMatch = imgHtml.match(/models\/(\d+)\//)
+    const imgMatch = String(imgHtml).match(/models\/(\d+)\//)
     if (imgMatch) logoModelId = imgMatch[1]
 
     return {
@@ -46,5 +47,29 @@ export function parsePage(html, levelId) {
         ? `https://cdn.xiaoxiongyouhao.com/models/${logoModelId}/che_biao_180.jpg`
         : '',
     }
-  })
+  }).filter(row =>
+    row.brand && !isNaN(row.consumption) && !isNaN(row.samples) && row.consumption > 0
+  )
+}
+
+function tryExtractArray(scriptText) {
+  const match = scriptText.match(/"data"\s*:\s*(\[[\s\S]*?\])\s*[,}]/)
+  if (!match) return null
+  try {
+    return JSON.parse(match[1])
+  } catch {
+    return null
+  }
+}
+
+function tryExtractFullJSON(scriptText) {
+  // Try to find a complete JSON object containing "data"
+  const match = scriptText.match(/\{[^{}]*"data"\s*:\s*(\[[\s\S]*?\])[^{}]*\}/)
+  if (!match) return null
+  try {
+    // Try to parse just the array part
+    return JSON.parse(match[1])
+  } catch {
+    return null
+  }
 }

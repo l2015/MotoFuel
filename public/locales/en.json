@@ -8,15 +8,14 @@
     "overview": "Overview",
     "ranking": "Ranking",
     "analysis": "Insights",
-    "explorer": "Explorer"
+    "explorer": "Explorer",
+    "about": "About"
   },
-  "header": {
-    "menu": "Menu"
-  },
+  "header": {},
   "footer": {
     "dataSource": "Data source: ",
     "xiaoxiongYouhao": "XiaoXiong Youhao",
-    "acknowledgement": "— Thanks to XiaoXiong Youhao for open motorcycle fuel data",
+    "acknowledgement": " — Thanks to XiaoXiong Youhao for open motorcycle fuel data",
     "scrapedAt": "Scraped: "
   },
   "table": {
@@ -60,54 +59,90 @@
   },
   "home": {
     "hero": {
-      "title": "Motorcycle Fuel Data Overview",
-      "subtitle": "XiaoXiong Youhao · Real rider refueling data"
+      "kicker": "Data Investigation",
+      "title": "China's Motorcycle Fuel Economy: 1,779 Models, Real-World Data",
+      "subtitle": "Based on 470,000 real refueling records from XiaoXiong Youhao, spanning 173 brands, revealing the true fuel consumption across 125cc to 1000cc+ displacement classes."
     },
     "stat": {
-      "lowestConsumption": "Lowest",
+      "lowestConsumption": "Lowest Fuel",
       "totalBrands": "Brands",
       "totalModels": "Models",
       "totalSamples": "Samples"
     },
     "trend": {
-      "title": "Displacement vs. Average Fuel Consumption",
-      "description": "Weighted average by displacement — more data means more reliable"
+      "kicker": "Key Finding",
+      "title": "Larger displacement correlates with higher consumption — but the growth is nonlinear",
+      "description": "From 125cc to 300cc, consumption grows gradually (2.54 → 3.65 L/100km). Above 400cc it accelerates, and from 600cc onwards it plateaus around 4.8–4.9 L/100km.",
+      "caption": "Source: XiaoXiong Youhao user refueling records, simple and weighted averages by displacement class"
     },
     "top20": {
-      "title": "Top 20 Most Fuel-Efficient"
+      "kicker": "Efficiency Ranking",
+      "title": "Top 20 Most Fuel-Efficient Across Displacements",
+      "description": "Among models with 10+ samples, the most fuel-efficient in each displacement class. Larger sample sizes yield more statistically reliable rankings."
     },
     "typeDistribution": {
-      "title": "Vehicle Type Distribution"
+      "kicker": "Distribution",
+      "title": "Vehicle Type Distribution",
+      "description": "Scooters lead with 789 models, followed by street bikes (343). Manual-style bikes (street + cruiser + retro + sport + adventure) collectively hold the largest share."
     },
-    "brandRanking": {
-      "title": "Brand Sample Ranking"
+    "brandRank": {
+      "kicker": "Brand Ranking",
+      "title": "Major Brand Fuel Efficiency Ranking",
+      "description": "Only brands with 10+ models shown. Wuyang Honda leads at 2.29 L/100km. Japanese JV brands dominate the top five. Haojue covers the widest range with 102 models at an average of 2.47 L/100km."
+    },
+    "sidebar": {
+      "title": "Key Data",
+      "fact1": "<strong>125cc</strong> is the most represented displacement (477 models)",
+      "fact2": "From 125cc to 1000cc, fuel consumption can differ by nearly <strong>2x</strong> (2.54 vs 4.83)",
+      "fact3": "<strong>Haojue</strong> has the widest coverage with 102 models"
+    },
+    "pullQuote": {
+      "text": "Displacement is not the sole determinant of fuel consumption. Within the same class, inter-brand differences can exceed 40%.",
+      "cite": "— MotoFuel Data Analysis"
+    },
+    "tabSection": {
+      "kicker": "Data Tables",
+      "title": "Core Data Overview"
     },
     "tab": {
       "model": "Model"
     },
     "link": {
-      "fullRanking": "Full ranking →"
+      "fullRanking": "Full ranking"
+    },
+    "dispHeatmap": {
+      "kicker": "Cross Comparison",
+      "title": "Brand Fuel Consumption by Displacement",
+      "description": "Average fuel consumption comparison across brands within major displacement classes. Darker colors indicate higher consumption. Empty cells indicate no models for that brand in the given class.",
+      "caption": "Only brands with 5+ models shown; each displacement class requires 2+ models to be included"
     }
   },
   "ranking": {
+    "kicker": "Complete Ranking",
     "title": "Motorcycle Fuel Ranking",
     "filterResult": "{{count}} models found",
     "barChart": "Bar chart"
   },
   "analysis": {
+    "kicker": "Data Insights",
     "title": "Data Insights",
     "basedOn": "Based on {{count}} models",
     "brandFilter": "Brand filter",
     "brandRank": {
+      "kicker": "Brand Performance",
       "title": "Brand Average Fuel Ranking",
-      "hint": "Click a bar to view that brand's ranking"
+      "hint": "Click a bar to view that brand's detailed ranking",
+      "caption": "Sorted by average fuel consumption ascending. Colors: green = low consumption, blue = moderate, amber = elevated, red = high consumption"
     },
     "typeDistribution": {
+      "kicker": "Type Distribution",
       "title": "Vehicle Type Distribution",
       "hint": "Click a sector to explore"
     },
     "histogram": {
-      "title": "Fuel Consumption Distribution"
+      "kicker": "Consumption Distribution",
+      "title": "Fuel Consumption Histogram",
+      "description": "Model count per fuel consumption bin, showing concentration and spread"
     }
   },
   "explorer": {
@@ -141,11 +176,26 @@
       "worst": "Worst"
     }
   },
+  "about": {
+    "kicker": "About",
+    "title": "About MotoFuel",
+    "subtitle": "Motorcycle Fuel Consumption Data Visualization Platform",
+    "whatTitle": "Project Overview",
+    "whatContent": "MotoFuel is an open-source motorcycle fuel consumption analysis platform, featuring 1,779 models with over 470,000 real refueling records from XiaoXiong Youhao. We use data visualization to help riders and researchers understand real-world fuel economy across brands, displacements, and vehicle types.",
+    "sourceTitle": "Data Source",
+    "sourceContent": "All data comes from XiaoXiong Youhao (xiaoxiongyouhao.com), China's largest automotive fuel tracking community. Users log their mileage and fuel amounts at each fill-up, and the platform calculates real consumption. We automatically scrape the latest data weekly.",
+    "downloadApp": "Download XiaoXiong Youhao App",
+    "viewRanking": "View XiaoXiong Youhao Ranking",
+    "techTitle": "Tech Stack",
+    "techContent": "React 19 + TypeScript + Vite 8 + Tailwind CSS v4 + Apache ECharts. Pure frontend, statically deployed on GitHub Pages with no backend.",
+    "limitationTitle": "Data Limitations",
+    "limitationContent": "XiaoXiong Youhao publishes basic aggregated statistics without specific time ranges or model year labels. We receive each model's average fuel consumption and sample count — we cannot analyze trends over time or distinguish between model years. More granular analysis (by region, time period, or model year) requires the XiaoXiong Youhao App or contacting the platform for commercial data access. Therefore, this site's data is best used for broad comparisons and general reference, not as a precise basis for purchasing decisions.",
+    "disclaimer": "Disclaimer",
+    "disclaimerContent": "This project is for data exploration and visualization only. Data copyright belongs to XiaoXiong Youhao. For commercial use, please contact the original data platform for authorization."
+  },
   "chart": {
     "axis": {
       "displacement": "Displacement",
-      "consumption": "Fuel (L/100km)",
-      "samples": "Samples",
       "modelCount": "Models"
     },
     "tooltip": {
@@ -161,7 +211,6 @@
     "mode": {
       "simpleAverage": "Simple avg",
       "weightedAverage": "Weighted avg"
-    },
-    "other": "Other"
+    }
   }
 }

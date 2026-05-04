@@ -1,6 +1,7 @@
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactECharts from 'echarts-for-react'
-import { CHART_GRADIENTS, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
+import { CHART_PALETTE, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
 
 interface Props {
   data: { range: string; count: number }[]
@@ -8,13 +9,18 @@ interface Props {
 
 export default function ConsumptionHistogram({ data }: Props) {
   const { t } = useTranslation()
-  const option = {
+
+  const option = useMemo(() => ({
     tooltip: {
       trigger: 'axis' as const,
       axisPointer: { type: 'shadow' as const },
-      backgroundColor: CHART_TOOLTIP.backgroundColor,
-      borderColor: CHART_TOOLTIP.borderColor,
-      textStyle: CHART_TOOLTIP.textStyle,
+      ...CHART_TOOLTIP,
+      formatter: (p: any) => {
+        const idx = p[0]?.dataIndex ?? 0
+        const d = data[idx]
+        if (!d) return ''
+        return `${d.range}L/100km<br/>${t('chart.tooltip.modelCount', { count: d.count })}`
+      },
     },
     grid: { left: 50, right: 20, top: 20, bottom: 50 },
     xAxis: {
@@ -35,12 +41,10 @@ export default function ConsumptionHistogram({ data }: Props) {
     series: [{
       type: 'bar' as const,
       data: data.map(d => d.count),
-      itemStyle: {
-        color: { type: 'linear' as const, x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: CHART_GRADIENTS.indigo[0] }, { offset: 1, color: CHART_GRADIENTS.indigo[1] }] },
-        borderRadius: [3, 3, 0, 0],
-      },
+      itemStyle: { color: CHART_PALETTE[0], borderRadius: [3, 3, 0, 0] },
       barMaxWidth: 30,
     }],
-  }
-  return <ReactECharts option={option} style={{ height: 300 }} />
+  }), [data, t])
+
+  return <ReactECharts option={option} style={{ height: 320 }} />
 }

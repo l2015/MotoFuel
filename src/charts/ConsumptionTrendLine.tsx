@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactECharts from 'echarts-for-react'
-import { CHART_PALETTE, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
+import { CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
 
 interface DataPoint {
   displacement: number
@@ -19,8 +19,8 @@ export default function ConsumptionTrendLine({ data }: Props) {
   const { t } = useTranslation()
   const [mode, setMode] = useState<'simple' | 'weighted'>('simple')
 
-  const values = data.map(d => mode === 'simple' ? d.avg : d.weightedAvg)
-  const lineColor = mode === 'weighted' ? CHART_PALETTE[5] : CHART_PALETTE[0]
+  const values = useMemo(() => data.map(d => mode === 'simple' ? d.avg : d.weightedAvg), [data, mode])
+  const lineColor = mode === 'weighted' ? '#0d9488' : '#ff6b35'
   const rgba = (hex: string, a: number) => {
     const r = parseInt(hex.slice(1, 3), 16)
     const g = parseInt(hex.slice(3, 5), 16)
@@ -28,7 +28,7 @@ export default function ConsumptionTrendLine({ data }: Props) {
     return `rgba(${r},${g},${b},${a})`
   }
 
-  const option = {
+  const option = useMemo(() => ({
     tooltip: {
       trigger: 'axis' as const,
       backgroundColor: CHART_TOOLTIP.backgroundColor,
@@ -71,7 +71,7 @@ export default function ConsumptionTrendLine({ data }: Props) {
       symbol: 'circle',
       symbolSize: 8,
       lineStyle: { width: 3, color: lineColor },
-      itemStyle: { color: lineColor },
+      itemStyle: { color: lineColor, borderColor: CHART_TOOLTIP.backgroundColor, borderWidth: 2 },
       areaStyle: {
         color: {
           type: 'linear' as const, x: 0, y: 0, x2: 0, y2: 1,
@@ -82,7 +82,7 @@ export default function ConsumptionTrendLine({ data }: Props) {
         },
       },
     }],
-  }
+  }), [data, mode, t, values, lineColor, rgba])
 
   return (
     <div>

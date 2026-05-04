@@ -88,7 +88,6 @@ export default function Explorer({ data }: Props) {
     return result
   }, [data, selectedBrands, minSamples])
 
-  // Rank lookup: rank within same displacement
   const dispRankMap = useMemo(() => {
     const map = new Map<string, number>()
     const byDisp = new Map<number, Motorcycle[]>()
@@ -141,7 +140,7 @@ export default function Explorer({ data }: Props) {
         series: allTypes.map(() => ({})),
       })
       chart.dispatchAction({ type: 'dataZoom', start, end })
-    } catch { /* chart not ready */ }
+    } catch (e) { console.warn('Chart not ready:', e) }
   }, [allDisplacements, allTypes])
 
   const resetZoom = useCallback(() => {
@@ -150,10 +149,9 @@ export default function Explorer({ data }: Props) {
       if (!chart || !chart.getWidth() || !chart.getHeight()) return
       chart.setOption({ yAxis: { min: 0, max: undefined } })
       chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 })
-    } catch { /* chart not ready */ }
+    } catch (e) { console.warn('Chart not ready:', e) }
   }, [])
 
-  // Zoom on type filter (skip initial mount)
   useEffect(() => {
     if (initRef.current) { initRef.current = false; return }
     if (highlightType) {
@@ -162,9 +160,8 @@ export default function Explorer({ data }: Props) {
     } else if (selectedBrands.length === 0 && minSamples === 0) {
       resetZoom()
     }
-  }, [highlightType])
+  }, [highlightType, filteredData, doZoom, resetZoom, selectedBrands.length, minSamples])
 
-  // Zoom on brand / sample filter (skip initial mount)
   useEffect(() => {
     if (initRef.current) return
     if ((selectedBrands.length > 0 || minSamples > 0) && filteredData.length > 0) {
@@ -172,18 +169,15 @@ export default function Explorer({ data }: Props) {
     } else if (selectedBrands.length === 0 && minSamples === 0 && !highlightType) {
       resetZoom()
     }
-  }, [selectedBrands, minSamples])
+  }, [selectedBrands, minSamples, filteredData, doZoom, resetZoom, highlightType])
 
-  // Close detail on outside click
   useEffect(() => {
     if (!clickDetail) return
     const handler = () => setClickDetail(null)
-    // Delay to avoid closing on the same click that opened it
     const timer = setTimeout(() => window.addEventListener('click', handler), 100)
     return () => { clearTimeout(timer); window.removeEventListener('click', handler) }
   }, [clickDetail])
 
-  // Chart click handler
   const onChartClick = useCallback((params: any) => {
     if (!params.data?._brand) return
     const d = params.data
@@ -206,7 +200,6 @@ export default function Explorer({ data }: Props) {
     })
   }, [dispRankMap])
 
-  // DataZoom handler for stats
   const onDataZoom = useCallback((params: any) => {
     const chart = chartRef.current?.getEchartsInstance()
     if (!chart) return
@@ -286,8 +279,8 @@ export default function Explorer({ data }: Props) {
           position: 'right',
           distance: 8,
           rich: {
-            a: { fontSize: 13, color: '#1e293b', fontWeight: 600 },
-            b: { fontSize: 12, color: '#64748b' },
+            a: { fontSize: 13, color: CHART_TOOLTIP.textStyle.color, fontWeight: 600 },
+            b: { fontSize: 12, color: CHART_AXIS.label },
           },
         },
         labelLayout: {
@@ -300,11 +293,10 @@ export default function Explorer({ data }: Props) {
             show: true,
             formatter: (p: any) => `${p.data._brand} ${p.data._series}  ${p.data._disp}cc  ${p.value[1]}L  (${p.data._samples} ${t('explorer.detail.samples')})`,
             fontSize: 13,
-            color: '#1e293b',
-            backgroundColor: '#ffffff',
+            color: CHART_TOOLTIP.textStyle.color,
+            backgroundColor: CHART_TOOLTIP.backgroundColor,
             padding: [6, 10],
-            borderRadius: 6,
-            borderColor: '#e2e8f0',
+            borderColor: CHART_TOOLTIP.borderColor,
             borderWidth: 1,
           },
         },
@@ -317,7 +309,6 @@ export default function Explorer({ data }: Props) {
       }
     })
 
-    // Build legend selected state from highlightType
     const legendSelected: Record<string, boolean> = {}
     if (highlightType) {
       allTypes.forEach(t => { legendSelected[t] = t === highlightType })
@@ -326,9 +317,7 @@ export default function Explorer({ data }: Props) {
     return {
       tooltip: {
         trigger: 'item' as const,
-        backgroundColor: CHART_TOOLTIP.backgroundColor,
-        borderColor: CHART_TOOLTIP.borderColor,
-        textStyle: CHART_TOOLTIP.textStyle,
+        ...CHART_TOOLTIP,
         formatter: (p: any) => {
           const d = p.data
           return `<div style="font-weight:600;margin-bottom:4px">${d._brand} ${d._series}</div>
@@ -362,13 +351,13 @@ export default function Explorer({ data }: Props) {
       },
       dataZoom: [
         { type: 'inside' as const, xAxisIndex: 0 },
-        { type: 'slider' as const, xAxisIndex: 0, bottom: 4, height: 18, borderColor: CHART_AXIS.line, fillerColor: 'rgba(99,102,241,0.1)' },
-        { type: 'slider' as const, yAxisIndex: 0, right: 2, width: 18, borderColor: CHART_AXIS.line, fillerColor: 'rgba(99,102,241,0.1)' },
+        { type: 'slider' as const, xAxisIndex: 0, bottom: 4, height: 18, borderColor: CHART_AXIS.line, fillerColor: 'rgba(255,107,53,0.08)' },
+        { type: 'slider' as const, yAxisIndex: 0, right: 2, width: 18, borderColor: CHART_AXIS.line, fillerColor: 'rgba(255,107,53,0.08)' },
       ],
       legend: {
         show: true,
         top: 8,
-        textStyle: { color: '#64748b', fontSize: 12 },
+        textStyle: { color: CHART_AXIS.label, fontSize: 12 },
         itemWidth: 10,
         itemHeight: 10,
         icon: 'circle',
@@ -385,13 +374,13 @@ export default function Explorer({ data }: Props) {
   }), [onChartClick, onDataZoom, onLegendChange])
 
   return (
-    <div className="fixed inset-0 top-14 flex flex-col bg-surface-alt">
-      <div className="px-4 md:px-6 py-2 md:py-3 border-b border-border glass-card rounded-none border-x-0 border-t-0">
+    <div className="fixed inset-0 top-14 flex flex-col bg-bg">
+      <div className="px-4 md:px-6 py-2 md:py-3 border-b-[3px] double-rule bg-[rgba(255,254,249,0.92)] backdrop-blur-xl">
         <div className="flex items-center gap-3">
-          <h1 className="text-base md:text-lg font-bold">{t('explorer.title')}</h1>
+          <h1 className="font-serif text-base md:text-lg font-bold">{t('explorer.title')}</h1>
           <span className="text-xs md:text-sm text-text-secondary">{t('explorer.modelCount', { count: filteredData.length })}</span>
           <button onClick={() => setFilterOpen(!filterOpen)}
-            className="text-xs px-2 py-1 rounded-full bg-surface-alt text-text-secondary hover:bg-border md:hidden min-h-[44px] flex items-center">
+            className="text-xs px-2 py-1 bg-surface-alt text-text-secondary hover:bg-border md:hidden min-h-[44px] flex items-center">
             {filterOpen ? t('filter.collapse') : `${t('filter.titleShort')}${activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}`}
           </button>
           {(selectedBrands.length > 0 || highlightType || minSamples > 0) && (
@@ -400,60 +389,60 @@ export default function Explorer({ data }: Props) {
           )}
         </div>
 
-        {(filterOpen) && (
-        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-text-secondary shrink-0">{t('filter.label.type')}</span>
-            <div className="flex flex-wrap gap-1">
-              <button onClick={() => setHighlightType(null)}
-                className={`text-xs px-2 py-0.5 rounded-full transition-colors ${
-                  highlightType === null ? 'bg-text text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
-                }`}>{t('filter.all')}</button>
-              {allTypes.map(ty => (
-                <button key={ty}
-                  onClick={() => setHighlightType(highlightType === ty ? null : ty)}
-                  className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full transition-colors ${
-                    highlightType === ty ? 'ring-2 ring-offset-1 ring-primary' : 'bg-surface-alt hover:bg-border'
-                  }`}>
-                  <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: typeColorMap[ty] }} />
-                  {ty}
-                </button>
-              ))}
+        {filterOpen && (
+          <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-text-secondary shrink-0">{t('filter.label.type')}</span>
+              <div className="flex flex-wrap gap-1">
+                <button onClick={() => setHighlightType(null)}
+                  className={`text-xs px-2 py-0.5 transition-colors ${
+                    highlightType === null ? 'bg-text text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
+                  }`}>{t('filter.all')}</button>
+                {allTypes.map(ty => (
+                  <button key={ty}
+                    onClick={() => setHighlightType(highlightType === ty ? null : ty)}
+                    className={`flex items-center gap-1 text-xs px-2 py-0.5 transition-colors ${
+                      highlightType === ty ? 'ring-2 ring-offset-1 ring-primary' : 'bg-surface-alt hover:bg-border'
+                    }`}>
+                    <span className="w-2 h-2 inline-block" style={{ backgroundColor: typeColorMap[ty] }} />
+                    {ty}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-text-secondary shrink-0">{t('filter.label.brand')}</span>
+              <div className="flex flex-wrap gap-1">
+                {displayedBrands.map(b => (
+                  <button key={b.brand} onClick={() => toggleBrand(b.brand)}
+                    className={`text-xs px-2 py-0.5 transition-colors ${
+                      selectedBrands.includes(b.brand) ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
+                    }`}>{b.brand}</button>
+                ))}
+                {brandsBySamples.length > 20 && (
+                  <button onClick={() => setBrandExpanded(!brandExpanded)}
+                    className="text-xs px-2 py-0.5 text-primary hover:bg-primary/10">
+                    {brandExpanded ? t('filter.collapse') : `+${brandsBySamples.length - 20}`}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-text-secondary shrink-0">{t('filter.label.minSamples')}</span>
+              <input
+                type="range"
+                min={0}
+                max={5000}
+                step={10}
+                value={minSamples}
+                onChange={e => setMinSamples(Number(e.target.value))}
+                className="w-28 accent-primary"
+              />
+              <span className="text-xs font-mono text-text w-10 text-right">{minSamples}</span>
             </div>
           </div>
-
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-text-secondary shrink-0">{t('filter.label.brand')}</span>
-            <div className="flex flex-wrap gap-1">
-              {displayedBrands.map(b => (
-                <button key={b.brand} onClick={() => toggleBrand(b.brand)}
-                  className={`text-xs px-2 py-0.5 rounded-full transition-colors ${
-                    selectedBrands.includes(b.brand) ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
-                  }`}>{b.brand}</button>
-              ))}
-              {brandsBySamples.length > 20 && (
-                <button onClick={() => setBrandExpanded(!brandExpanded)}
-                  className="text-xs px-2 py-0.5 rounded-full text-primary hover:bg-primary/10">
-                  {brandExpanded ? t('filter.collapse') : `+${brandsBySamples.length - 20}`}
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-text-secondary shrink-0">{t('filter.label.minSamples')}</span>
-            <input
-              type="range"
-              min={0}
-              max={5000}
-              step={10}
-              value={minSamples}
-              onChange={e => setMinSamples(Number(e.target.value))}
-              className="w-28 accent-primary"
-            />
-            <span className="text-xs font-mono text-text w-10 text-right">{minSamples}</span>
-          </div>
-        </div>
         )}
       </div>
 
@@ -463,16 +452,17 @@ export default function Explorer({ data }: Props) {
         {/* Click detail popup */}
         {clickDetail && (
           <div
-            className="absolute glass-card p-3 shadow-xl z-50 min-w-[180px]"
+            className="absolute bg-surface border border-border p-3 z-50 min-w-[180px]"
             style={{
               left: Math.min(clickDetail.x + 12, (containerRef.current?.clientWidth ?? 800) - 220),
               top: Math.min(clickDetail.y + 12, (containerRef.current?.clientHeight ?? 600) - 200),
+              boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
             }}
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-sm">{clickDetail.brand}</span>
-              <button onClick={() => setClickDetail(null)} className="text-text-secondary hover:text-text text-xs">✕</button>
+              <span className="font-serif font-bold text-sm">{clickDetail.brand}</span>
+              <button onClick={() => setClickDetail(null)} className="text-text-tertiary hover:text-text text-xs">✕</button>
             </div>
             <div className="text-xs space-y-1 text-text-secondary">
               <div className="flex justify-between"><span>{t('explorer.detail.series')}</span><span className="text-text font-medium">{clickDetail.series}</span></div>
@@ -487,7 +477,8 @@ export default function Explorer({ data }: Props) {
 
         {/* Zoom stats */}
         {zoomStats && (
-          <div className="absolute bottom-8 right-6 glass-card px-3 py-2 text-[11px] text-text-secondary z-40 max-w-xs">
+          <div className="absolute bottom-8 right-6 bg-surface border border-border px-3 py-2 text-[11px] text-text-secondary z-40 max-w-xs"
+            style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
             <div className="font-medium text-text mb-1">{t('explorer.zoomStats.title')}</div>
             <div className="flex gap-3 flex-wrap">
               <span>{t('explorer.zoomStats.count', { count: zoomStats.count })}</span>

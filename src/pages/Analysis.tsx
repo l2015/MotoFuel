@@ -1,10 +1,11 @@
 import { useMemo, useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import ReactECharts from 'echarts-for-react'
 import type { Motorcycle } from '../types'
 import { avgByBrand, samplesByBrand, consumptionHistogram, countByType } from '../utils/stats'
-import { brandRankColor, CHART_PALETTE, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
+import BrandRankBar from '../charts/BrandRankBar'
+import TypeDistributionPie from '../charts/TypeDistributionPie'
+import ConsumptionHistogram from '../charts/ConsumptionHistogram'
 
 interface Props {
   data: Motorcycle[]
@@ -30,7 +31,6 @@ export default function Analysis({ data }: Props) {
   const [brandExpanded, setBrandExpanded] = useState(false)
   const [filterCollapsed, setFilterCollapsed] = useState(false)
 
-  // Persist filter state
   useEffect(() => {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ selectedBrands, minBrandSamples }))
   }, [selectedBrands, minBrandSamples])
@@ -41,7 +41,6 @@ export default function Analysis({ data }: Props) {
     [brandSampleStats, minBrandSamples]
   )
 
-  // When expanded, show ALL brands sorted alphabetically
   const displayedBrands = useMemo(() => {
     if (brandExpanded) {
       return [...brandSampleStats].sort((a, b) => a.brand.localeCompare(b.brand, 'zh'))
@@ -63,7 +62,6 @@ export default function Analysis({ data }: Props) {
   const histogram = useMemo(() => consumptionHistogram(filteredByBrand), [filteredByBrand])
   const typeCount = useMemo(() => countByType(filteredByBrand), [filteredByBrand])
 
-  // Samples per brand (for tooltip)
   const brandSamplesMap = useMemo(() => {
     const map = new Map<string, number>()
     for (const d of filteredByBrand) {
@@ -72,7 +70,6 @@ export default function Analysis({ data }: Props) {
     return map
   }, [filteredByBrand])
 
-  // Samples per type (for tooltip)
   const typeSamplesMap = useMemo(() => {
     const map = new Map<string, number>()
     for (const d of filteredByBrand) {
@@ -95,137 +92,23 @@ export default function Analysis({ data }: Props) {
     navigate(`/ranking?${query.toString()}`)
   }, [navigate, minBrandSamples])
 
-  // Brand rank chart
-  const brandChartOption = useMemo(() => {
-    const items = brandAvgData.slice(0, 30)
-    return {
-      tooltip: {
-        trigger: 'axis' as const,
-        axisPointer: { type: 'shadow' as const },
-        backgroundColor: CHART_TOOLTIP.backgroundColor,
-        borderColor: CHART_TOOLTIP.borderColor,
-        textStyle: CHART_TOOLTIP.textStyle,
-        formatter: (p: any) => {
-          const idx = p[0]?.dataIndex ?? 0
-          const item = items[idx]
-          if (!item) return ''
-          return `${item.brand}<br/>${t('chart.tooltip.avgConsumption', { avg: item.avg })}<br/>${t('chart.tooltip.modelCount', { count: item.count })}<br/>${t('chart.tooltip.sampleCount', { count: (brandSamplesMap.get(item.brand) || 0).toLocaleString() })}`
-        },
-      },
-      grid: { left: 100, right: 50, top: 10, bottom: 20 },
-      xAxis: {
-        type: 'value' as const,
-        name: 'L/100km',
-        nameTextStyle: { color: CHART_AXIS.name },
-        axisLabel: { color: CHART_AXIS.label },
-        axisLine: { lineStyle: { color: CHART_AXIS.line } },
-        splitLine: { lineStyle: { color: CHART_AXIS.splitLine } },
-      },
-      yAxis: {
-        type: 'category' as const,
-        data: items.map(d => d.brand),
-        inverse: true,
-        axisLabel: { fontSize: 13, color: CHART_AXIS.label },
-        axisLine: { lineStyle: { color: CHART_AXIS.line } },
-      },
-      series: [{
-        type: 'bar' as const,
-        data: items.map(d => ({
-          value: d.avg,
-          label: { show: true, position: 'right' as const, formatter: '{c}', fontSize: 11, color: CHART_AXIS.label },
-          itemStyle: {
-            color: brandRankColor(d.avg),
-            borderRadius: [0, 4, 4, 0],
-          },
-        })),
-        barMaxWidth: 16,
-      }],
-    }
-  }, [brandAvgData, brandSamplesMap, t])
-
-  const onBrandChartClick = useCallback((params: any) => {
-    const brand = brandAvgData[params.dataIndex]?.brand
-    if (brand) goToRanking({ brand })
-  }, [brandAvgData, goToRanking])
-
-  // Type pie chart
-  const typePieOption = useMemo(() => ({
-    tooltip: {
-      trigger: 'item' as const,
-      backgroundColor: CHART_TOOLTIP.backgroundColor,
-      borderColor: CHART_TOOLTIP.borderColor,
-      textStyle: CHART_TOOLTIP.textStyle,
-      formatter: (p: any) => {
-        const samples = typeSamplesMap.get(p.name) || 0
-        return `${p.name}<br/>${t('chart.tooltip.typeModelCount', { count: p.value, percent: p.percent })}<br/>${t('chart.tooltip.sampleCount', { count: samples.toLocaleString() })}`
-      },
-    },
-    color: CHART_PALETTE,
-    series: [{
-      type: 'pie' as const,
-      radius: ['30%', '65%'],
-      center: ['50%', '55%'],
-      data: typeCount.map(d => ({ name: d.type, value: d.count })),
-      label: {
-        fontSize: 12,
-        formatter: (p: any) => p.percent >= 5 ? `${p.name} ${p.percent}%` : p.name,
-      },
-      emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.4)' } },
-    }],
-  }), [typeCount, typeSamplesMap, t])
-
-  const onTypePieClick = useCallback((params: any) => {
-    if (params.name) goToRanking({ type: params.name })
-  }, [goToRanking])
-
-  // Histogram chart
-  const histogramOption = useMemo(() => ({
-    tooltip: {
-      trigger: 'axis' as const,
-      axisPointer: { type: 'shadow' as const },
-      backgroundColor: CHART_TOOLTIP.backgroundColor,
-      borderColor: CHART_TOOLTIP.borderColor,
-      textStyle: CHART_TOOLTIP.textStyle,
-      formatter: (p: any) => {
-        const idx = p[0]?.dataIndex ?? 0
-        const d = histogram[idx]
-        if (!d) return ''
-        return `${d.range}L/100km<br/>${t('chart.tooltip.modelCount', { count: d.count })}`
-      },
-    },
-    grid: { left: 50, right: 20, top: 20, bottom: 50 },
-    xAxis: {
-      type: 'category' as const,
-      data: histogram.map(d => d.range + 'L'),
-      axisLabel: { rotate: 45, color: CHART_AXIS.label },
-      axisLine: { lineStyle: { color: CHART_AXIS.line } },
-      axisTick: { lineStyle: { color: CHART_AXIS.tick } },
-    },
-    yAxis: {
-      type: 'value' as const,
-      name: t('chart.axis.modelCount'),
-      nameTextStyle: { color: CHART_AXIS.name },
-      axisLabel: { color: CHART_AXIS.label },
-      axisLine: { lineStyle: { color: CHART_AXIS.line } },
-      splitLine: { lineStyle: { color: CHART_AXIS.splitLine } },
-    },
-    series: [{
-      type: 'bar' as const,
-      data: histogram.map(d => d.count),
-      itemStyle: { color: CHART_PALETTE[0], borderRadius: [3, 3, 0, 0] },
-      barMaxWidth: 30,
-    }],
-  }), [histogram, t])
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{t('analysis.title')}</h1>
-        <span className="text-sm text-text-secondary">{t('analysis.basedOn', { count: filteredByBrand.length })}</span>
-      </div>
+    <div className="max-w-4xl mx-auto">
+      <section className="py-8 md:py-12 animate-in">
+        <div className="text-[12px] font-bold text-primary uppercase tracking-[0.12em] mb-3">
+          {t('analysis.kicker')}
+        </div>
+        <h1 className="font-serif text-[36px] md:text-[48px] font-black leading-[1.1] tracking-tight text-text">
+          {t('analysis.title')}
+        </h1>
+        <p className="text-[15px] text-text-secondary mt-3">
+          {t('analysis.basedOn', { count: filteredByBrand.length })}
+        </p>
+      </section>
 
-      <div className="glass-card sticky top-14 z-40">
-        <div className="flex items-center justify-between flex-wrap gap-2 px-4 py-2.5">
+      {/* Brand filter */}
+      <div className="editorial-card sticky top-14 z-40 mb-8">
+        <div className="flex items-center justify-between flex-wrap gap-2 px-4 py-2.5 border-b border-border">
           <button onClick={() => setFilterCollapsed(!filterCollapsed)}
             className="flex items-center gap-1.5 text-sm font-semibold hover:text-primary transition-colors">
             <svg className={`w-4 h-4 transition-transform ${filterCollapsed ? '-rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -244,25 +127,27 @@ export default function Analysis({ data }: Props) {
           </div>
         </div>
         {!filterCollapsed && (
-          <div className="px-4 pb-4 flex flex-wrap gap-1.5 border-t border-border pt-3">
+          <div className="px-4 pb-4 flex flex-wrap gap-1.5 pt-3">
             <button onClick={() => setSelectedBrands([])}
-              className={`px-2.5 py-1 rounded-full text-xs ${selectedBrands.length === 0 ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'}`}
+              className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+                selectedBrands.length === 0 ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
+              }`}
             >{t('filter.all')}</button>
             {displayedBrands.map(b => (
               <button key={b.brand} onClick={() => toggleBrand(b.brand)}
-                className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                className={`px-2.5 py-1 text-xs font-medium transition-colors ${
                   selectedBrands.includes(b.brand) ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
                 }`}>{b.brand} <span className="opacity-60">{b.totalSamples.toLocaleString()}</span></button>
             ))}
             {!brandExpanded && topBrands.length < brandSampleStats.length && (
               <button onClick={() => setBrandExpanded(true)}
-                className="px-2.5 py-1 rounded-full text-xs text-primary hover:bg-primary/10">
+                className="px-2.5 py-1 text-xs text-primary hover:bg-primary/10">
                 {t('filter.expandAll', { count: brandSampleStats.length })}
               </button>
             )}
             {brandExpanded && (
               <button onClick={() => setBrandExpanded(false)}
-                className="px-2.5 py-1 rounded-full text-xs text-primary hover:bg-primary/10">
+                className="px-2.5 py-1 text-xs text-primary hover:bg-primary/10">
                 {t('filter.collapse')}
               </button>
             )}
@@ -270,31 +155,54 @@ export default function Analysis({ data }: Props) {
         )}
       </div>
 
-      <div className="glass-card p-5">
-        <h2 className="text-base font-semibold mb-4">
+      {/* Brand rank chart */}
+      <section className="mb-8">
+        <div className="text-[11px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">
+          {t('analysis.brandRank.kicker')}
+        </div>
+        <h2 className="font-serif text-[28px] font-extrabold leading-tight mb-1 text-text">
           {t('analysis.brandRank.title')}
-          <span className="text-xs text-text-secondary font-normal ml-2">{t('analysis.brandRank.hint')}</span>
         </h2>
-        <ReactECharts
-          option={brandChartOption}
-          style={{ height: Math.max(300, Math.min(brandAvgData.length, 30) * 26) }}
-          onEvents={{ click: onBrandChartClick }}
-        />
-      </div>
+        <p className="text-[13px] text-text-tertiary mb-5">
+          {t('analysis.brandRank.hint')}
+        </p>
+        <BrandRankBar data={brandAvgData} brandSamplesMap={brandSamplesMap} onBrandClick={(brand) => goToRanking({ brand })} />
+        <div className="chart-caption">
+          {t('analysis.brandRank.caption')}
+        </div>
+      </section>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="glass-card p-5">
-          <h2 className="text-base font-semibold mb-3">
-            {t('analysis.typeDistribution.title')}
-            <span className="text-xs text-text-secondary font-normal ml-2">{t('analysis.typeDistribution.hint')}</span>
-          </h2>
-          <ReactECharts option={typePieOption} style={{ height: 340 }} onEvents={{ click: onTypePieClick }} />
+      <hr className="section-rule mb-8" />
+
+      {/* TWO COLUMN: Pie + Histogram */}
+      <section className="mb-10">
+        <div className="grid md:grid-cols-2 gap-10">
+          <div>
+            <div className="text-[11px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">
+              {t('analysis.typeDistribution.kicker')}
+            </div>
+            <h2 className="font-serif text-[24px] font-extrabold leading-tight mb-1 text-text">
+              {t('analysis.typeDistribution.title')}
+            </h2>
+            <p className="text-[13px] text-text-tertiary mb-4">
+              {t('analysis.typeDistribution.hint')}
+            </p>
+            <TypeDistributionPie data={typeCount} typeSamplesMap={typeSamplesMap} onTypeClick={(type) => goToRanking({ type })} />
+          </div>
+          <div>
+            <div className="text-[11px] font-bold text-text-tertiary uppercase tracking-[0.12em] mb-2">
+              {t('analysis.histogram.kicker')}
+            </div>
+            <h2 className="font-serif text-[24px] font-extrabold leading-tight mb-1 text-text">
+              {t('analysis.histogram.title')}
+            </h2>
+            <p className="text-[13px] text-text-tertiary mb-4">
+              {t('analysis.histogram.description')}
+            </p>
+            <ConsumptionHistogram data={histogram} />
+          </div>
         </div>
-        <div className="glass-card p-5">
-          <h2 className="text-base font-semibold mb-3">{t('analysis.histogram.title')}</h2>
-          <ReactECharts option={histogramOption} style={{ height: 340 }} />
-        </div>
-      </div>
+      </section>
     </div>
   )
 }

@@ -75,8 +75,13 @@ export function countByBrand(data: Motorcycle[]): { brand: string; count: number
 
 export function consumptionHistogram(data: Motorcycle[], binSize = 1): { range: string; count: number }[] {
   if (data.length === 0) return []
-  const min = Math.floor(Math.min(...data.map(d => d.consumption)))
-  const max = Math.ceil(Math.max(...data.map(d => d.consumption)))
+  let min = Infinity, max = -Infinity
+  for (const d of data) {
+    if (d.consumption < min) min = d.consumption
+    if (d.consumption > max) max = d.consumption
+  }
+  min = Math.floor(min)
+  max = Math.ceil(max)
   const bins: { range: string; count: number }[] = []
   for (let i = min; i < max; i += binSize) {
     const upper = i + binSize

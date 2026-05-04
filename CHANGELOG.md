@@ -1,6 +1,47 @@
 # Changelog
 
-## v1.0.0 (2026-05-04)
+## v0.8.0 (2026-05-05)
+
+### Architecture & Code Quality
+- TypeScript strict mode enabled
+- Error Boundary added to prevent white screen crashes
+- Analysis.tsx chart configs extracted into reusable components (`BrandRankBar`, `ConsumptionHistogram`)
+- Explorer.tsx useEffect dependency arrays fixed (eliminated stale closure bugs)
+- Hardcoded chart colors centralized via `chartTheme.ts`
+- `dangerouslySetInnerHTML` replaced with `<Trans>` component
+- Date formatting extracted to shared `formatDate.ts` utility
+- Math.max(...array) replaced with reduce pattern (safe for large arrays)
+
+### SEO & Analytics
+- Google Analytics 4 (GA4) integration
+- Sitemap.xml with all 5 pages
+- Open Graph and Twitter Card meta tags
+- JSON-LD structured data (WebSite + Dataset schemas)
+- robots.txt with sitemap reference
+- Canonical URL, meta keywords
+
+### Testing
+- Vitest unit tests for `stats.ts` (13 tests, 9 functions covered)
+
+### Scraper Reliability
+- 3x retry with exponential backoff for failed requests
+- Data validation before write (minimum 500 models check)
+- Multi-strategy JSON extraction (regex + fallback)
+- Input validation (filter invalid consumption/samples values)
+
+### CI Safety
+- `scrape.yml`: data integrity validation step before commit
+- `deploy.yml`: `if: success()` condition on workflow_run trigger
+
+### Cleanup
+- Removed 17 unused npm dependencies (194 packages)
+- Removed dead code: DataTable props, unused i18n keys, preview HTML files
+- Version management centralized via `__APP_VERSION__`
+- CHANGELOG version synced with package.json
+
+---
+
+## v0.7.0 (2026-05-04)
 
 ### Visual Overhaul
 - Dark theme with glass morphism cards (`backdrop-filter: blur(24px)`)
@@ -42,7 +83,7 @@
 - GitHub Actions: auto-deploy on push to `master`
 - GitHub Actions: weekly scraper cron job
 - PWA support with offline caching
-- Version bumped to `1.0.0`
+- Version bumped to `0.7.0`
 
 ---
 

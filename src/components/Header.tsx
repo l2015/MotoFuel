@@ -12,6 +12,7 @@ export default function Header() {
     { path: '/ranking', label: t('nav.ranking') },
     { path: '/analysis', label: t('nav.analysis') },
     { path: '/explorer', label: t('nav.explorer') },
+    { path: '/about', label: t('nav.about') },
   ]
 
   const toggleLang = () => {
@@ -19,29 +20,26 @@ export default function Header() {
   }
 
   return (
-    <header className="glass-card border-b border-border sticky top-0 z-50 rounded-none border-t-0 border-x-0">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 bg-[rgba(255,254,249,0.92)] backdrop-blur-xl border-b-[3px] double-rule">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-14">
-          <Link to="/" className="flex items-center gap-2 font-bold text-lg text-primary">
-            <svg viewBox="0 0 32 32" className="w-7 h-7">
-              <rect width="32" height="32" rx="6" fill="#6366f1" />
-              <text x="16" y="23" textAnchor="middle" fontSize="20" fontWeight="bold" fill="white" fontFamily="system-ui">M</text>
-            </svg>
-            <span>MotoFuel</span>
-            <span className="text-[10px] font-normal text-text-secondary bg-surface-alt px-1.5 py-0.5 rounded">v0.7.0</span>
+          {/* Left: logo */}
+          <Link to="/" className="flex items-baseline gap-2 no-underline">
+            <span className="font-serif text-[24px] font-black text-text tracking-tight">Moto</span>
+            <span className="font-serif text-[24px] font-black text-primary tracking-tight">Fuel</span>
           </Link>
 
           {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-1">
-            <nav className="flex gap-1">
+          <div className="hidden md:flex items-center">
+            <nav className="flex">
               {navItems.map(item => (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.1em] no-underline transition-colors border-l border-border-subtle last:border-r last:border-r-border-subtle ${
                     location.pathname === item.path
-                      ? 'bg-primary text-white'
-                      : 'text-text-secondary hover:bg-surface-alt hover:text-text'
+                      ? 'text-primary bg-primary-light'
+                      : 'text-text-secondary hover:text-text'
                   }`}
                 >
                   {item.label}
@@ -50,7 +48,7 @@ export default function Header() {
             </nav>
             <button
               onClick={toggleLang}
-              className="ml-2 px-2 py-1 rounded-md text-xs font-medium text-text-secondary hover:bg-surface-alt hover:text-text transition-colors"
+              className="ml-3 px-2 py-1 text-[11px] font-medium text-text-tertiary hover:text-text transition-colors"
             >
               {i18n.language === 'zh' ? 'EN' : '中'}
             </button>
@@ -58,9 +56,9 @@ export default function Header() {
 
           {/* Mobile hamburger */}
           <button
-            className="md:hidden p-2 rounded-md text-text-secondary hover:bg-surface-alt hover:text-text transition-colors"
+            className="md:hidden p-2 text-text-secondary hover:text-text transition-colors"
             onClick={() => setMenuOpen(!menuOpen)}
-            aria-label={t('header.menu')}
+            aria-label="Menu"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               {menuOpen ? (
@@ -74,16 +72,16 @@ export default function Header() {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <nav className="md:hidden pb-3 flex flex-col gap-1 border-t border-border pt-2">
+          <nav className="md:hidden pb-3 flex flex-col border-t border-border pt-2">
             {navItems.map(item => (
               <Link
                 key={item.path}
                 to={item.path}
                 onClick={() => setMenuOpen(false)}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`px-3 py-2.5 text-[12px] font-semibold uppercase tracking-[0.08em] no-underline transition-colors ${
                   location.pathname === item.path
-                    ? 'bg-primary text-white'
-                    : 'text-text-secondary hover:bg-surface-alt hover:text-text'
+                    ? 'text-primary'
+                    : 'text-text-secondary hover:text-text'
                 }`}
               >
                 {item.label}
@@ -91,7 +89,7 @@ export default function Header() {
             ))}
             <button
               onClick={toggleLang}
-              className="px-3 py-2 rounded-md text-sm font-medium text-text-secondary hover:bg-surface-alt hover:text-text transition-colors text-left"
+              className="px-3 py-2.5 text-[12px] font-semibold uppercase tracking-[0.08em] text-text-tertiary hover:text-text transition-colors text-left"
             >
               {i18n.language === 'zh' ? 'English' : '中文'}
             </button>
