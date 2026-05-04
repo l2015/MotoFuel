@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MotoFuel — Scrollytelling Style</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#faf8f5;--bg-warm:#f5f0e8;--text:#1a1612;--text-dim:#8a7e72;--text-mid:#5c554c;
+  --accent:#d4553a;--accent-warm:#e8734a;--blue:#2d6a9f;--green:#3a7d5c;
+  --border:#e0d8cc;--border-light:#ebe5db;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* NAV */
+.nav-bar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:16px 40px;transition:all .4s}
+.nav-bar.scrolled{background:rgba(250,248,245,0.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:12px 40px}
+.nav-logo{font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;color:var(--text);text-decoration:none;letter-spacing:-0.02em}
+.nav-links{display:flex;gap:24px}
+.nav-links a{font-size:13px;font-weight:500;color:var(--text-dim);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--accent)}
+
+/* SECTIONS */
+.scroll-section{min-height:100vh;display:flex;align-items:center;position:relative}
+
+/* HERO */
+.hero-section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:80px 40px;position:relative;background:var(--bg-warm)}
+.hero-overline{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--accent);margin-bottom:20px}
+.hero-title{font-family:'Instrument Serif',serif;font-size:clamp(48px,8vw,96px);font-weight:400;line-height:1.05;margin-bottom:24px;max-width:900px;color:var(--text)}
+.hero-title em{font-style:italic;color:var(--accent)}
+.hero-deck{font-size:18px;color:var(--text-mid);max-width:560px;line-height:1.6;margin-bottom:40px}
+.scroll-hint{position:absolute;bottom:40px;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text-dim);font-size:12px;font-weight:500;animation:bounce 2s ease-in-out infinite}
+.scroll-hint svg{width:20px;height:20px;stroke:var(--text-dim)}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+
+/* CHAPTER */
+.chapter{max-width:800px;margin:0 auto;padding:120px 40px;position:relative}
+.chapter-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--accent);margin-bottom:12px}
+.chapter h2{font-family:'Instrument Serif',serif;font-size:clamp(32px,5vw,52px);font-weight:400;line-height:1.15;margin-bottom:20px;max-width:600px}
+.chapter p{font-size:17px;line-height:1.7;color:var(--text-mid);max-width:560px;margin-bottom:32px}
+.chapter p strong{color:var(--text);font-weight:600}
+
+/* FULL WIDTH CHART */
+.full-chart{width:100vw;margin-left:calc(50% - 50vw);padding:0 40px;margin-top:40px;margin-bottom:40px}
+.full-chart-inner{max-width:1000px;margin:0 auto;background:white;border-radius:20px;padding:32px;box-shadow:0 4px 24px rgba(0,0,0,0.04);border:1px solid var(--border-light)}
+.chart-title{font-size:13px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px}
+.chart-wrap{height:360px;width:100%}
+
+/* BIG NUMBERS */
+.big-numbers{display:grid;grid-template-columns:repeat(4,1fr);gap:40px;padding:60px 0}
+.big-num{text-align:center}
+.big-num .num{font-family:'Instrument Serif',serif;font-size:64px;font-weight:400;color:var(--text);line-height:1}
+.big-num .num .unit{font-size:24px;color:var(--text-dim)}
+.big-num .label{font-size:13px;color:var(--text-dim);margin-top:8px;font-weight:500}
+
+/* SIDE BY SIDE */
+.side-by-side{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;max-width:1000px;margin:0 auto;padding:0 40px}
+.side-card{background:white;border-radius:20px;padding:32px;border:1px solid var(--border-light);box-shadow:0 2px 12px rgba(0,0,0,0.03)}
+
+/* RANKING LIST */
+.rank-list{list-style:none;margin-top:20px}
+.rank-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border-light)}
+.rank-item:last-child{border-bottom:none}
+.rank-num{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:500;color:var(--text-dim);width:24px;text-align:center}
+.rank-num.gold{color:var(--accent)}
+.rank-name{flex:1;font-size:14px;font-weight:500}
+.rank-value{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;padding:3px 10px;border-radius:20px}
+.rank-good{background:rgba(58,125,92,0.08);color:var(--green)}
+.rank-mid{background:rgba(45,106,159,0.08);color:var(--blue)}
+.rank-bad{background:rgba(212,85,58,0.08);color:var(--accent)}
+.rank-bar{width:60px;height:6px;background:var(--border-light);border-radius:3px;overflow:hidden}
+.rank-bar-fill{height:100%;border-radius:3px;transition:width 1s ease}
+
+/* PULL QUOTE */
+.pull-quote-section{padding:80px 40px;text-align:center;background:var(--bg-warm)}
+.pull-quote-section blockquote{font-family:'Instrument Serif',serif;font-size:clamp(24px,4vw,40px);font-style:italic;line-height:1.4;max-width:700px;margin:0 auto 16px}
+.pull-quote-section cite{font-family:'Inter',sans-serif;font-size:13px;font-style:normal;color:var(--text-dim);font-weight:500}
+
+/* ANIMATIONS */
+.reveal{opacity:0;transform:translateY(40px);transition:all .8s cubic-bezier(.16,1,.3,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-left{opacity:0;transform:translateX(-40px);transition:all .8s cubic-bezier(.16,1,.3,1)}
+.reveal-left.visible{opacity:1;transform:translateX(0)}
+.reveal-right{opacity:0;transform:translateX(40px);transition:all .8s cubic-bezier(.16,1,.3,1)}
+.reveal-right.visible{opacity:1;transform:translateX(0)}
+.reveal-scale{opacity:0;transform:scale(.95);transition:all .8s cubic-bezier(.16,1,.3,1)}
+.reveal-scale.visible{opacity:1;transform:scale(1)}
+.stagger-1{transition-delay:.1s}.stagger-2{transition-delay:.2s}.stagger-3{transition-delay:.3s}.stagger-4{transition-delay:.4s}
+
+/* PROGRESS BAR */
+.progress-bar{position:fixed;top:0;left:0;height:2px;background:var(--accent);z-index:200;transition:width .1s linear;width:0}
+
+/* DIVIDER */
+.section-divider{width:60px;height:2px;background:var(--accent);margin:0 auto;opacity:.4}
+
+@media(max-width:768px){
+  .big-numbers{grid-template-columns:1fr 1fr;gap:24px}
+  .big-num .num{font-size:40px}
+  .side-by-side{grid-template-columns:1fr;gap:20px}
+  .nav-links{display:none}
+  .nav-bar{padding:12px 20px}
+  .chapter{padding:80px 20px}
+  .full-chart{padding:0 16px}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<nav class="nav-bar" id="navbar">
+  <a href="#" class="nav-logo">MotoFuel</a>
+  <div class="nav-links">
+    <a href="#overview">Overview</a>
+    <a href="#trend">Trend</a>
+    <a href="#brands">Brands</a>
+    <a href="#types">Types</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero-section">
+  <div class="hero-overline reveal">Data Narrative · 2026</div>
+  <h1 class="hero-title reveal stagger-1">中国摩托车<br><em>油耗全景</em></h1>
+  <p class="hero-deck reveal stagger-2">基于小熊油耗 58 万条真实加油记录，我们分析了 173 个品牌、1,779 款车型的油耗数据，发现了这些规律。</p>
+  <div class="scroll-hint">
+    <span>向下滚动探索</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+  </div>
+</section>
+
+<!-- CHAPTER 1: THE BIG PICTURE -->
+<section class="scroll-section" id="overview">
+  <div class="chapter">
+    <div class="chapter-label reveal">Chapter 01</div>
+    <h2 class="reveal stagger-1">一组关键数字</h2>
+    <p class="reveal stagger-2">从 125cc 通勤车到 1000cc+ 大排量巡航，中国市场上的摩托车覆盖了极广的排量和油耗区间。以下是这 1,779 款车型的核心数据画像。</p>
+    <div class="big-numbers">
+      <div class="big-num reveal stagger-1"><div class="num">1.66 <span class="unit">L</span></div><div class="label">最低油耗</div></div>
+      <div class="big-num reveal stagger-2"><div class="num">173</div><div class="label">品牌覆盖</div></div>
+      <div class="big-num reveal stagger-3"><div class="num">1,779</div><div class="label">收录车型</div></div>
+      <div class="big-num reveal stagger-4"><div class="num">58<span class="unit">万+</span></div><div class="label">真实样本</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider reveal"></div>
+
+<!-- CHAPTER 2: TREND -->
+<section class="scroll-section" id="trend">
+  <div class="chapter">
+    <div class="chapter-label reveal">Chapter 02</div>
+    <h2 class="reveal stagger-1">排量越大，油耗越高——<br>但增长并非线性</h2>
+    <p class="reveal stagger-2">从 125cc 到 300cc 区间，油耗增长相对平缓。<strong>650cc 是关键分水岭</strong>——超过此排量后油耗急剧攀升，每增加一个级别增幅显著扩大。</p>
+  </div>
+</section>
+
+<div class="full-chart reveal-scale">
+  <div class="full-chart-inner">
+    <div class="chart-title">排量-油耗趋势 · L/100km by Displacement</div>
+    <div class="chart-wrap" id="trendChart"></div>
+  </div>
+</div>
+
+<section class="chapter">
+  <p class="reveal">数据告诉我们：<strong>125cc 到 300cc</strong> 是油耗的"甜蜜区"，适合日常通勤。<strong>400cc 以上</strong>进入性能区，油耗开始快速攀升。选择合适的排量，比选择品牌更能影响你的油费开支。</p>
+</section>
+
+<div class="section-divider reveal"></div>
+
+<!-- PULL QUOTE -->
+<section class="pull-quote-section">
+  <blockquote class="reveal">排量不是决定油耗的唯一因素。同排量下，品牌间油耗差异可达 40% 以上。</blockquote>
+  <cite class="reveal stagger-1">— MotoFuel 数据分析</cite>
+</section>
+
+<div class="section-divider reveal"></div>
+
+<!-- CHAPTER 3: BRANDS & TYPES -->
+<section class="scroll-section" id="brands">
+  <div class="chapter">
+    <div class="chapter-label reveal">Chapter 03</div>
+    <h2 class="reveal stagger-1">谁是最省油的品牌？</h2>
+    <p class="reveal stagger-2">济南轻骑以 <strong>2.31 L/100km</strong> 的平均油耗位居榜首。前三名均为国产通路车品牌，日系合资紧随其后。</p>
+  </div>
+</section>
+
+<div class="side-by-side">
+  <div class="side-card reveal-left">
+    <div class="chart-title">品牌油耗排行</div>
+    <ol class="rank-list">
+      <li class="rank-item"><span class="rank-num gold">1</span><span class="rank-name">济南轻骑</span><span class="rank-value rank-good">2.31</span><div class="rank-bar"><div class="rank-bar-fill" style="width:35%;background:var(--green)"></div></div></li>
+      <li class="rank-item"><span class="rank-num">2</span><span class="rank-name">五羊本田</span><span class="rank-value rank-good">2.45</span><div class="rank-bar"><div class="rank-bar-fill" style="width:37%;background:var(--green)"></div></div></li>
+      <li class="rank-item"><span class="rank-num">3</span><span class="rank-name">新大洲本田</span><span class="rank-value rank-good">2.52</span><div class="rank-bar"><div class="rank-bar-fill" style="width:38%;background:var(--green)"></div></div></li>
+      <li class="rank-item"><span class="rank-num">4</span><span class="rank-name">豪爵</span><span class="rank-value rank-mid">2.68</span><div class="rank-bar"><div class="rank-bar-fill" style="width:41%;background:var(--blue)"></div></div></li>
+      <li class="rank-item"><span class="rank-num">5</span><span class="rank-name">建设雅马哈</span><span class="rank-value rank-mid">2.74</span><div class="rank-bar"><div class="rank-bar-fill" style="width:42%;background:var(--blue)"></div></div></li>
+      <li class="rank-item"><span class="rank-num">6</span><span class="rank-name">宗申</span><span class="rank-value rank-mid">2.89</span><div class="rank-bar"><div class="rank-bar-fill" style="width:44%;background:var(--blue)"></div></div></li>
+      <li class="rank-item"><span class="rank-num">7</span><span class="rank-name">力帆</span><span class="rank-value rank-bad">3.12</span><div class="rank-bar"><div class="rank-bar-fill" style="width:48%;background:var(--accent)"></div></div></li>
+      <li class="rank-item"><span class="rank-num">8</span><span class="rank-name">隆鑫</span><span class="rank-value rank-bad">3.28</span><div class="rank-bar"><div class="rank-bar-fill" style="width:50%;background:var(--accent)"></div></div></li>
+    </ol>
+  </div>
+  <div class="side-card reveal-right" id="types">
+    <div class="chart-title">车型类型分布</div>
+    <div class="chart-wrap" id="pieChart" style="height:320px"></div>
+  </div>
+</div>
+
+<section class="chapter" style="text-align:center;padding-bottom:160px">
+  <div class="section-divider reveal" style="margin-bottom:40px"></div>
+  <h2 class="reveal" style="max-width:100%;text-align:center">探索完整数据</h2>
+  <p class="reveal stagger-1" style="max-width:100%;text-align:center;margin-bottom:32px">1,779 款车型的详细油耗数据，支持按品牌、排量、类型筛选。</p>
+  <a href="#" class="reveal stagger-2" style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:var(--accent);color:white;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;transition:all .2s;box-shadow:0 4px 16px rgba(212,85,58,0.3)">进入 Explorer →</a>
+</section>
+
+<script>
+// Scroll progress
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement
+  const pct=h.scrollTop/(h.scrollHeight-h.clientHeight)*100
+  document.getElementById('progressBar').style.width=pct+'%'
+  document.getElementById('navbar').classList.toggle('scrolled',h.scrollTop>60)
+})
+
+// Reveal on scroll
+const io=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}})
+},{threshold:0.15,rootMargin:'0px 0px -40px 0px'})
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale').forEach(el=>io.observe(el))
+
+// Charts - init when visible
+let trendInited=false,pieInited=false
+const chartIO=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      if(e.target.id==='trendChart'&&!trendInited){trendInited=true;initTrend()}
+      if(e.target.id==='pieChart'&&!pieInited){pieInited=true;initPie()}
+    }
+  })
+},{threshold:0.3})
+document.querySelectorAll('#trendChart,#pieChart').forEach(el=>chartIO.observe(el))
+
+const tipStyle={backgroundColor:'rgba(250,248,245,0.96)',borderColor:'#e0d8cc',textStyle:{color:'#1a1612',fontSize:12},extraCssText:'box-shadow:0 8px 24px rgba(0,0,0,0.06);border-radius:12px;'}
+
+function initTrend(){
+  const c=echarts.init(document.getElementById('trendChart'))
+  c.setOption({
+    tooltip:{trigger:'axis',...tipStyle},
+    grid:{left:55,right:24,top:30,bottom:45},
+    xAxis:{type:'category',data:['125cc','150cc','200cc','250cc','300cc','400cc','500cc','650cc','800cc','1000cc+'],
+      axisLine:{lineStyle:{color:'#e0d8cc'}},axisLabel:{color:'#8a7e72',fontSize:12},axisTick:{show:false}},
+    yAxis:{type:'value',name:'L/100km',nameTextStyle:{color:'#8a7e72',fontSize:12},
+      axisLine:{show:false},axisLabel:{color:'#8a7e72',fontSize:12},splitLine:{lineStyle:{color:'#ebe5db'}}},
+    series:[{type:'line',smooth:false,symbol:'circle',symbolSize:10,lineStyle:{width:3,color:'#d4553a'},
+      itemStyle:{color:'#d4553a',borderColor:'#faf8f5',borderWidth:3},
+      areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(212,85,58,0.12)'},{offset:1,color:'rgba(212,85,58,0)'}])},
+      data:[2.4,2.6,2.9,3.2,3.5,4.1,4.8,5.2,5.8,6.5],animationDuration:2000,animationEasing:'cubicOut',
+      markLine:{silent:true,symbol:'none',lineStyle:{color:'#d4553a',type:'dashed',width:1,opacity:.5},
+        data:[{yAxis:5.2,label:{formatter:'650cc 分水岭',color:'#8a7e72',fontSize:11,position:'insideEndTop'}}]}
+    }]
+  })
+  window.addEventListener('resize',()=>c.resize())
+}
+
+function initPie(){
+  const c=echarts.init(document.getElementById('pieChart'))
+  c.setOption({
+    tooltip:{trigger:'item',...tipStyle},
+    color:['#d4553a','#2d6a9f','#3a7d5c','#e8734a','#8a7e72','#c4a265'],
+    series:[{type:'pie',radius:['35%','65%'],center:['50%','52%'],
+      label:{color:'#5c554c',fontSize:12,formatter:'{b}\n{d}%'},labelLine:{lineStyle:{color:'#e0d8cc'}},
+      itemStyle:{borderColor:'#ffffff',borderWidth:3},
+      emphasis:{itemStyle:{shadowBlur:20,shadowColor:'rgba(212,85,58,0.1)'}},
+      data:[{value:680,name:'跨骑'},{value:420,name:'踏板'},{value:350,name:'弯梁'},{value:180,name:'巡航'},{value:90,name:'拉力'},{value:59,name:'其他'}],
+      animationType:'expansion',animationDuration:1500}]
+  })
+  window.addEventListener('resize',()=>c.resize())
+}
+
+// Trigger initial reveals
+setTimeout(()=>{document.querySelectorAll('.hero-section .reveal').forEach(el=>el.classList.add('visible'))},300)
+</script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MotoFuel — Generative Art Style</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;background:#080812;color:#e8e8f0;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+#gen-canvas{position:fixed;inset:0;z-index:0}
+.content{position:relative;z-index:1}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;background:rgba(8,8,18,0.5);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.04)}
+.logo{font-family:'DM Serif Display',serif;font-size:20px;color:#e8e8f0;text-decoration:none;display:flex;align-items:center;gap:10px}
+.logo-mark{width:10px;height:10px;background:linear-gradient(135deg,#ff006e,#8338ec,#3a86ff);border-radius:3px;animation:logoSpin 8s linear infinite}
+@keyframes logoSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.nav-links{display:flex;gap:4px}
+.nav-links a{padding:6px 14px;border-radius:8px;font-size:13px;font-weight:500;color:rgba(232,232,240,0.4);text-decoration:none;transition:all .2s}
+.nav-links a:hover{color:#e8e8f0;background:rgba(255,255,255,0.05)}
+.nav-links a.active{color:#e8e8f0;background:rgba(131,56,236,0.15)}
+
+/* HERO */
+.hero{text-align:center;padding:100px 40px 80px;position:relative}
+.hero h1{font-family:'DM Serif Display',serif;font-size:clamp(40px,7vw,72px);font-weight:400;line-height:1.1;margin-bottom:16px;color:transparent;background:linear-gradient(135deg,#ff006e 0%,#8338ec 30%,#3a86ff 60%,#00f5d4 100%);-webkit-background-clip:text;background-clip:text;background-size:300% 300%;animation:gradShift 6s ease infinite}
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.hero .sub{font-size:15px;color:rgba(232,232,240,0.4)}
+
+/* STATS */
+.data-ring{display:flex;justify-content:center;gap:40px;margin-top:48px;flex-wrap:wrap}
+.ring-stat{text-align:center;position:relative}
+.ring-val{font-family:'DM Serif Display',serif;font-size:48px;line-height:1;background:linear-gradient(180deg,#fff,rgba(255,255,255,0.5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ring-lbl{font-size:11px;color:rgba(232,232,240,0.35);margin-top:6px;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+
+/* SECTION */
+.section{padding:60px 32px;max-width:1100px;margin:0 auto}
+.section-tag{font-size:11px;font-weight:700;color:#8338ec;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px}
+.section h2{font-family:'DM Serif Display',serif;font-size:36px;font-weight:400;margin-bottom:16px;line-height:1.2}
+.section p{font-size:15px;line-height:1.7;color:rgba(232,232,240,0.5);max-width:540px;margin-bottom:28px}
+
+/* CARDS */
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}
+.art-card{
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:18px;
+  padding:24px;backdrop-filter:blur(8px);transition:all .3s;overflow:hidden;position:relative;
+}
+.art-card::before{content:'';position:absolute;inset:0;border-radius:18px;background:conic-gradient(from var(--angle,0deg),rgba(255,0,110,0.05),rgba(131,56,236,0.05),rgba(58,134,255,0.05),rgba(0,245,212,0.05),rgba(255,0,110,0.05));opacity:0;transition:opacity .3s}
+.art-card:hover::before{opacity:1}
+.art-card:hover{border-color:rgba(131,56,236,0.15);transform:translateY(-2px)}
+.art-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.art-card-title{font-size:12px;font-weight:600;color:rgba(232,232,240,0.5);text-transform:uppercase;letter-spacing:.05em}
+.art-card-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.icon-grad-blue{background:linear-gradient(135deg,rgba(58,134,255,0.2),rgba(0,245,212,0.1))}
+.icon-grad-pink{background:linear-gradient(135deg,rgba(255,0,110,0.2),rgba(131,56,236,0.1))}
+.chart-wrap{height:260px;width:100%}
+
+/* TABLE */
+.art-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
+.art-table th{text-align:left;font-weight:600;color:rgba(232,232,240,0.3);padding:6px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid rgba(255,255,255,0.05)}
+.art-table td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.02);color:rgba(232,232,240,0.6)}
+.art-table tr:hover{background:rgba(131,56,236,0.03)}
+.art-rank{font-family:'DM Serif Display',serif;font-size:18px;color:rgba(232,232,240,0.2)}
+.art-rank.top{color:#8338ec}
+.art-val{font-weight:600;padding:2px 10px;border-radius:6px;font-size:12px}
+.v-green{background:rgba(0,245,212,0.08);color:#00f5d4}
+.v-purple{background:rgba(131,56,236,0.1);color:#b185db}
+.v-pink{background:rgba(255,0,110,0.08);color:#ff006e}
+
+/* FULL WIDTH CHART */
+.full-section{width:100%;padding:0 32px;margin:40px 0}
+.full-inner{max-width:1100px;margin:0 auto;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:20px;padding:28px;backdrop-filter:blur(8px)}
+.full-chart{height:320px;width:100%}
+
+/* CONTROLS */
+.canvas-controls{position:fixed;bottom:20px;left:20px;z-index:50;display:flex;gap:8px;flex-wrap:wrap}
+.ctrl-btn{padding:6px 14px;border-radius:10px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);color:rgba(232,232,240,0.5);cursor:pointer;transition:all .2s;backdrop-filter:blur(8px)}
+.ctrl-btn:hover,.ctrl-btn.active{background:rgba(131,56,236,0.15);border-color:rgba(131,56,236,0.3);color:#e8e8f0}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.art-card{animation:fadeUp .5s cubic-bezier(.16,1,.3,1) both}
+.art-card:nth-child(1){animation-delay:.1s}.art-card:nth-child(2){animation-delay:.2s}
+
+@media(max-width:768px){
+  .card-grid{grid-template-columns:1fr}
+  .data-ring{gap:20px}
+  .ring-val{font-size:32px}
+  .nav-links{display:none}
+  .hero{padding:60px 20px 40px}
+  .section{padding:40px 20px}
+}
+</style>
+</head>
+<body>
+
+<canvas id="gen-canvas"></canvas>
+
+<div class="content">
+  <nav>
+    <a href="#" class="logo"><span class="logo-mark"></span>MotoFuel</a>
+    <div class="nav-links">
+      <a href="#" class="active">Overview</a><a href="#">Ranking</a><a href="#">Analysis</a><a href="#">Explorer</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>摩托车油耗数据全景</h1>
+    <p class="sub">173 品牌 · 1,779 车型 · 58 万+ 真实样本</p>
+    <div class="data-ring">
+      <div class="ring-stat"><div class="ring-val">1.66</div><div class="ring-lbl">最低油耗 L/100km</div></div>
+      <div class="ring-stat"><div class="ring-val">173</div><div class="ring-lbl">品牌数量</div></div>
+      <div class="ring-stat"><div class="ring-val">1,779</div><div class="ring-lbl">车型数量</div></div>
+      <div class="ring-stat"><div class="ring-val">58万+</div><div class="ring-lbl">总样本数</div></div>
+    </div>
+  </section>
+
+  <div class="full-section">
+    <div class="full-inner">
+      <div class="art-card-title" style="margin-bottom:16px">排量-油耗趋势 · Displacement vs Consumption</div>
+      <div class="full-chart" id="trendChart"></div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="section-tag">Analysis</div>
+    <h2>数据背后的规律</h2>
+    <p>650cc 是油耗的关键分水岭。超过此排量后，每增加一个级别，油耗增幅显著扩大。</p>
+    <div class="card-grid">
+      <div class="art-card">
+        <div class="art-card-head">
+          <span class="art-card-title">类型分布</span>
+          <span class="art-card-icon icon-grad-blue"></span>
+        </div>
+        <div class="chart-wrap" id="pieChart"></div>
+      </div>
+      <div class="art-card">
+        <div class="art-card-head">
+          <span class="art-card-title">品牌排行 Top 8</span>
+          <span class="art-card-icon icon-grad-pink"></span>
+        </div>
+        <table class="art-table">
+          <thead><tr><th>#</th><th>品牌</th><th>油耗</th></tr></thead>
+          <tbody>
+            <tr><td><span class="art-rank top">1</span></td><td>济南轻骑</td><td><span class="art-val v-green">2.31</span></td></tr>
+            <tr><td><span class="art-rank top">2</span></td><td>五羊本田</td><td><span class="art-val v-green">2.45</span></td></tr>
+            <tr><td><span class="art-rank top">3</span></td><td>新大洲本田</td><td><span class="art-val v-green">2.52</span></td></tr>
+            <tr><td><span class="art-rank">4</span></td><td>豪爵</td><td><span class="art-val v-purple">2.68</span></td></tr>
+            <tr><td><span class="art-rank">5</span></td><td>建设雅马哈</td><td><span class="art-val v-purple">2.74</span></td></tr>
+            <tr><td><span class="art-rank">6</span></td><td>宗申</td><td><span class="art-val v-purple">2.89</span></td></tr>
+            <tr><td><span class="art-rank">7</span></td><td>力帆</td><td><span class="art-val v-pink">3.12</span></td></tr>
+            <tr><td><span class="art-rank">8</span></td><td>隆鑫</td><td><span class="art-val v-pink">3.28</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  <div style="height:80px"></div>
+</div>
+
+<div class="canvas-controls">
+  <button class="ctrl-btn active" onclick="setMode('flow')">Flow Field</button>
+  <button class="ctrl-btn" onclick="setMode('particles')">Particles</button>
+  <button class="ctrl-btn" onclick="setMode('waves')">Waves</button>
+</div>
+
+<script>
+// GENERATIVE ART CANVAS
+const canvas=document.getElementById('gen-canvas')
+const ctx=canvas.getContext('2d')
+let W,H,mode='flow',time=0,particles=[]
+
+function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight;initParticles()}
+function initParticles(){
+  particles=[]
+  for(let i=0;i<300;i++)particles.push({x:Math.random()*W,y:Math.random()*H,vx:0,vy:0,life:Math.random()*200+100,maxLife:300,size:Math.random()*2+0.5})
+}
+
+// Noise function (simplex-like)
+function noise(x,y,t){
+  const s=Math.sin(x*0.01+t*0.3)*Math.cos(y*0.01-t*0.2)
+  const s2=Math.sin(x*0.005-t*0.1)*Math.cos(y*0.008+t*0.15)
+  return(s+s2)*Math.PI
+}
+
+function setMode(m){
+  mode=m
+  document.querySelectorAll('.ctrl-btn').forEach(b=>b.classList.toggle('active',b.textContent.toLowerCase().includes(m)))
+  ctx.clearRect(0,0,W,H)
+  initParticles()
+}
+
+function draw(){
+  requestAnimationFrame(draw)
+  time+=0.01
+
+  if(mode==='flow'){
+    ctx.fillStyle='rgba(8,8,18,0.03)'
+    ctx.fillRect(0,0,W,H)
+    particles.forEach(p=>{
+      const angle=noise(p.x,p.y,time)
+      p.vx=p.vx*0.96+Math.cos(angle)*0.4
+      p.vy=p.vy*0.96+Math.sin(angle)*0.4
+      p.x+=p.vx;p.y+=p.vy
+      p.life--
+      if(p.life<=0||p.x<0||p.x>W||p.y<0||p.y>H){p.x=Math.random()*W;p.y=Math.random()*H;p.life=p.maxLife;p.vx=0;p.vy=0}
+      const alpha=Math.min(p.life/50,1)*0.6
+      const hue=(time*50+p.x*0.1)%360
+      ctx.fillStyle=`hsla(${hue},70%,65%,${alpha})`
+      ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill()
+    })
+  } else if(mode==='particles'){
+    ctx.fillStyle='rgba(8,8,18,0.06)'
+    ctx.fillRect(0,0,W,H)
+    particles.forEach(p=>{
+      p.x+=Math.sin(time+p.y*0.01)*0.5
+      p.y+=Math.cos(time+p.x*0.01)*0.3-0.2
+      if(p.y<-10){p.y=H+10;p.x=Math.random()*W}
+      if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10
+      const dist=Math.sqrt((p.x-W/2)**2+(p.y-H/2)**2)
+      const alpha=Math.max(0,1-dist/(W*0.4))*0.8
+      const hue=dist*0.3+time*30
+      ctx.fillStyle=`hsla(${hue},60%,60%,${alpha})`
+      ctx.beginPath();ctx.arc(p.x,p.y,p.size*1.5,0,Math.PI*2);ctx.fill()
+    })
+    // Center glow
+    const grd=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,W*0.3)
+    grd.addColorStop(0,`rgba(131,56,236,0.03)`);grd.addColorStop(1,'transparent')
+    ctx.fillStyle=grd;ctx.fillRect(0,0,W,H)
+  } else if(mode==='waves'){
+    ctx.fillStyle='rgba(8,8,18,0.08)'
+    ctx.fillRect(0,0,W,H)
+    for(let i=0;i<6;i++){
+      ctx.beginPath()
+      ctx.strokeStyle=`hsla(${280+i*20},70%,60%,${0.15-i*0.02})`
+      ctx.lineWidth=1.5
+      for(let x=0;x<W;x+=3){
+        const y=H/2+Math.sin(x*0.005+time*(1+i*0.3)+i*1.2)*(60+i*30)+Math.sin(x*0.01+time*0.5)*20
+        x===0?ctx.moveTo(x,y):ctx.lineTo(x,y)
+      }
+      ctx.stroke()
+    }
+  }
+}
+resize()
+draw()
+window.addEventListener('resize',resize)
+
+// Hover effect on cards
+document.querySelectorAll('.art-card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect()
+    card.style.setProperty('--angle',Math.atan2(e.clientY-r.top-r.height/2,e.clientX-r.left-r.width/2)*180/Math.PI+'deg')
+  })
+})
+
+// ECHARTS
+const tipStyle={backgroundColor:'rgba(8,8,18,0.9)',borderColor:'rgba(131,56,236,0.2)',textStyle:{color:'#e8e8f0',fontSize:12},extraCssText:'backdrop-filter:blur(12px);border-radius:12px;box-shadow:0 8px 32px rgba(131,56,236,0.15);'}
+
+const trendChart=echarts.init(document.getElementById('trendChart'))
+trendChart.setOption({
+  tooltip:{trigger:'axis',...tipStyle},
+  grid:{left:50,right:20,top:30,bottom:40},
+  xAxis:{type:'category',data:['125cc','150cc','200cc','250cc','300cc','400cc','500cc','650cc','800cc','1000cc+'],
+    axisLine:{lineStyle:{color:'rgba(255,255,255,0.05)'}},axisLabel:{color:'rgba(232,232,240,0.35)',fontSize:11},axisTick:{show:false}},
+  yAxis:{type:'value',name:'L/100km',nameTextStyle:{color:'rgba(232,232,240,0.35)',fontSize:11},
+    axisLine:{show:false},axisLabel:{color:'rgba(232,232,240,0.35)',fontSize:11},splitLine:{lineStyle:{color:'rgba(255,255,255,0.03)'}}},
+  series:[{type:'line',smooth:true,symbolSize:8,lineStyle:{width:3,color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#ff006e'},{offset:0.5,color:'#8338ec'},{offset:1,color:'#3a86ff'}])},
+    itemStyle:{color:'#8338ec',borderColor:'#080812',borderWidth:2},
+    areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(131,56,236,0.15)'},{offset:0.5,color:'rgba(255,0,110,0.05)'},{offset:1,color:'rgba(58,134,255,0)'}])},
+    data:[2.4,2.6,2.9,3.2,3.5,4.1,4.8,5.2,5.8,6.5],animationDuration:1500}]
+})
+
+const pieChart=echarts.init(document.getElementById('pieChart'))
+pieChart.setOption({
+  tooltip:{trigger:'item',...tipStyle},
+  color:['#ff006e','#8338ec','#3a86ff','#00f5d4','#ffd60a','#ff6b6b'],
+  series:[{type:'pie',radius:['35%','65%'],center:['50%','52%'],
+    label:{color:'rgba(232,232,240,0.35)',fontSize:11},labelLine:{lineStyle:{color:'rgba(255,255,255,0.05)'}},
+    itemStyle:{borderColor:'#080812',borderWidth:3},emphasis:{itemStyle:{shadowBlur:20,shadowColor:'rgba(131,56,236,0.3)'}},
+    data:[{value:680,name:'跨骑'},{value:420,name:'踏板'},{value:350,name:'弯梁'},{value:180,name:'巡航'},{value:90,name:'拉力'},{value:59,name:'其他'}],
+    animationType:'expansion',animationDuration:1200}]
+})
+
+window.addEventListener('resize',()=>{trendChart.resize();pieChart.resize()})
+</script>
+</body>
+</html>

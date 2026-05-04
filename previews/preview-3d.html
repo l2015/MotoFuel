@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MotoFuel — 3D Spatial Style</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#050510;color:#e0e0f0;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+#three-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.content{position:relative;z-index:1}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;background:rgba(5,5,16,0.6);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.05)}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:17px;color:#e0e0f0;text-decoration:none}
+.logo-ring{width:28px;height:28px;border:2px solid #7b68ee;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}
+.logo-ring::after{content:'';width:8px;height:8px;background:#7b68ee;border-radius:50%;box-shadow:0 0 12px #7b68ee}
+.nav-links{display:flex;gap:4px}
+.nav-links a{padding:6px 14px;border-radius:8px;font-size:13px;font-weight:500;color:rgba(224,224,240,0.5);text-decoration:none;transition:all .2s}
+.nav-links a:hover{color:#e0e0f0;background:rgba(255,255,255,0.05)}
+.nav-links a.active{color:#e0e0f0;background:rgba(123,104,238,0.15)}
+
+/* HERO */
+.hero{text-align:center;padding:100px 40px 60px}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(36px,6vw,64px);font-weight:700;letter-spacing:-0.03em;line-height:1.1;margin-bottom:16px;background:linear-gradient(135deg,#fff 0%,#7b68ee 50%,#ff6eb4 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero .sub{font-size:15px;color:rgba(224,224,240,0.5);margin-bottom:48px}
+
+/* STATS ROW */
+.stats-row{display:flex;justify-content:center;gap:48px;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-val{font-family:'Space Grotesk',sans-serif;font-size:44px;font-weight:700;line-height:1;background:linear-gradient(135deg,#7b68ee,#ff6eb4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-lbl{font-size:12px;color:rgba(224,224,240,0.4);margin-top:6px;font-weight:500;letter-spacing:.03em}
+
+/* FLOATING CARDS */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px;padding:20px 32px;max-width:1200px;margin:40px auto}
+.float-card{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:20px;
+  padding:28px;backdrop-filter:blur(12px);transition:all .4s cubic-bezier(.25,.46,.45,.94);
+  transform-style:preserve-3d;perspective:1000px;
+}
+.float-card:hover{background:rgba(255,255,255,0.06);border-color:rgba(123,104,238,0.2);transform:translateY(-4px) rotateX(2deg);box-shadow:0 20px 60px rgba(123,104,238,0.1)}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.card-tag{font-size:11px;font-weight:600;color:#7b68ee;text-transform:uppercase;letter-spacing:.06em}
+.card-dot{width:8px;height:8px;border-radius:50%;background:#7b68ee;box-shadow:0 0 10px #7b68ee}
+.chart-wrap{height:280px;width:100%}
+
+/* TABLE */
+.mini-table{width:100%;border-collapse:collapse;font-size:13px}
+.mini-table th{text-align:left;font-weight:600;color:rgba(224,224,240,0.35);padding:8px 12px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid rgba(255,255,255,0.06)}
+.mini-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.03);color:rgba(224,224,240,0.7)}
+.mini-table tr:hover{background:rgba(123,104,238,0.04)}
+.glow-num{font-family:'Space Grotesk',sans-serif;font-weight:600;padding:2px 10px;border-radius:8px;font-size:12px}
+.glow-good{background:rgba(46,213,115,0.1);color:#2ed573;box-shadow:0 0 8px rgba(46,213,115,0.15)}
+.glow-mid{background:rgba(123,104,238,0.1);color:#7b68ee;box-shadow:0 0 8px rgba(123,104,238,0.15)}
+.glow-warn{background:rgba(255,165,2,0.1);color:#ffa502;box-shadow:0 0 8px rgba(255,165,2,0.15)}
+
+/* FLOATING BADGE */
+.float-badge{position:fixed;bottom:24px;right:24px;z-index:50;display:flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(123,104,238,0.12);border:1px solid rgba(123,104,238,0.2);border-radius:14px;backdrop-filter:blur(12px);font-size:12px;color:rgba(224,224,240,0.6);font-weight:500}
+.float-badge .dot{width:6px;height:6px;border-radius:50%;background:#2ed573;box-shadow:0 0 8px #2ed573;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.float-card{animation:fadeUp .6s cubic-bezier(.16,1,.3,1) both}
+.float-card:nth-child(1){animation-delay:.1s}.float-card:nth-child(2){animation-delay:.2s}.float-card:nth-child(3){animation-delay:.3s}.float-card:nth-child(4){animation-delay:.4s}
+
+/* MOBILE */
+@media(max-width:768px){
+  .stats-row{gap:24px}
+  .stat-val{font-size:32px}
+  .cards-grid{grid-template-columns:1fr;padding:16px}
+  .nav-links{display:none}
+  .hero{padding:60px 20px 40px}
+}
+</style>
+</head>
+<body>
+
+<canvas id="three-canvas"></canvas>
+
+<div class="content">
+  <nav>
+    <a href="#" class="logo"><div class="logo-ring"></div>MotoFuel</a>
+    <div class="nav-links">
+      <a href="#" class="active">Overview</a><a href="#">Ranking</a><a href="#">Analysis</a><a href="#">Explorer</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>摩托车油耗数据全景</h1>
+    <p class="sub">173 品牌 · 1,779 车型 · 58 万+ 真实样本</p>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-val">1.66</div><div class="stat-lbl">最低油耗 L/100km</div></div>
+      <div class="stat"><div class="stat-val">173</div><div class="stat-lbl">品牌数量</div></div>
+      <div class="stat"><div class="stat-val">1,779</div><div class="stat-lbl">车型数量</div></div>
+      <div class="stat"><div class="stat-val">58万+</div><div class="stat-lbl">总样本数</div></div>
+    </div>
+  </section>
+
+  <div class="cards-grid">
+    <div class="float-card">
+      <div class="card-head"><span class="card-tag">排量-油耗趋势</span><span class="card-dot"></span></div>
+      <div class="chart-wrap" id="trendChart"></div>
+    </div>
+    <div class="float-card">
+      <div class="card-head"><span class="card-tag">类型分布</span><span class="card-dot"></span></div>
+      <div class="chart-wrap" id="pieChart"></div>
+    </div>
+    <div class="float-card" style="grid-column:span 2">
+      <div class="card-head"><span class="card-tag">品牌排行 Top 8</span><span class="card-dot"></span></div>
+      <table class="mini-table">
+        <thead><tr><th>#</th><th>品牌</th><th>平均油耗</th><th>车型数</th><th>分布</th></tr></thead>
+        <tbody>
+          <tr><td style="color:#ffa502;font-weight:700">1</td><td>济南轻骑</td><td><span class="glow-num glow-good">2.31</span></td><td>12</td><td><div style="width:80px;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden"><div style="width:27%;height:100%;background:linear-gradient(90deg,#2ed573,#7b68ee);border-radius:2px"></div></div></td></tr>
+          <tr><td style="color:rgba(224,224,240,0.4);font-weight:700">2</td><td>五羊本田</td><td><span class="glow-num glow-good">2.45</span></td><td>28</td><td><div style="width:80px;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden"><div style="width:37%;height:100%;background:linear-gradient(90deg,#2ed573,#7b68ee);border-radius:2px"></div></div></td></tr>
+          <tr><td style="color:rgba(224,224,240,0.4);font-weight:700">3</td><td>新大洲本田</td><td><span class="glow-num glow-good">2.52</span></td><td>24</td><td><div style="width:80px;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden"><div style="width:42%;height:100%;background:linear-gradient(90deg,#2ed573,#7b68ee);border-radius:2px"></div></div></td></tr>
+          <tr><td style="color:rgba(224,224,240,0.4);font-weight:700">4</td><td>豪爵</td><td><span class="glow-num glow-mid">2.68</span></td><td>45</td><td><div style="width:80px;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden"><div style="width:68%;height:100%;background:linear-gradient(90deg,#7b68ee,#ff6eb4);border-radius:2px"></div></div></td></tr>
+          <tr><td style="color:rgba(224,224,240,0.4);font-weight:700">5</td><td>建设雅马哈</td><td><span class="glow-num glow-mid">2.74</span></td><td>18</td><td><div style="width:80px;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden"><div style="width:27%;height:100%;background:linear-gradient(90deg,#7b68ee,#ff6eb4);border-radius:2px"></div></div></td></tr>
+          <tr><td style="color:rgba(224,224,240,0.4);font-weight:700">6</td><td>宗申</td><td><span class="glow-num glow-mid">2.89</span></td><td>32</td><td><div style="width:80px;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden"><div style="width:48%;height:100%;background:linear-gradient(90deg,#7b68ee,#ff6eb4);border-radius:2px"></div></div></td></tr>
+          <tr><td style="color:rgba(224,224,240,0.4);font-weight:700">7</td><td>力帆</td><td><span class="glow-num glow-warn">3.12</span></td><td>22</td><td><div style="width:80px;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden"><div style="width:33%;height:100%;background:linear-gradient(90deg,#ffa502,#ff4757);border-radius:2px"></div></div></td></tr>
+          <tr><td style="color:rgba(224,224,240,0.4);font-weight:700">8</td><td>隆鑫</td><td><span class="glow-num glow-warn">3.28</span></td><td>19</td><td><div style="width:80px;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden"><div style="width:29%;height:100%;background:linear-gradient(90deg,#ffa502,#ff4757);border-radius:2px"></div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div style="height:80px"></div>
+</div>
+
+<div class="float-badge"><span class="dot"></span>3D Particle Field Active</div>
+
+<script>
+// THREE.JS PARTICLE FIELD
+const canvas=document.getElementById('three-canvas')
+const scene=new THREE.Scene()
+const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,1000)
+camera.position.z=50
+const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true})
+renderer.setSize(innerWidth,innerHeight)
+renderer.setPixelRatio(Math.min(devicePixelRatio,2))
+
+// Particles
+const count=2000
+const positions=new Float32Array(count*3)
+const colors=new Float32Array(count*3)
+const sizes=new Float32Array(count)
+for(let i=0;i<count;i++){
+  positions[i*3]=(Math.random()-0.5)*120
+  positions[i*3+1]=(Math.random()-0.5)*80
+  positions[i*3+2]=(Math.random()-0.5)*60
+  const c=Math.random()
+  if(c<0.33){colors[i*3]=0.48;colors[i*3+1]=0.41;colors[i*3+2]=0.93}
+  else if(c<0.66){colors[i*3]=1;colors[i*3+1]=0.43;colors[i*3+2]=0.71}
+  else{colors[i*3]=0.4;colors[i*3+1]=0.6;colors[i*3+2]=0.95}
+  sizes[i]=Math.random()*2+0.5
+}
+const geo=new THREE.BufferGeometry()
+geo.setAttribute('position',new THREE.BufferAttribute(positions,3))
+geo.setAttribute('color',new THREE.BufferAttribute(colors,3))
+geo.setAttribute('size',new THREE.BufferAttribute(sizes,1))
+
+const mat=new THREE.PointsMaterial({size:1.5,vertexColors:true,transparent:true,opacity:0.6,blending:THREE.AdditiveBlending,sizeAttenuation:true})
+const points=new THREE.Points(geo,mat)
+scene.add(points)
+
+// Lines connecting nearby particles
+const lineGeo=new THREE.BufferGeometry()
+const linePositions=new Float32Array(500*6)
+lineGeo.setAttribute('position',new THREE.BufferAttribute(linePositions,3))
+const lineMat=new THREE.LineBasicMaterial({color:0x7b68ee,transparent:true,opacity:0.08,blending:THREE.AdditiveBlending})
+const lines=new THREE.LineSegments(lineGeo,lineMat)
+scene.add(lines)
+
+let mouseX=0,mouseY=0
+document.addEventListener('mousemove',e=>{
+  mouseX=(e.clientX/innerWidth-0.5)*2
+  mouseY=(e.clientY/innerHeight-0.5)*2
+})
+
+function animate(){
+  requestAnimationFrame(animate)
+  points.rotation.y+=0.0003
+  points.rotation.x+=0.0001
+  camera.position.x+=(mouseX*5-camera.position.x)*0.02
+  camera.position.y+=(-mouseY*3-camera.position.y)*0.02
+  camera.lookAt(0,0,0)
+
+  // Update lines
+  let li=0
+  const pos=geo.attributes.position.array
+  const lp=lineGeo.attributes.position.array
+  for(let i=0;i<count&&li<500;i+=3){
+    for(let j=i+3;j<count&&li<500;j+=3){
+      const dx=pos[i]-pos[j],dy=pos[i+1]-pos[j+1],dz=pos[i+2]-pos[j+2]
+      const dist=dx*dx+dy*dy+dz*dz
+      if(dist<100){
+        lp[li*6]=pos[i];lp[li*6+1]=pos[i+1];lp[li*6+2]=pos[i+2]
+        lp[li*6+3]=pos[j];lp[li*6+4]=pos[j+1];lp[li*6+5]=pos[j+2]
+        li++
+      }
+    }
+  }
+  for(let i=li*6;i<500*6;i++)lp[i]=0
+  lineGeo.attributes.position.needsUpdate=true
+
+  renderer.render(scene,camera)
+}
+animate()
+
+window.addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight
+  camera.updateProjectionMatrix()
+  renderer.setSize(innerWidth,innerHeight)
+})
+
+// ECHARTS
+const tipStyle={backgroundColor:'rgba(5,5,16,0.9)',borderColor:'rgba(123,104,238,0.2)',textStyle:{color:'#e0e0f0',fontSize:12},extraCssText:'backdrop-filter:blur(12px);border-radius:12px;box-shadow:0 8px 32px rgba(123,104,238,0.15);'}
+
+const trendChart=echarts.init(document.getElementById('trendChart'))
+trendChart.setOption({
+  tooltip:{trigger:'axis',...tipStyle},
+  grid:{left:45,right:16,top:20,bottom:35},
+  xAxis:{type:'category',data:['125','150','200','250','300','400','500','650','800','1000+'],
+    axisLine:{lineStyle:{color:'rgba(255,255,255,0.06)'}},axisLabel:{color:'rgba(224,224,240,0.4)',fontSize:10},axisTick:{show:false}},
+  yAxis:{type:'value',axisLine:{show:false},axisLabel:{color:'rgba(224,224,240,0.4)',fontSize:10},splitLine:{lineStyle:{color:'rgba(255,255,255,0.03)'}}},
+  series:[{type:'line',smooth:true,symbolSize:7,lineStyle:{width:2.5,color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#7b68ee'},{offset:1,color:'#ff6eb4'}])},
+    itemStyle:{color:'#7b68ee',borderColor:'#050510',borderWidth:2},
+    areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(123,104,238,0.15)'},{offset:0.5,color:'rgba(255,110,180,0.05)'},{offset:1,color:'rgba(123,104,238,0)'}])},
+    data:[2.4,2.6,2.9,3.2,3.5,4.1,4.8,5.2,5.8,6.5],animationDuration:1500}]
+})
+
+const pieChart=echarts.init(document.getElementById('pieChart'))
+pieChart.setOption({
+  tooltip:{trigger:'item',...tipStyle},
+  color:['#7b68ee','#00d2ff','#ff6eb4','#2ed573','#ffa502','#ff4757'],
+  series:[{type:'pie',radius:['38%','68%'],center:['50%','52%'],
+    label:{color:'rgba(224,224,240,0.4)',fontSize:11},labelLine:{lineStyle:{color:'rgba(255,255,255,0.06)'}},
+    itemStyle:{borderColor:'#050510',borderWidth:3},emphasis:{itemStyle:{shadowBlur:20,shadowColor:'rgba(123,104,238,0.3)'}},
+    data:[{value:680,name:'跨骑'},{value:420,name:'踏板'},{value:350,name:'弯梁'},{value:180,name:'巡航'},{value:90,name:'拉力'},{value:59,name:'其他'}],
+    animationType:'expansion',animationDuration:1200}]
+})
+
+window.addEventListener('resize',()=>{trendChart.resize();pieChart.resize()})
+</script>
+</body>
+</html>

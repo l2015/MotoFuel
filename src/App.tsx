@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useData } from './hooks/useData'
@@ -8,11 +9,16 @@ import Ranking from './pages/Ranking'
 import Analysis from './pages/Analysis'
 import Explorer from './pages/Explorer'
 
+const DemoNivo = lazy(() => import('./pages/demo/DemoNivo'))
+const DemoVisx = lazy(() => import('./pages/demo/DemoVisx'))
+const DemoD3 = lazy(() => import('./pages/demo/DemoD3'))
+
 function App() {
   const { t } = useTranslation()
   const { data, loading, error } = useData()
   const location = useLocation()
   const isExplorer = location.pathname === '/explorer'
+  const isDemo = location.pathname.startsWith('/demo')
 
   if (loading) {
     return (
@@ -33,6 +39,18 @@ function App() {
           <p className="text-text-secondary mt-2">{error || t('common.unknownError')}</p>
         </div>
       </div>
+    )
+  }
+
+  if (isDemo) {
+    return (
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: '#0a0a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }}>Loading...</div>}>
+        <Routes>
+          <Route path="/demo/nivo" element={<DemoNivo />} />
+          <Route path="/demo/visx" element={<DemoVisx />} />
+          <Route path="/demo/d3" element={<DemoD3 />} />
+        </Routes>
+      </Suspense>
     )
   }
 

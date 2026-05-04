@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MotoFuel — Bento Grid Style</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=SF+Pro+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#000;--card:#1c1c1e;--card-border:rgba(255,255,255,0.08);
+  --card-hover:#2c2c2e;--text:#f5f5f7;--text-dim:#86868b;--text-mid:#a1a1a6;
+  --blue:#2997ff;--green:#30d158;--red:#ff453a;--orange:#ff9f0a;--purple:#bf5af2;--cyan:#64d2ff;
+  --radius:22px;--radius-sm:16px;
+}
+body{font-family:'Inter',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(0,0,0,0.8);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgba(255,255,255,0.06)}
+nav .container{display:flex;align-items:center;justify-content:space-between;height:52px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:17px;color:var(--text);text-decoration:none;letter-spacing:-0.02em}
+.logo-dot{width:24px;height:24px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:6px}
+.nav-links{display:flex;gap:2px}
+.nav-links a{padding:5px 12px;border-radius:8px;font-size:13px;font-weight:500;color:var(--text-dim);text-decoration:none;transition:all .2s}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,0.06)}
+.nav-links a.active{color:var(--text);background:rgba(255,255,255,0.1)}
+
+/* HERO */
+.hero{padding:48px 0 32px;text-align:center}
+.hero h1{font-size:48px;font-weight:700;letter-spacing:-0.03em;line-height:1.08;margin-bottom:10px;background:linear-gradient(180deg,#fff 40%,#86868b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero .sub{font-size:16px;color:var(--text-dim);font-weight:400}
+
+/* BENTO GRID */
+.bento{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:180px;gap:12px;margin-top:28px}
+.bento-item{
+  background:var(--card);border-radius:var(--radius);padding:24px;position:relative;overflow:hidden;
+  border:1px solid var(--card-border);transition:all .35s cubic-bezier(.25,.46,.45,.94);
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+.bento-item:hover{background:var(--card-hover);transform:scale(1.015);box-shadow:0 8px 40px rgba(0,0,0,0.4)}
+.bento-item::after{
+  content:'';position:absolute;inset:0;border-radius:var(--radius);
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,0.06),transparent 60%);
+  opacity:0;transition:opacity .3s;pointer-events:none;
+}
+.bento-item:hover::after{opacity:1}
+.bento-label{font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em}
+.bento-value{font-size:42px;font-weight:700;letter-spacing:-0.03em;line-height:1}
+.bento-sub{font-size:12px;color:var(--text-dim);margin-top:auto}
+.bento-sub .highlight{color:var(--green);font-weight:600}
+
+/* Sizes */
+.span-2-col{grid-column:span 2}
+.span-2-row{grid-row:span 2}
+.span-2-2{grid-column:span 2;grid-row:span 2}
+
+/* Gradient accent cards */
+.bento-gradient-blue{background:linear-gradient(135deg,#0a1628,#0c2445);border-color:rgba(41,151,255,0.15)}
+.bento-gradient-green{background:linear-gradient(135deg,#0a1a10,#0c2818);border-color:rgba(48,209,88,0.15)}
+.bento-gradient-purple{background:linear-gradient(135deg,#150a20,#1c0c28);border-color:rgba(191,90,242,0.15)}
+.bento-gradient-orange{background:linear-gradient(135deg,#1a1208,#20180a);border-color:rgba(255,159,10,0.15)}
+
+/* Chart items */
+.bento-chart{padding:16px 20px}
+.bento-chart .bento-label{margin-bottom:8px}
+.chart-area{flex:1;min-height:0}
+
+/* Table item */
+.mini-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:auto}
+.mini-table th{text-align:left;font-weight:600;color:var(--text-dim);padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--card-border)}
+.mini-table td{padding:6px 8px;color:var(--text-mid)}
+.mini-table tr:hover{background:rgba(255,255,255,0.03)}
+.mini-rank{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(41,151,255,0.12);color:var(--blue)}
+.mini-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px}
+.mini-badge-good{background:rgba(48,209,88,0.12);color:var(--green)}
+.mini-badge-mid{background:rgba(41,151,255,0.12);color:var(--blue)}
+.mini-badge-low{background:rgba(255,159,10,0.12);color:var(--orange)}
+
+/* Type pills */
+.type-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.type-pill{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:500;background:rgba(255,255,255,0.06);color:var(--text-mid);border:1px solid rgba(255,255,255,0.06)}
+.type-pill .count{color:var(--text-dim);margin-left:4px}
+
+/* ANIMATIONS */
+@keyframes fadeScale{from{opacity:0;transform:scale(.96);translate:0 12px}to{opacity:1;transform:scale(1);translate:0 0}}
+.bento-item{animation:fadeScale .5s cubic-bezier(.16,1,.3,1) both}
+.bento-item:nth-child(1){animation-delay:.05s}.bento-item:nth-child(2){animation-delay:.1s}
+.bento-item:nth-child(3){animation-delay:.15s}.bento-item:nth-child(4){animation-delay:.2s}
+.bento-item:nth-child(5){animation-delay:.25s}.bento-item:nth-child(6){animation-delay:.3s}
+.bento-item:nth-child(7){animation-delay:.35s}.bento-item:nth-child(8){animation-delay:.4s}
+.bento-item:nth-child(9){animation-delay:.45s}.bento-item:nth-child(10){animation-delay:.5s}
+
+/* MOBILE PREVIEW */
+.mobile-section{margin-top:60px;padding:40px 0;border-top:1px solid rgba(255,255,255,0.06)}
+.mobile-section h2{font-size:13px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;text-align:center;margin-bottom:24px}
+.phone-frame{width:375px;margin:0 auto;border:2px solid rgba(255,255,255,0.1);border-radius:40px;overflow:hidden;background:var(--bg);box-shadow:0 20px 80px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.05)}
+.phone-screen{padding:16px}
+.phone-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 0 14px}
+.phone-nav .logo{font-size:15px}
+.phone-hamburger{width:24px;height:20px;display:flex;flex-direction:column;justify-content:space-between}
+.phone-hamburger span{height:2px;background:var(--text-dim);border-radius:1px}
+.phone-bento{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.phone-bento .bento-item{padding:14px;border-radius:16px;grid-row:auto;grid-column:auto}
+.phone-bento .bento-value{font-size:28px}
+.phone-bento .span-2-col{grid-column:span 2}
+.phone-chart{height:120px}
+
+@media(max-width:900px){
+  .bento{grid-template-columns:1fr 1fr;grid-auto-rows:160px}
+  .span-2-2{grid-column:span 2;grid-row:span 1}
+}
+@media(max-width:600px){
+  .bento{grid-template-columns:1fr;grid-auto-rows:auto}
+  .span-2-col,.span-2-2{grid-column:span 1}
+  .bento-item{min-height:140px}
+  .hero h1{font-size:30px}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a href="#" class="logo"><div class="logo-dot"></div>MotoFuel</a>
+    <div class="nav-links">
+      <a href="#" class="active">Overview</a><a href="#">Ranking</a><a href="#">Analysis</a><a href="#">Explorer</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <section class="hero">
+    <h1>摩托车油耗数据全景</h1>
+    <p class="sub">173 品牌 · 1,779 车型 · 58 万+真实样本</p>
+  </section>
+
+  <div class="bento">
+    <!-- 1: Big stat -->
+    <div class="bento-item bento-gradient-blue">
+      <span class="bento-label">最低油耗</span>
+      <div class="bento-value" style="color:var(--cyan)">1.66</div>
+      <div class="bento-sub">L/100km · <span class="highlight">济南轻骑 QS125</span></div>
+    </div>
+
+    <!-- 2: Trend chart -->
+    <div class="bento-item span-2-col bento-chart">
+      <span class="bento-label">排量-油耗趋势</span>
+      <div class="chart-area" id="trendChart"></div>
+    </div>
+
+    <!-- 3: Stat -->
+    <div class="bento-item bento-gradient-green">
+      <span class="bento-label">品牌数量</span>
+      <div class="bento-value" style="color:var(--green)">173</div>
+      <div class="bento-sub">覆盖全品类</div>
+    </div>
+
+    <!-- 4: Types -->
+    <div class="bento-item bento-gradient-purple">
+      <span class="bento-label">车型类型</span>
+      <div class="type-pills">
+        <span class="type-pill">跨骑 <span class="count">680</span></span>
+        <span class="type-pill">踏板 <span class="count">420</span></span>
+        <span class="type-pill">弯梁 <span class="count">350</span></span>
+        <span class="type-pill">巡航 <span class="count">180</span></span>
+        <span class="type-pill">拉力 <span class="count">90</span></span>
+        <span class="type-pill">其他 <span class="count">59</span></span>
+      </div>
+    </div>
+
+    <!-- 5: Pie chart (2x2) -->
+    <div class="bento-item span-2-2 bento-chart">
+      <span class="bento-label">类型分布</span>
+      <div class="chart-area" id="pieChart"></div>
+    </div>
+
+    <!-- 6: Stat -->
+    <div class="bento-item bento-gradient-orange">
+      <span class="bento-label">总样本数</span>
+      <div class="bento-value" style="color:var(--orange)">58<span style="font-size:20px">万+</span></div>
+      <div class="bento-sub">真实加油记录</div>
+    </div>
+
+    <!-- 7: Mini table -->
+    <div class="bento-item span-2-col">
+      <span class="bento-label">品牌排行 Top 5</span>
+      <table class="mini-table">
+        <thead><tr><th>#</th><th>品牌</th><th>平均油耗</th><th>车型</th></tr></thead>
+        <tbody>
+          <tr><td><span class="mini-rank">1</span></td><td>济南轻骑</td><td><span class="mini-badge mini-badge-good">2.31</span></td><td>12</td></tr>
+          <tr><td><span class="mini-rank">2</span></td><td>五羊本田</td><td><span class="mini-badge mini-badge-good">2.45</span></td><td>28</td></tr>
+          <tr><td><span class="mini-rank">3</span></td><td>新大洲本田</td><td><span class="mini-badge mini-badge-good">2.52</span></td><td>24</td></tr>
+          <tr><td><span class="mini-rank">4</span></td><td>豪爵</td><td><span class="mini-badge mini-badge-mid">2.68</span></td><td>45</td></tr>
+          <tr><td><span class="mini-rank">5</span></td><td>建设雅马哈</td><td><span class="mini-badge mini-badge-mid">2.74</span></td><td>18</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 8: Histogram -->
+    <div class="bento-item span-2-col bento-chart">
+      <span class="bento-label">油耗分布直方图</span>
+      <div class="chart-area" id="histChart"></div>
+    </div>
+
+    <!-- 9: Stat -->
+    <div class="bento-item">
+      <span class="bento-label">车型数量</span>
+      <div class="bento-value">1,779</div>
+      <div class="bento-sub">收录车型</div>
+    </div>
+
+    <!-- 10: Average -->
+    <div class="bento-item">
+      <span class="bento-label">平均油耗</span>
+      <div class="bento-value" style="color:var(--blue)">3.8</div>
+      <div class="bento-sub">L/100km · 全车型</div>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE -->
+<div class="mobile-section">
+  <div class="container"><h2>移动端 · Bento Grid</h2></div>
+  <div class="phone-frame">
+    <div class="phone-screen">
+      <div class="phone-nav">
+        <a href="#" class="logo"><div class="logo-dot" style="width:20px;height:20px;border-radius:5px"></div>MotoFuel</a>
+        <div class="phone-hamburger"><span></span><span></span></div>
+      </div>
+      <div class="phone-bento">
+        <div class="bento-item bento-gradient-blue"><span class="bento-label" style="font-size:10px">最低油耗</span><div class="bento-value" style="color:var(--cyan)">1.66</div><div class="bento-sub" style="font-size:10px">L/100km</div></div>
+        <div class="bento-item bento-gradient-green"><span class="bento-label" style="font-size:10px">品牌</span><div class="bento-value" style="color:var(--green)">173</div></div>
+        <div class="bento-item bento-gradient-purple"><span class="bento-label" style="font-size:10px">车型</span><div class="bento-value">1,779</div></div>
+        <div class="bento-item bento-gradient-orange"><span class="bento-label" style="font-size:10px">样本</span><div class="bento-value" style="color:var(--orange)">58万+</div></div>
+        <div class="bento-item span-2-col bento-chart"><span class="bento-label" style="font-size:10px">趋势</span><div class="phone-chart" id="phoneChart"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div style="height:60px"></div>
+
+<script>
+// Hover glow tracking
+document.querySelectorAll('.bento-item').forEach(el => {
+  el.addEventListener('mousemove', e => {
+    const r = el.getBoundingClientRect()
+    el.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%')
+    el.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%')
+  })
+})
+
+const darkTip = {
+  backgroundColor:'rgba(28,28,30,0.95)',borderColor:'rgba(255,255,255,0.1)',
+  textStyle:{color:'#f5f5f7',fontSize:12},
+  extraCssText:'backdrop-filter:blur(12px);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);'
+}
+
+const trendChart = echarts.init(document.getElementById('trendChart'))
+trendChart.setOption({
+  tooltip:{trigger:'axis',...darkTip},
+  grid:{left:40,right:12,top:10,bottom:30},
+  xAxis:{type:'category',data:['125','150','200','250','300','400','500','650','800','1000+'],axisLine:{lineStyle:{color:'rgba(255,255,255,0.06)'}},axisLabel:{color:'#86868b',fontSize:10},axisTick:{show:false}},
+  yAxis:{type:'value',axisLine:{show:false},axisLabel:{color:'#86868b',fontSize:10},splitLine:{lineStyle:{color:'rgba(255,255,255,0.04)'}}},
+  series:[{type:'line',smooth:true,symbolSize:6,lineStyle:{width:2.5,color:'#2997ff'},itemStyle:{color:'#2997ff',borderColor:'#1c1c1e',borderWidth:2},
+    areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(41,151,255,0.2)'},{offset:1,color:'rgba(41,151,255,0)'}])},
+    data:[2.4,2.6,2.9,3.2,3.5,4.1,4.8,5.2,5.8,6.5],animationDuration:1200}]
+})
+
+const pieChart = echarts.init(document.getElementById('pieChart'))
+pieChart.setOption({
+  tooltip:{trigger:'item',...darkTip},
+  color:['#2997ff','#30d158','#bf5af2','#ff9f0a','#ff453a','#64d2ff'],
+  series:[{type:'pie',radius:['35%','65%'],center:['50%','52%'],label:{color:'#86868b',fontSize:11},labelLine:{lineStyle:{color:'rgba(255,255,255,0.08)'}},
+    itemStyle:{borderColor:'#1c1c1e',borderWidth:3},emphasis:{itemStyle:{shadowBlur:20,shadowColor:'rgba(41,151,255,0.2)'}},
+    data:[{value:680,name:'跨骑'},{value:420,name:'踏板'},{value:350,name:'弯梁'},{value:180,name:'巡航'},{value:90,name:'拉力'},{value:59,name:'其他'}],
+    animationType:'expansion',animationDuration:1200}]
+})
+
+const histChart = echarts.init(document.getElementById('histChart'))
+histChart.setOption({
+  tooltip:{trigger:'axis',...darkTip},
+  grid:{left:35,right:8,top:8,bottom:28},
+  xAxis:{type:'category',data:['1-2','2-3','3-4','4-5','5-6','6-7','7-8','8+'],axisLine:{lineStyle:{color:'rgba(255,255,255,0.06)'}},axisLabel:{color:'#86868b',fontSize:10},axisTick:{show:false}},
+  yAxis:{type:'value',axisLine:{show:false},axisLabel:{color:'#86868b',fontSize:10},splitLine:{lineStyle:{color:'rgba(255,255,255,0.04)'}}},
+  series:[{type:'bar',barMaxWidth:28,itemStyle:{borderRadius:[4,4,0,0],color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#bf5af2'},{offset:1,color:'rgba(191,90,242,0.3)'}])},
+    data:[45,320,580,420,230,110,48,26],animationDuration:1200}]
+})
+
+const phoneChart = echarts.init(document.getElementById('phoneChart'))
+phoneChart.setOption({
+  grid:{left:28,right:6,top:6,bottom:20},
+  xAxis:{type:'category',data:['125','200','300','400','500','650+'],axisLine:{lineStyle:{color:'rgba(255,255,255,0.06)'}},axisLabel:{color:'#86868b',fontSize:8},axisTick:{show:false}},
+  yAxis:{type:'value',axisLine:{show:false},axisLabel:{color:'#86868b',fontSize:8},splitLine:{lineStyle:{color:'rgba(255,255,255,0.03)'}}},
+  series:[{type:'line',smooth:true,symbolSize:3,lineStyle:{width:2,color:'#2997ff'},itemStyle:{color:'#2997ff'},
+    areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(41,151,255,0.15)'},{offset:1,color:'rgba(41,151,255,0)'}])},
+    data:[2.4,2.9,3.5,4.1,4.8,5.5]}]
+})
+
+window.addEventListener('resize',()=>{trendChart.resize();pieChart.resize();histChart.resize();phoneChart.resize()})
+</script>
+</body>
+</html>
