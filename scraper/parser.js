@@ -9,26 +9,26 @@ const DISPLACEMENT_MAP = {
 export function parsePage(html, levelId) {
   const $ = cheerio.load(html)
   const displacement = DISPLACEMENT_MAP[levelId]
-  if (!displacement) return []
+  if (!displacement) return { rows: [], rejected: 0 }
 
   // Strategy 1: Find script containing "data" array
   const scriptText = $('script').toArray()
     .map(el => $(el).html())
     .find(s => s && s.includes('"data":'))
 
-  if (!scriptText) return []
+  if (!scriptText) return { rows: [], rejected: 0 }
 
   // Strategy 2: Try regex extraction
-  let rows = tryExtractArray(scriptText)
+  let rawRows = tryExtractArray(scriptText)
 
   // Strategy 3: If regex fails, try extracting the full JSON object
-  if (!rows) {
-    rows = tryExtractFullJSON(scriptText)
+  if (!rawRows) {
+    rawRows = tryExtractFullJSON(scriptText)
   }
 
-  if (!rows || !Array.isArray(rows)) return []
+  if (!rawRows || !Array.isArray(rawRows)) return { rows: [], rejected: 0 }
 
-  return rows.map(row => {
+  const mapped = rawRows.map(row => {
     const [rank, imgHtml, brand, series, type, consumption, samples] = row
 
     let logoModelId = ''
@@ -47,16 +47,49 @@ export function parsePage(html, levelId) {
         ? `https://cdn.xiaoxiongyouhao.com/models/${logoModelId}/che_biao_180.jpg`
         : '',
     }
-  }).filter(row =>
-    row.brand && !isNaN(row.consumption) && !isNaN(row.samples) && row.consumption > 0
-  )
+  })
+
+  const rows = mapped.filter(row => {
+    if (!row.brand || !row.series || !row.type) return false
+    if (isNaN(row.consumption) || row.consumption < 1 || row.consumption > 20) return false
+    if (isNaN(row.samples) || row.samples <= 0) return false
+    return true
+  })
+
+  return { rows, rejected: mapped.length - rows.length }
 }
 
 function tryExtractArray(scriptText) {
-  const match = scriptText.match(/"data"\s*:\s*(\[[\s\S]*?\])\s*[,}]/)
-  if (!match) return null
+  const marker = '"data":'
+  const idx = scriptText.indexOf(marker)
+  if (idx === -1) return null
+
+  const afterData = scriptText.substring(idx + marker.length).trim()
+  if (!afterData.startsWith('[')) return null
+
+  // Bracket-matching to find the full array (handles nested arrays)
+  let depth = 0
+  let inStr = false
+  let esc = false
+  let endPos = -1
+
+  for (let i = 0; i < afterData.length; i++) {
+    const c = afterData[i]
+    if (esc) { esc = false; continue }
+    if (c === String.fromCharCode(92)) { esc = true; continue }
+    if (c === '"') { inStr = !inStr; continue }
+    if (inStr) continue
+    if (c === '[') { depth++; continue }
+    if (c === ']') {
+      depth--
+      if (depth === 0) { endPos = i; break }
+    }
+  }
+
+  if (endPos <= 0) return null
+
   try {
-    return JSON.parse(match[1])
+    return JSON.parse(afterData.substring(0, endPos + 1))
   } catch {
     return null
   }

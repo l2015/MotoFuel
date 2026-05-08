@@ -1,46 +1,110 @@
 # MotoFuel
 
-摩托车油耗数据分析平台 — 基于 [小熊油耗](https://www.xiaoxiongyouhao.com) 公开数据的可视化分析。
+[![Scrape Data](https://github.com/l2015/MotoFuel/actions/workflows/scrape.yml/badge.svg)](https://github.com/l2015/MotoFuel/actions/workflows/scrape.yml)
+[![Deploy](https://github.com/l2015/MotoFuel/actions/workflows/deploy.yml/badge.svg)](https://github.com/l2015/MotoFuel/actions/workflows/deploy.yml)
 
-## 功能
+> **[中文文档](./README-CN.md)**
 
-- **总览** — 油耗趋势、Top 20 省油车型、类型分布
-- **排行榜** — 按品牌/类型/排量筛选的油耗排行
-- **数据洞察** — 多维度统计分析
-- **数据探索** — 散点图交互式探索，按样本量筛选
+A data-driven motorcycle fuel consumption analysis platform. Visualizes consumption data for 1700+ models across 170+ brands, with interactive charts, multi-dimensional filtering, and trend analysis.
 
-## 数据
+**Live Site**: https://l2015.github.io/MotoFuel/
 
-173 个品牌 · 1,779 款车型 · 11 种类型 · 18 级排量（50–1000cc）
+## Features
 
-数据来源：[小熊油耗](https://www.xiaoxiongyouhao.com/page_rank_chexi_moto.php) 公开加油数据，每周一自动更新。
+- **Overview Dashboard** — summary stats, consumption distribution, top models
+- **Ranking Table** — sortable, filterable table with deep-linking support (`?brand=`, `?type=`)
+- **Trend Analysis** — weighted averages by displacement, brand comparisons, type distribution
+- **Explorer Scatter Plot** — interactive scatter chart with zoom, click-to-detail, and jitter for overlapping points
+- **Cascading Filters** — type narrows brands/displacements, persistent via URL params and sessionStorage
+- **i18n** — Chinese and English, auto-detected from browser language
+- **PWA** — installable, works offline with cached data
+- **Weekly Data Updates** — automated scraper runs every Monday
 
-## 技术栈
-
-React 19 · TypeScript · Vite 8 · Tailwind CSS v4 · ECharts 6 · PWA
-
-## 本地开发
+## Quick Start
 
 ```bash
+# Install dependencies
 npm install
+
+# Start dev server
 npm run dev
-```
 
-## 构建
-
-```bash
+# Build for production
 npm run build
-npm run preview
+
+# Run tests
+npm run test
 ```
 
-## 数据抓取
+## Project Structure
+
+```
+src/
+  components/       # FilterBar, Header, Footer, etc.
+  charts/           # ECharts wrappers (TrendLine, TypePie, etc.)
+  hooks/            # useData, useFilter, useFilteredData
+  utils/            # stats.ts (pure functions), chartTheme.ts
+  types/            # TypeScript interfaces (Motorcycle, FilterState, etc.)
+  pages/            # Home, Ranking, Analysis, Explorer, About
+public/
+  data/             # motorcycles.json (auto-updated by scraper)
+  locales/          # i18n translation files (zh.json, en.json)
+scraper/
+  index.js          # Fetcher with retry logic
+  parser.js         # HTML parser with validation
+.github/workflows/
+  scrape.yml        # Weekly data scraping + validation
+  deploy.yml        # GitHub Pages deployment
+```
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | React 19 |
+| Build | Vite 8 |
+| Styling | Tailwind CSS v4 |
+| Charts | ECharts 6 + echarts-for-react |
+| Routing | react-router-dom v7 |
+| i18n | react-i18next + i18next-browser-languagedetector |
+| PWA | vite-plugin-pwa (Workbox) |
+| Testing | Vitest |
+| Scraper | Cheerio + node-fetch |
+| Deploy | GitHub Pages (GitHub Actions) |
+
+## Development
+
+### Scraper
 
 ```bash
 cd scraper
 npm install
-node index.js
+node index.js    # Fetches data and writes to public/data/motorcycles.json
 ```
+
+The scraper fetches 18 displacement-level pages from xiaoxiongyouhao.com, parses motorcycle data with Cheerio, and validates results before writing. If the source website structure changes significantly, the scraper will abort and a GitHub Issue will be created automatically.
+
+### Adding Translations
+
+All UI strings use `t()` from react-i18next. Translation files are in `public/locales/{zh,en}.json`.
+
+### Charts
+
+Chart components are thin wrappers around `echarts-for-react`. Colors are unified in `src/utils/chartTheme.ts`.
+
+## Deployment
+
+Automated via GitHub Actions:
+
+- **Data**: `scrape.yml` runs weekly (Monday 03:00 UTC), validates and commits new data to `master`
+- **Site**: `deploy.yml` triggers on push to `master`, builds and deploys to GitHub Pages
+
+SPA routing is handled via `404.html` redirect + `index.html` restore script.
+
+## Data Source
+
+Motorcycle data is sourced from [xiaoxiongyouhao.com](https://www.xiaoxiongyouhao.com/), a community-driven fuel consumption reporting platform. Data is refreshed weekly via automated scraping.
 
 ## License
 
-MIT
+Private project. Data attribution: xiaoxiongyouhao.com.

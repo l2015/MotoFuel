@@ -31,26 +31,26 @@ async function fetchPage(levelId) {
       if (!res.ok) {
         console.error(`HTTP ${res.status} for level ${levelId}`)
         if (attempt < MAX_RETRIES) { await sleep(2000 * attempt); continue }
-        return []
+        return { rows: [], rejected: 0 }
       }
 
       const html = await res.text()
-      const rows = parsePage(html, levelId)
+      const result = parsePage(html, levelId)
 
-      if (rows.length === 0 && attempt < MAX_RETRIES) {
+      if (result.rows.length === 0 && attempt < MAX_RETRIES) {
         console.warn(`No data parsed for level ${levelId}, retrying...`)
         await sleep(2000 * attempt)
         continue
       }
 
-      return rows
+      return result
     } catch (e) {
       console.error(`Error fetching level ${levelId} (attempt ${attempt}):`, e.message)
       if (attempt < MAX_RETRIES) { await sleep(2000 * attempt); continue }
-      return []
+      return { rows: [], rejected: 0 }
     }
   }
-  return []
+  return { rows: [], rejected: 0 }
 }
 
 async function main() {
@@ -58,17 +58,30 @@ async function main() {
   const allData = []
   const displacements = []
   const failedLevels = []
+  let totalRejected = 0
 
   for (let i = 1; i <= TOTAL_LEVELS; i++) {
-    const rows = await fetchPage(i)
-    if (rows.length > 0) {
-      displacements.push(rows[0].displacement)
-      allData.push(...rows)
+    const result = await fetchPage(i)
+    if (result.rows.length > 0) {
+      displacements.push(result.rows[0].displacement)
+      allData.push(...result.rows)
+      totalRejected += result.rejected
     } else {
       failedLevels.push(i)
       console.warn(`WARNING: No data for level ${i}`)
     }
     if (i < TOTAL_LEVELS) await sleep(DELAY_MS)
+  }
+
+  // Health check: abort if >30% levels failed (major structural change)
+  const failRate = failedLevels.length / TOTAL_LEVELS
+  if (failRate > 0.3) {
+    console.error(`\nSCRAPER HEALTH CHECK FAILED`)
+    console.error(`Failed levels: ${failedLevels.length}/${TOTAL_LEVELS} (${(failRate * 100).toFixed(0)}%)`)
+    console.error(`Failed level IDs: ${failedLevels.join(', ')}`)
+    console.error(`This likely means the source website has changed its structure.`)
+    console.error(`Aborting to prevent writing bad data.`)
+    process.exit(1)
   }
 
   let globalRank = 1
@@ -77,6 +90,7 @@ async function main() {
   }
 
   console.log(`\nScraping complete: ${allData.length} models from ${displacements.length} displacement levels`)
+  console.log(`Rejected rows: ${totalRejected}`)
   if (failedLevels.length > 0) {
     console.warn(`Failed levels: ${failedLevels.join(', ')}`)
   }

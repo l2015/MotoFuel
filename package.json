@@ -1,6 +1,13 @@
 {
   "name": "motofuel",
   "version": "0.8.4",
+  "description": "Motorcycle fuel consumption analysis platform with interactive charts and multi-dimensional filtering",
+  "homepage": "https://l2015.github.io/MotoFuel/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/l2015/MotoFuel.git"
+  },
+  "license": "UNLICENSED",
   "private": true,
   "type": "module",
   "scripts": {
