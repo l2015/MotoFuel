@@ -1,7 +1,7 @@
 {
   "metadata": {
     "source": "xiaoxiongyouhao.com",
-    "scrapedAt": "2026-05-11T06:27:06.924Z",
+    "scrapedAt": "2026-05-18T06:42:30.845Z",
     "totalModels": 1777
   },
   "displacements": [
@@ -7621,7 +7621,7 @@
       "type": "街车",
       "displacement": 150,
       "consumption": 2.05,
-      "samples": 280,
+      "samples": 281,
       "rank": 6,
       "logoUrl": "https://cdn.xiaoxiongyouhao.com/models/900200/che_biao_180.jpg",
       "id": 691
