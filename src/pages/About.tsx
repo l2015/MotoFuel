@@ -37,7 +37,7 @@ export default function About() {
         </p>
         <div className="flex flex-wrap gap-3 mt-4">
           <a
-            href="https://www.xiaoxiongyouhao.com/page_app.php"
+            href="https://www.xiaoxiongyouhao.com/app_download"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-[13px] font-semibold rounded-lg hover:opacity-90 transition-opacity no-underline"
@@ -48,7 +48,7 @@ export default function About() {
             {t('about.downloadApp')}
           </a>
           <a
-            href="https://www.xiaoxiongyouhao.com/page_rank_chexi_moto.php"
+            href="https://www.xiaoxiongyouhao.com/rank_moto"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-5 py-2.5 border border-primary text-primary text-[13px] font-semibold rounded-lg hover:bg-primary/5 transition-colors no-underline"

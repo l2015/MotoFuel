@@ -5,7 +5,9 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const BASE_URL = 'https://www.xiaoxiongyouhao.com/page_rank_chexi_moto/byDisplacementLvl'
+// 源站已把 /page_rank_chexi_moto/... 301 迁移到 /rank_moto/...，这里直接使用新地址，
+// 避免依赖 node-fetch 的自动重定向（多一跳，且站点若取消重定向会直接断掉）。
+const BASE_URL = 'https://www.xiaoxiongyouhao.com/rank_moto/byDisplacementLvl'
 const TOTAL_LEVELS = 18
 const DELAY_MS = 1000
 const MAX_RETRIES = 3

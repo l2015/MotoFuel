@@ -18,7 +18,7 @@ export default function Footer({ scrapeTime }: Props) {
             <p className="text-[13px] text-text-secondary leading-relaxed">
               {t('footer.dataSource')}
               <a
-                href="https://www.xiaoxiongyouhao.com/page_rank_chexi_moto.php"
+                href="https://www.xiaoxiongyouhao.com/rank_moto"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline font-medium"
