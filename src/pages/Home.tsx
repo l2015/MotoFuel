@@ -13,35 +13,51 @@ interface Props {
 
 type TabKey = 'brand' | 'model' | 'type'
 
-function useAnimatedCounter(target: number, duration = 1200, decimals = 0) {
+interface AnimatedNumberProps {
+  target: number
+  decimals?: number
+  grouping?: boolean
+  className?: string
+}
+
+/**
+ * 数字滚动组件：IntersectionObserver 进入视口时从 0 递增到 target。
+ * 之前是一个 hook 同时返回 ref 和 value，会让值在 render 期被读取而触发
+ * react-hooks/refs；改成组件后 ref 只在自身 effect 内部使用。
+ */
+function AnimatedNumber({ target, decimals = 0, grouping = false, className }: AnimatedNumberProps) {
   const [value, setValue] = useState(0)
   const ref = useRef<HTMLSpanElement>(null)
   const animated = useRef(false)
+  const duration = 1200
 
   useEffect(() => {
     const el = ref.current
     if (!el) return
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !animated.current) {
-          animated.current = true
-          const start = performance.now()
-          const step = (now: number) => {
-            const progress = Math.min((now - start) / duration, 1)
-            const eased = 1 - Math.pow(1 - progress, 3)
-            setValue(Number((eased * target).toFixed(decimals)))
-            if (progress < 1) requestAnimationFrame(step)
-          }
-          requestAnimationFrame(step)
+        if (!entry.isIntersecting || animated.current) return
+        animated.current = true
+        const start = performance.now()
+        const step = (now: number) => {
+          const progress = Math.min((now - start) / duration, 1)
+          const eased = 1 - Math.pow(1 - progress, 3)
+          setValue(Number((eased * target).toFixed(decimals)))
+          if (progress < 1) requestAnimationFrame(step)
         }
+        requestAnimationFrame(step)
       },
       { threshold: 0.3 }
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [target, duration, decimals])
+  }, [target, decimals])
 
-  return { ref, value }
+  return (
+    <span ref={ref} className={className}>
+      {grouping ? Math.round(value).toLocaleString() : value.toFixed(decimals)}
+    </span>
+  )
 }
 
 export default function Home({ data }: Props) {
@@ -79,11 +95,6 @@ export default function Home({ data }: Props) {
       .sort((a, b) => b.samples - a.samples)
   }, [data])
 
-  // Animated counters
-  const stat1 = useAnimatedCounter(summary.lowestConsumption?.consumption ?? 0, 1200, 1)
-  const stat2 = useAnimatedCounter(summary.totalBrands, 1200)
-  const stat3 = useAnimatedCounter(summary.totalModels, 1200)
-  const stat4 = useAnimatedCounter(summary.totalSamples, 1200)
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -103,33 +114,25 @@ export default function Home({ data }: Props) {
       {/* KEY STATS BAR */}
       <div className="grid grid-cols-2 md:grid-cols-4 border-t-2 border-t-text border-b border-b-border mb-8">
         <div className="py-5 text-center border-r border-b border-r-border border-b-border md:border-b-0">
-          <span ref={stat1.ref} className="font-serif text-[32px] md:text-[42px] font-black text-text leading-none">
-            {stat1.value.toFixed(1)}
-          </span>
+          <AnimatedNumber target={summary.lowestConsumption?.consumption ?? 0} decimals={1} className="font-serif text-[32px] md:text-[42px] font-black text-text leading-none" />
           <div className="text-[10px] md:text-[11px] font-semibold text-text-tertiary uppercase tracking-[0.1em] mt-1.5">
             {t('home.stat.lowestConsumption')} L/100km
           </div>
         </div>
         <div className="py-5 text-center border-b border-b-border md:border-r md:border-r-border md:border-b-0">
-          <span ref={stat2.ref} className="font-serif text-[32px] md:text-[42px] font-black text-text leading-none">
-            {Math.round(stat2.value).toLocaleString()}
-          </span>
+          <AnimatedNumber target={summary.totalBrands} grouping className="font-serif text-[32px] md:text-[42px] font-black text-text leading-none" />
           <div className="text-[10px] md:text-[11px] font-semibold text-text-tertiary uppercase tracking-[0.1em] mt-1.5">
             {t('home.stat.totalBrands')}
           </div>
         </div>
         <div className="py-5 text-center border-r border-r-border">
-          <span ref={stat3.ref} className="font-serif text-[32px] md:text-[42px] font-black text-text leading-none">
-            {Math.round(stat3.value).toLocaleString()}
-          </span>
+          <AnimatedNumber target={summary.totalModels} grouping className="font-serif text-[32px] md:text-[42px] font-black text-text leading-none" />
           <div className="text-[10px] md:text-[11px] font-semibold text-text-tertiary uppercase tracking-[0.1em] mt-1.5">
             {t('home.stat.totalModels')}
           </div>
         </div>
         <div className="py-5 text-center">
-          <span ref={stat4.ref} className="font-serif text-[32px] md:text-[42px] font-black text-text leading-none">
-            {Math.round(stat4.value).toLocaleString()}
-          </span>
+          <AnimatedNumber target={summary.totalSamples} grouping className="font-serif text-[32px] md:text-[42px] font-black text-text leading-none" />
           <div className="text-[10px] md:text-[11px] font-semibold text-text-tertiary uppercase tracking-[0.1em] mt-1.5">
             {t('home.stat.totalSamples')}
           </div>

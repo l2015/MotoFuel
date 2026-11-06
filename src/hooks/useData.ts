@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import type { Motorcycle, MotorcycleData, FilterState } from '../types'
 
 const DEFAULT_FILTER: FilterState = {
@@ -103,12 +103,14 @@ export function useFilter(data: Motorcycle[]) {
     [data]
   )
 
-  const updateFilter = (partial: Partial<FilterState>) => {
+  const updateFilter = useCallback((partial: Partial<FilterState>) => {
     setFilter(prev => ({ ...prev, ...partial }))
-  }
+  }, [])
 
-  const resetFilter = () =>
-    setFilter({ ...DEFAULT_FILTER, consumptionRange: [0, bounds.maxConsumption] })
+  const resetFilter = useCallback(
+    () => setFilter({ ...DEFAULT_FILTER, consumptionRange: [0, bounds.maxConsumption] }),
+    [bounds.maxConsumption]
+  )
 
   const filtered = useFilteredData(data, filter)
 

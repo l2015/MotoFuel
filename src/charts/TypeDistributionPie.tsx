@@ -18,7 +18,7 @@ export default function TypeDistributionPie({ data, typeSamplesMap, onTypeClick 
       backgroundColor: CHART_TOOLTIP.backgroundColor,
       borderColor: CHART_TOOLTIP.borderColor,
       textStyle: CHART_TOOLTIP.textStyle,
-      formatter: (p: any) => {
+      formatter: (p: { name: string; value: number; percent: number }) => {
         const samples = typeSamplesMap?.get(p.name) || 0
         const base = `${p.name}: ${p.value}${t('chart.tooltip.modelsPercent', { percent: p.percent })}`
         return typeSamplesMap ? `${base}<br/>${t('chart.tooltip.sampleCount', { count: samples.toLocaleString() })}` : base
@@ -42,7 +42,7 @@ export default function TypeDistributionPie({ data, typeSamplesMap, onTypeClick 
       label: {
         fontSize: 11,
         color: CHART_AXIS.label,
-        formatter: (p: any) => p.percent >= 4 ? `${p.name}\n${p.percent}%` : '',
+        formatter: (p: { name: string; percent: number }) => p.percent >= 4 ? `${p.name}\n${p.percent}%` : '',
         lineHeight: 15,
       },
       labelLine: {
@@ -59,10 +59,10 @@ export default function TypeDistributionPie({ data, typeSamplesMap, onTypeClick 
   const onEvents = useMemo(() => {
     if (!onTypeClick) return undefined
     return {
-      click: (params: any) => {
+      click: (params: { name?: string }) => {
         if (params.name) onTypeClick(params.name)
       },
-    } as Record<string, (params: any) => void>
+    } as Record<string, (params: { name?: string }) => void>
   }, [onTypeClick])
 
   return <ReactECharts option={option} style={{ height: 320 }} onEvents={onEvents} />

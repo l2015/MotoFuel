@@ -18,7 +18,7 @@ export default function BrandRankBar({ data, brandSamplesMap, onBrandClick }: Pr
       trigger: 'axis' as const,
       axisPointer: { type: 'shadow' as const },
       ...CHART_TOOLTIP,
-      formatter: (p: any) => {
+      formatter: (p: { dataIndex?: number }[]) => {
         const idx = p[0]?.dataIndex ?? 0
         const item = items[idx]
         if (!item) return ''
@@ -58,11 +58,11 @@ export default function BrandRankBar({ data, brandSamplesMap, onBrandClick }: Pr
   const onEvents = useMemo(() => {
     if (!onBrandClick) return undefined
     return {
-      click: (params: any) => {
+      click: (params: { dataIndex: number }) => {
         const brand = items[params.dataIndex]?.brand
         if (brand) onBrandClick(brand)
       },
-    } as Record<string, (params: any) => void>
+    } as Record<string, (params: { dataIndex: number }) => void>
   }, [items, onBrandClick])
 
   return (

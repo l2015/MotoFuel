@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import type { Motorcycle } from '../types'
+import type { Motorcycle, FilterState } from '../types'
 import { useFilter } from '../hooks/useData'
 import { formatScrapeTime } from '../utils/formatDate'
 import FilterBar from '../components/FilterBar'
@@ -20,23 +20,26 @@ export default function Ranking({ data, scrapeTime }: Props) {
 
   const formattedTime = scrapeTime ? formatScrapeTime(scrapeTime, i18n.language) : null
 
+  // 深链参数：?brand= / ?type= / ?minSamples= 进入页面时消费一次。
+  // 依赖 searchParams 而不是空数组，这样在同一路由内后再点品牌跳转也能生效
+  // （原先 deps 为 []，只有首次挂载会读取参数）。
   useEffect(() => {
     const brand = searchParams.get('brand')
-    if (brand && brands.includes(brand)) {
-      updateFilter({ brands: [brand] })
-      setSearchParams({}, { replace: true })
-    }
     const type = searchParams.get('type')
-    if (type && types.includes(type)) {
-      updateFilter({ types: [type] })
-      setSearchParams({}, { replace: true })
-    }
     const minSamples = searchParams.get('minSamples')
+    if (!brand && !type && !minSamples) return
+
+    const patch: Partial<FilterState> = {}
+    if (brand && brands.includes(brand)) patch.brands = [brand]
+    if (type && types.includes(type)) patch.types = [type]
     if (minSamples) {
-      updateFilter({ minSamples: parseInt(minSamples) })
-      setSearchParams({}, { replace: true })
+      const value = parseInt(minSamples, 10)
+      if (!Number.isNaN(value)) patch.minSamples = value
     }
-  }, [])
+    if (Object.keys(patch).length > 0) updateFilter(patch)
+    // 参数已消费，清掉以免刷新后重复叠加
+    setSearchParams({}, { replace: true })
+  }, [searchParams, brands, types, updateFilter, setSearchParams])
 
   return (
     <div className="max-w-4xl mx-auto">

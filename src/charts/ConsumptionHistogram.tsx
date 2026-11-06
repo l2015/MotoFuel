@@ -15,7 +15,7 @@ export default function ConsumptionHistogram({ data }: Props) {
       trigger: 'axis' as const,
       axisPointer: { type: 'shadow' as const },
       ...CHART_TOOLTIP,
-      formatter: (p: any) => {
+      formatter: (p: { dataIndex?: number }[]) => {
         const idx = p[0]?.dataIndex ?? 0
         const d = data[idx]
         if (!d) return ''

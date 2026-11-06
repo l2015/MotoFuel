@@ -3,6 +3,14 @@ import { useTranslation } from 'react-i18next'
 import ReactECharts from 'echarts-for-react'
 import { CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
 
+/** hex -> rgba，模块级定义，避免每次渲染都新建函数导致 useMemo 失效 */
+function rgba(hex: string, a: number): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r},${g},${b},${a})`
+}
+
 interface DataPoint {
   displacement: number
   avg: number
@@ -21,12 +29,6 @@ export default function ConsumptionTrendLine({ data, mode }: Props) {
 
   const values = useMemo(() => data.map(d => mode === 'simple' ? d.avg : d.weightedAvg), [data, mode])
   const lineColor = mode === 'weighted' ? '#0d9488' : '#ff6b35'
-  const rgba = (hex: string, a: number) => {
-    const r = parseInt(hex.slice(1, 3), 16)
-    const g = parseInt(hex.slice(3, 5), 16)
-    const b = parseInt(hex.slice(5, 7), 16)
-    return `rgba(${r},${g},${b},${a})`
-  }
 
   const option = useMemo(() => ({
     tooltip: {
@@ -34,7 +36,7 @@ export default function ConsumptionTrendLine({ data, mode }: Props) {
       backgroundColor: CHART_TOOLTIP.backgroundColor,
       borderColor: CHART_TOOLTIP.borderColor,
       textStyle: CHART_TOOLTIP.textStyle,
-      formatter: (p: any) => {
+      formatter: (p: { dataIndex?: number }[]) => {
         const idx = p[0]?.dataIndex ?? 0
         const d = data[idx]
         const val = mode === 'simple' ? d.avg : d.weightedAvg
@@ -82,7 +84,7 @@ export default function ConsumptionTrendLine({ data, mode }: Props) {
         },
       },
     }],
-  }), [data, mode, t, values, lineColor, rgba])
+  }), [data, mode, t, values, lineColor])
 
   return <ReactECharts option={option} style={{ height: 260 }} />
 }

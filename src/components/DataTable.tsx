@@ -12,6 +12,25 @@ interface DataTableProps {
 type SortKey = 'rank' | 'brand' | 'series' | 'type' | 'displacement' | 'consumption' | 'samples'
 type SortDir = 'asc' | 'desc'
 
+/** 排序图标：定义在模块作用域，避免每次渲染都重建组件类型 */
+function SortIcon({ k, sortKey, sortDir }: { k: SortKey; sortKey: SortKey; sortDir: SortDir }) {
+  if (sortKey !== k) return (
+    <svg className="w-3 h-3 ml-0.5 inline text-border" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+    </svg>
+  )
+  if (sortDir === 'asc') return (
+    <svg className="w-3 h-3 ml-0.5 inline text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+    </svg>
+  )
+  return (
+    <svg className="w-3 h-3 ml-0.5 inline text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  )
+}
+
 export default function DataTable({ data, showDisplacement = false, showBar = false }: DataTableProps) {
   const { t } = useTranslation()
   const [sortKey, setSortKey] = useState<SortKey>('consumption')
@@ -54,24 +73,6 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
     else { setSortKey(key); setSortDir('asc') }
   }
 
-  const SortIcon = ({ k }: { k: SortKey }) => {
-    if (sortKey !== k) return (
-      <svg className="w-3 h-3 ml-0.5 inline text-border" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-      </svg>
-    )
-    if (sortDir === 'asc') return (
-      <svg className="w-3 h-3 ml-0.5 inline text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
-      </svg>
-    )
-    return (
-      <svg className="w-3 h-3 ml-0.5 inline text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-      </svg>
-    )
-  }
-
   if (data.length === 0) {
     return <div className="text-center py-12 text-text-secondary">{t('table.noData')}</div>
   }
@@ -83,27 +84,27 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
           <thead>
             <tr className="border-b-2 border-b-text">
               <th className="px-3 py-2.5 text-left w-10 sm:w-14 cursor-pointer hover:text-primary hidden sm:table-cell text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('rank')}>
-                {t('table.header.rank')}<SortIcon k="rank" />
+                {t('table.header.rank')}<SortIcon k="rank" sortKey={sortKey} sortDir={sortDir} />
               </th>
               <th className="px-2 sm:px-3 py-2.5 text-left w-[72px] sm:w-24 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('brand')}>
-                {t('table.header.brand')}<SortIcon k="brand" />
+                {t('table.header.brand')}<SortIcon k="brand" sortKey={sortKey} sortDir={sortDir} />
               </th>
               <th className="px-2 sm:px-3 py-2.5 text-left cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('series')}>
-                {t('table.header.series')}<SortIcon k="series" />
+                {t('table.header.series')}<SortIcon k="series" sortKey={sortKey} sortDir={sortDir} />
               </th>
               <th className="hidden sm:table-cell px-3 py-2.5 text-left w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('type')}>
-                {t('table.header.type')}<SortIcon k="type" />
+                {t('table.header.type')}<SortIcon k="type" sortKey={sortKey} sortDir={sortDir} />
               </th>
               {showDisplacement && (
                 <th className="px-1.5 sm:px-3 py-2.5 text-left w-14 sm:w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('displacement')}>
-                  {t('table.header.displacement')}<SortIcon k="displacement" />
+                  {t('table.header.displacement')}<SortIcon k="displacement" sortKey={sortKey} sortDir={sortDir} />
                 </th>
               )}
               <th className="px-2 sm:px-3 py-2.5 text-right w-20 sm:w-44 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('consumption')}>
-                {t('table.header.consumption')}<SortIcon k="consumption" />
+                {t('table.header.consumption')}<SortIcon k="consumption" sortKey={sortKey} sortDir={sortDir} />
               </th>
               <th className="px-2 sm:px-3 py-2.5 text-right w-14 sm:w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('samples')}>
-                {t('table.header.samples')}<SortIcon k="samples" />
+                {t('table.header.samples')}<SortIcon k="samples" sortKey={sortKey} sortDir={sortDir} />
               </th>
             </tr>
           </thead>

@@ -17,7 +17,9 @@ function loadSavedFilter(): { selectedBrands: string[]; minBrandSamples: number 
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY)
     if (raw) return JSON.parse(raw)
-  } catch {}
+  } catch {
+    // 忽略损坏或不可用的 sessionStorage 数据，回退到默认筛选
+  }
   return null
 }
 

@@ -28,6 +28,30 @@ interface ZoomStats {
   worst: { brand: string; series: string; consumption: number } | null
 }
 
+interface ScatterPoint {
+  _brand: string
+  _series: string
+  _samples: number
+  _disp: number
+}
+
+interface ScatterClickParams {
+  data?: ScatterPoint
+  value?: (number | string)[]
+  seriesName?: string
+  event?: { offsetX?: number; offsetY?: number }
+}
+
+interface DataZoomParams {
+  batch?: { start?: number; end?: number }[]
+  start?: number
+  end?: number
+}
+
+interface LegendChangeParams {
+  selected?: Record<string, boolean>
+}
+
 export default function Explorer({ data }: Props) {
   const { t } = useTranslation()
   const chartRef = useRef<ReactECharts>(null)
@@ -191,9 +215,9 @@ export default function Explorer({ data }: Props) {
     return () => observer.disconnect()
   }, [])
 
-  const onChartClick = useCallback((params: any) => {
-    if (!params.data?._brand) return
+  const onChartClick = useCallback((params: ScatterClickParams) => {
     const d = params.data
+    if (!d) return
     const disp = d._disp
     const key = `${d._brand}|${d._series}|${disp}`
     const rank = dispRankMap.map.get(key) ?? 0
@@ -205,15 +229,15 @@ export default function Explorer({ data }: Props) {
       brand: d._brand,
       series: d._series,
       displacement: disp,
-      consumption: params.value[1],
+      consumption: Number(params.value?.[1] ?? 0),
       samples: d._samples,
-      type: params.seriesName,
+      type: params.seriesName ?? '',
       rank,
       total,
     })
   }, [dispRankMap])
 
-  const onDataZoom = useCallback((params: any) => {
+  const onDataZoom = useCallback((params: DataZoomParams) => {
     const chart = chartRef.current?.getEchartsInstance()
     if (!chart) return
 
@@ -224,7 +248,7 @@ export default function Explorer({ data }: Props) {
       endPercent = params.batch[0].end ?? 100
     } else if (params.start !== undefined) {
       startPercent = params.start
-      endPercent = params.end
+      endPercent = params.end ?? 100
     }
 
     const total = allDisplacements.length
@@ -245,10 +269,10 @@ export default function Explorer({ data }: Props) {
     })
   }, [allDisplacements, filteredData])
 
-  const onLegendChange = useCallback((params: any) => {
+  const onLegendChange = useCallback((params: LegendChangeParams) => {
     const selected = params?.selected
     if (!selected) return
-    const deselected = Object.entries(selected).find(([_, v]) => !v)?.[0]
+    const deselected = Object.entries(selected).find(([, isSelected]) => !isSelected)?.[0]
     setHighlightType(prev => prev === deselected ? null : deselected || null)
   }, [])
 
@@ -288,7 +312,7 @@ export default function Explorer({ data }: Props) {
         },
         label: {
           show: !isDimmed,
-          formatter: (p: any) => `{a|${p.data._brand}} {b|${p.data._series}}`,
+          formatter: (p: { data: ScatterPoint }) => `{a|${p.data._brand}} {b|${p.data._series}}`,
           position: 'right',
           distance: 8,
           rich: {
@@ -304,7 +328,7 @@ export default function Explorer({ data }: Props) {
           itemStyle: { borderWidth: 2, shadowBlur: 8, shadowColor: color },
           label: {
             show: true,
-            formatter: (p: any) => `${p.data._brand} ${p.data._series}  ${p.data._disp}cc  ${p.value[1]}L  (${p.data._samples} ${t('explorer.detail.samples')})`,
+            formatter: (p: { data: ScatterPoint; value: (number | string)[] }) => `${p.data._brand} ${p.data._series}  ${p.data._disp}cc  ${p.value[1]}L  (${p.data._samples} ${t('explorer.detail.samples')})`,
             fontSize: 13,
             color: CHART_TOOLTIP.textStyle.color,
             backgroundColor: CHART_TOOLTIP.backgroundColor,
@@ -331,11 +355,12 @@ export default function Explorer({ data }: Props) {
       tooltip: {
         trigger: 'item' as const,
         ...CHART_TOOLTIP,
-        formatter: (p: any) => {
+        formatter: (p: ScatterClickParams) => {
           const d = p.data
+          if (!d) return ''
           return `<div style="font-weight:600;margin-bottom:4px">${d._brand} ${d._series}</div>
             <div>${t('explorer.tooltip.displacement')}: ${d._disp}cc</div>
-            <div>${t('explorer.tooltip.consumption')}: ${p.value[1]} L/100km</div>
+            <div>${t('explorer.tooltip.consumption')}: ${p.value?.[1] ?? ''} L/100km</div>
             <div>${t('explorer.tooltip.sampleCount')}: ${d._samples}</div>
             <div>${t('explorer.tooltip.type')}: ${p.seriesName}</div>`
         },
@@ -469,8 +494,8 @@ export default function Explorer({ data }: Props) {
           <div
             className="absolute bg-surface border border-border p-3 z-50 min-w-[180px]"
             style={{
-              left: Math.min(clickDetail.x + 12, (containerRef.current?.clientWidth ?? 800) - 220),
-              top: Math.min(clickDetail.y + 12, (containerRef.current?.clientHeight ?? 600) - 200),
+              left: Math.min(clickDetail.x + 12, (chartSize.width || 800) - 220),
+              top: Math.min(clickDetail.y + 12, (chartSize.height || 600) - 200),
               boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
             }}
             onClick={e => e.stopPropagation()}
