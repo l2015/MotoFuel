@@ -12,6 +12,10 @@ permissions:
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    # 邮件通知步骤用 env.SMTP_HOST 判断是否已配置；此前该变量从未定义，
+    # 导致 `if: failure() && env.SMTP_HOST != ''` 恒为 false，告警永远不会发出。
+    env:
+      SMTP_HOST: ${{ secrets.SMTP_HOST }}
     steps:
       - uses: actions/checkout@v4
 
