@@ -7,7 +7,6 @@ export interface Motorcycle {
   consumption: number
   samples: number
   rank: number
-  logoUrl: string
 }
 
 export interface MotorcycleData {

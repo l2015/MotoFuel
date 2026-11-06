@@ -31,9 +31,8 @@ export function parsePage(html, levelId) {
   const mapped = rawRows.map(row => {
     const [rank, imgHtml, brand, series, type, consumption, samples] = row
 
-    let logoModelId = ''
-    const imgMatch = String(imgHtml).match(/models\/(\d+)\//)
-    if (imgMatch) logoModelId = imgMatch[1]
+    // 图片列只用于取 logo，前端从未渲染，已不再输出
+    void imgHtml
 
     return {
       brand: String(brand).trim(),
@@ -43,9 +42,6 @@ export function parsePage(html, levelId) {
       consumption: parseFloat(consumption),
       samples: parseInt(samples, 10),
       rank: parseInt(rank, 10),
-      logoUrl: logoModelId
-        ? `https://cdn.xiaoxiongyouhao.com/models/${logoModelId}/che_biao_180.jpg`
-        : '',
     }
   })
 

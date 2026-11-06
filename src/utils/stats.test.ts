@@ -22,7 +22,6 @@ function makeMoto(partial: Partial<Motorcycle> = {}): Motorcycle {
     consumption: 2.5,
     samples: 100,
     rank: 1,
-    logoUrl: '',
     ...partial,
   }
 }
