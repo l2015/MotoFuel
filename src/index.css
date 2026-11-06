@@ -16,9 +16,12 @@
   --color-accent-red: #fd5750;
   --color-accent-blue: #2563eb;
   --color-accent-amber: #d97706;
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
-  --font-serif: "Playfair Display", "Noto Serif SC", "Songti SC", serif;
-  --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
+  /* 系统字体栈：此前声明了 Playfair Display / Noto Serif SC / Inter / JetBrains Mono，
+     但 index.html 只加载了 Inter（且只被 --font-sans 使用），衬线体实际一直回退到宋体。
+     改为系统栈后无外链、无 FOIT，中文衬线在各平台都有可用字形。 */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --font-serif: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;
+  --font-mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, "Courier New", monospace;
 }
 
 body {
