@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- iOS「添加到主屏幕」只认 apple-touch-icon，缺了它会退化成网页截图 -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/favicon.svg" color="#ff6b35" />
     <!-- 不引第三方字体：Google Fonts 在中国大陆不可达且会阻塞首屏，改用系统字体栈 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MotoFuel - 摩托车油耗分析</title>
@@ -70,7 +73,7 @@
     <!-- Sitemap -->
     <link rel="sitemap" type="application/xml" href="/MotoFuel/sitemap.xml" />
 
-    <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- manifest 由 vite-plugin-pwa 自动注入，这里不要再手写，否则 dist 里会出现两条 -->
   </head>
   <body>
     <div id="root"></div>

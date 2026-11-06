@@ -58,12 +58,20 @@ export default defineConfig({
         name: 'MotoFuel 摩托车油耗分析',
         short_name: 'MotoFuel',
         description: '摩托车油耗数据分析平台 - 跨排量油耗排行、品牌对比和可视化分析',
-        theme_color: '#f8fafc',
-        background_color: '#f8fafc',
+        lang: 'zh-CN',
+        theme_color: '#fffef9',
+        background_color: '#fffef9',
         display: 'standalone',
         icons: [
-          { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          // Android 自适应图标需要 maskable：内容留在中心安全区内，由系统裁圆/裁圆角
+          {
+            src: 'icons/icon-maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
         ],
       },
       workbox: {

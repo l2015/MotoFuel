@@ -33,3 +33,6 @@ scraper/node_modules
 
 # Claude
 .claude/
+
+# 本地备份（原文件存档，不入库）
+backups/
