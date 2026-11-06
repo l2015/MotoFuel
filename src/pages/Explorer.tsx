@@ -138,63 +138,53 @@ export default function Explorer({ data }: Props) {
 
   const activeFilterCount = selectedBrands.length + (highlightType ? 1 : 0) + (minSamples > 0 ? 1 : 0)
 
-  const doZoom = useCallback((items: Motorcycle[]) => {
-    try {
-      const chart = chartRef.current?.getEchartsInstance()
-      if (!chart || items.length === 0) return
-      if (!chart.getWidth() || !chart.getHeight()) return
+  // 缩放窗口完全由当前筛选派生（null = 全量视图）。
+  // 之前是命令式 setOption 改 yAxis，而 option 里又写死 min:0 且组件用了 notMerge，
+  // 于是任何一次重渲染（悬停高亮、切图例）都会把 y 轴缩放打回原形。
+  const zoomWindow = useMemo(() => {
+    const isFiltered = highlightType !== null || selectedBrands.length > 0 || minSamples > 0
+    const items = highlightType
+      ? filteredData.filter(d => d.type === highlightType)
+      : filteredData
+    if (!isFiltered || items.length === 0) return null
 
-      const disps = [...new Set(items.map(d => d.displacement))]
-      const dispIndices = disps.map(d => allDisplacements.indexOf(d)).filter(i => i >= 0)
-      const total = allDisplacements.length
-      if (dispIndices.length === 0 || total === 0) return
+    let yMin = Infinity
+    let yMax = -Infinity
+    for (const d of items) {
+      if (d.consumption < yMin) yMin = d.consumption
+      if (d.consumption > yMax) yMax = d.consumption
+    }
+    const yPad = Math.max(0.5, (yMax - yMin) * 0.25)
 
-      const xMin = Math.min(...dispIndices)
-      const xMax = Math.max(...dispIndices)
-      const pad = Math.max(2, Math.round((xMax - xMin) * 0.3))
-      const start = Math.max(0, ((xMin - pad) / total) * 100)
-      const end = Math.min(100, ((xMax + 1 + pad) / total) * 100)
+    const total = allDisplacements.length
+    const dispIndices = [...new Set(items.map(d => d.displacement))]
+      .map(disp => allDisplacements.indexOf(disp))
+      .filter(i => i >= 0)
+    if (dispIndices.length === 0 || total === 0) return null
 
-      const consumptions = items.map(d => d.consumption)
-      const yMin = Math.min(...consumptions)
-      const yMax = Math.max(...consumptions)
-      const yPad = Math.max(0.5, (yMax - yMin) * 0.25)
+    const xMin = Math.min(...dispIndices)
+    const xMax = Math.max(...dispIndices)
+    const xPad = Math.max(2, Math.round((xMax - xMin) * 0.3))
 
-      chart.setOption({
-        yAxis: { min: Math.max(0, yMin - yPad), max: yMax + yPad },
-        series: allTypes.map(() => ({})),
-      })
-      chart.dispatchAction({ type: 'dataZoom', start, end })
-    } catch (e) { console.warn('Chart not ready:', e) }
-  }, [allDisplacements, allTypes])
+    return {
+      yMin: Math.max(0, yMin - yPad),
+      yMax: yMax + yPad,
+      start: Math.max(0, ((xMin - xPad) / total) * 100),
+      end: Math.min(100, ((xMax + 1 + xPad) / total) * 100),
+    }
+  }, [filteredData, highlightType, selectedBrands.length, minSamples, allDisplacements])
 
-  const resetZoom = useCallback(() => {
-    try {
-      const chart = chartRef.current?.getEchartsInstance()
-      if (!chart || !chart.getWidth() || !chart.getHeight()) return
-      chart.setOption({ yAxis: { min: 0, max: undefined } })
-      chart.dispatchAction({ type: 'dataZoom', start: 0, end: 100 })
-    } catch (e) { console.warn('Chart not ready:', e) }
-  }, [])
-
+  // x 轴缩放的唯一入口：只在缩放窗口变化时派发一次，避免和用户手动缩放互相覆盖
   useEffect(() => {
     if (initRef.current) { initRef.current = false; return }
-    if (highlightType) {
-      const items = filteredData.filter(d => d.type === highlightType)
-      if (items.length > 0) doZoom(items)
-    } else if (selectedBrands.length === 0 && minSamples === 0) {
-      resetZoom()
-    }
-  }, [highlightType, filteredData, doZoom, resetZoom, selectedBrands.length, minSamples])
-
-  useEffect(() => {
-    if (initRef.current) return
-    if ((selectedBrands.length > 0 || minSamples > 0) && filteredData.length > 0) {
-      doZoom(filteredData)
-    } else if (selectedBrands.length === 0 && minSamples === 0 && !highlightType) {
-      resetZoom()
-    }
-  }, [selectedBrands, minSamples, filteredData, doZoom, resetZoom, highlightType])
+    const chart = chartRef.current?.getEchartsInstance()
+    if (!chart) return
+    chart.dispatchAction({
+      type: 'dataZoom',
+      start: zoomWindow ? zoomWindow.start : 0,
+      end: zoomWindow ? zoomWindow.end : 100,
+    })
+  }, [zoomWindow])
 
   useEffect(() => {
     if (!clickDetail) return
@@ -385,7 +375,8 @@ export default function Explorer({ data }: Props) {
         axisLabel: { fontSize: 12, color: CHART_AXIS.label },
         axisLine: { lineStyle: { color: CHART_AXIS.line } },
         splitLine: { lineStyle: { color: CHART_AXIS.splitLine } },
-        min: 0,
+        min: zoomWindow ? zoomWindow.yMin : 0,
+        max: zoomWindow ? zoomWindow.yMax : undefined,
       },
       dataZoom: [
         { type: 'inside' as const, xAxisIndex: 0 },
@@ -403,7 +394,7 @@ export default function Explorer({ data }: Props) {
       },
       series,
     }
-  }, [filteredData, allTypes, typeColorMap, highlightType, allDisplacements, dispLabels, sampleStats, t])
+  }, [filteredData, allTypes, typeColorMap, highlightType, allDisplacements, dispLabels, sampleStats, zoomWindow, t])
 
   const chartEvents = useMemo(() => ({
     click: onChartClick,
@@ -422,7 +413,7 @@ export default function Explorer({ data }: Props) {
             {filterOpen ? t('filter.collapse') : `${t('filter.titleShort')}${activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}`}
           </button>
           {(selectedBrands.length > 0 || highlightType || minSamples > 0) && (
-            <button onClick={() => { setSelectedBrands([]); setHighlightType(null); setMinSamples(0); resetZoom(); setZoomStats(null) }}
+            <button onClick={() => { setSelectedBrands([]); setHighlightType(null); setMinSamples(0); setZoomStats(null) }}
               className="text-xs text-accent-red hover:underline">{t('explorer.clearFilters')}</button>
           )}
         </div>
@@ -486,7 +477,7 @@ export default function Explorer({ data }: Props) {
 
       <div className="flex-1 min-h-0 relative" ref={containerRef}>
         {chartSize.height > 0 && (
-          <ReactECharts ref={chartRef} option={option} style={{ width: chartSize.width, height: chartSize.height }} notMerge onEvents={chartEvents} />
+          <ReactECharts ref={chartRef} option={option} style={{ width: chartSize.width, height: chartSize.height }} onEvents={chartEvents} />
         )}
 
         {/* Click detail popup */}
