@@ -1,5 +1,6 @@
 import fetch from 'node-fetch'
 import { parsePage } from './parser.js'
+import { loadPreviousDataset, validateAgainstPrevious } from './validate.js'
 import { writeFileSync, mkdirSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
@@ -103,6 +104,9 @@ async function main() {
     process.exit(1)
   }
 
+  const outDir = join(__dirname, '..', 'public', 'data')
+  const outPath = join(outDir, 'motorcycles.json')
+
   const output = {
     metadata: {
       source: 'xiaoxiongyouhao.com',
@@ -113,9 +117,30 @@ async function main() {
     data: allData,
   }
 
-  const outDir = join(__dirname, '..', 'public', 'data')
+  // 写入前回归校验：与仓库里上一版数据对比，避免源站改版时静默写入残缺数据
+  const previous = loadPreviousDataset(outPath)
+  const { problems, stats, skipped } = validateAgainstPrevious(previous, output, displacements)
+  if (skipped) {
+    console.log('未找到上一版数据，跳过回归校验（首次运行）')
+  } else {
+    console.log(
+      `与上一版对比: 新增 ${stats.added} | 消失 ${stats.removed} | 数值变化 ${stats.changed}`
+    )
+  }
+
+  if (problems.length > 0) {
+    console.error('\n数据回归校验失败，已中止写入：')
+    for (const problem of problems) {
+      console.error(`  - ${problem}`)
+    }
+    if (process.env.SKIP_REGRESSION_CHECK !== '1') {
+      console.error('\n如确认源站确实下架了这些车型，可用 SKIP_REGRESSION_CHECK=1 重新运行。')
+      process.exit(1)
+    }
+    console.warn('\nSKIP_REGRESSION_CHECK=1，忽略上述问题继续写入。')
+  }
+
   mkdirSync(outDir, { recursive: true })
-  const outPath = join(outDir, 'motorcycles.json')
   writeFileSync(outPath, JSON.stringify(output, null, 2), 'utf-8')
   console.log(`Done! ${allData.length} models saved to ${outPath}`)
 }
