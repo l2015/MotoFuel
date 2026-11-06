@@ -22,6 +22,32 @@ function PageFallback() {
   )
 }
 
+/**
+ * 数据加载骨架：数据文件 353KB，弱网下要等一会儿。
+ * 先把页面框架和占位块画出来（固定高度，避免数据到达后的布局跳动），
+ * 而不是整页只有一个转圈。
+ */
+function DataSkeleton({ label }: { label: string }) {
+  return (
+    <div className="min-h-screen flex flex-col bg-bg" aria-busy="true">
+      <div className="sticky top-0 z-50 h-14 border-b-[3px] double-rule bg-[rgba(255,254,249,0.92)] backdrop-blur-xl" />
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6">
+        <div className="animate-pulse space-y-4 py-6">
+          <div className="h-3 w-24 bg-surface-alt" />
+          <div className="h-10 w-2/3 bg-surface-alt" />
+          <div className="h-4 w-1/2 bg-surface-alt" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-6">
+            {[0, 1, 2, 3].map(i => <div key={i} className="h-20 bg-surface-alt" />)}
+          </div>
+          <div className="h-64 bg-surface-alt" />
+          <div className="h-40 bg-surface-alt" />
+        </div>
+        <p className="sr-only">{label}</p>
+      </main>
+    </div>
+  )
+}
+
 function App() {
   const { t } = useTranslation()
   const { data, loading, error } = useData()
@@ -29,14 +55,7 @@ function App() {
   const isExplorer = location.pathname === '/explorer'
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-bg">
-        <div className="text-center">
-          <div className="w-10 h-10 border-[3px] border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-text-secondary text-sm">{t('common.loadingData')}</p>
-        </div>
-      </div>
-    )
+    return <DataSkeleton label={t('common.loadingData')} />
   }
 
   if (error || !data) {
