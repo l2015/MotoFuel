@@ -1,8 +1,46 @@
 import { defineConfig } from 'vite'
+import type { Plugin } from 'vite'
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import pkg from './package.json' with { type: 'json' }
+
+const DATA_PATH = fileURLToPath(new URL('./public/data/motorcycles.json', import.meta.url))
+
+/**
+ * 构建时把真实数据规模注入 index.html。
+ * 这些数字原本硬编码在 SEO / Open Graph / JSON-LD 里（173 品牌、1779 车型、47 万条），
+ * 但数据每周自动更新，早就和真实值（163 / 1712 / 42 万）对不上了。
+ */
+function dataStatsPlugin(): Plugin {
+  return {
+    name: 'motofuel:data-stats',
+    transformIndexHtml(html) {
+      const parsed = JSON.parse(readFileSync(DATA_PATH, 'utf-8')) as {
+        data: { brand: string; samples: number }[]
+      }
+      const models = parsed.data.length
+      const brands = new Set(parsed.data.map(row => row.brand)).size
+      const samplesWan = Math.round(
+        parsed.data.reduce((sum, row) => sum + row.samples, 0) / 10000
+      )
+
+      const replaced = html
+        .replaceAll('%MODELS_RAW%', String(models))
+        .replaceAll('%MODELS%', models.toLocaleString('en-US'))
+        .replaceAll('%BRANDS%', String(brands))
+        .replaceAll('%SAMPLES_WAN%', String(samplesWan))
+
+      const leftover = replaced.match(/%[A-Z_]+%/g)
+      if (leftover) {
+        throw new Error(`index.html 存在未替换的占位符: ${leftover.join(', ')}`)
+      }
+      return replaced
+    },
+  }
+}
 
 export default defineConfig({
   define: {
@@ -10,6 +48,7 @@ export default defineConfig({
     __GA_MEASUREMENT_ID__: JSON.stringify(process.env.GA_MEASUREMENT_ID || ''),
   },
   plugins: [
+    dataStatsPlugin(),
     react(),
     tailwindcss(),
     VitePWA({
