@@ -31,6 +31,38 @@ function SortIcon({ k, sortKey, sortDir }: { k: SortKey; sortKey: SortKey; sortD
   )
 }
 
+interface SortableThProps {
+  k: SortKey
+  label: string
+  className?: string
+  sortKey: SortKey
+  sortDir: SortDir
+  onSort: (k: SortKey) => void
+}
+
+/**
+ * 可排序表头：用真正的 <button> 承载交互，键盘可聚焦、可回车触发，
+ * 并通过 aria-sort 向读屏软件暴露当前排序方向（此前是 th 上的 onClick，键盘无法操作）。
+ */
+function SortableTh({ k, label, className = '', sortKey, sortDir, onSort }: SortableThProps) {
+  const active = sortKey === k
+  return (
+    <th
+      scope="col"
+      aria-sort={active ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+      className={`text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none ${className}`}
+    >
+      <button
+        type="button"
+        onClick={() => onSort(k)}
+        className="inline-flex items-center gap-0.5 cursor-pointer hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        {label}<SortIcon k={k} sortKey={sortKey} sortDir={sortDir} />
+      </button>
+    </th>
+  )
+}
+
 export default function DataTable({ data, showDisplacement = false, showBar = false }: DataTableProps) {
   const { t } = useTranslation()
   const [sortKey, setSortKey] = useState<SortKey>('consumption')
@@ -83,29 +115,15 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
         <table className="w-full text-sm table-fixed">
           <thead>
             <tr className="border-b-2 border-b-text">
-              <th className="px-3 py-2.5 text-left w-10 sm:w-14 cursor-pointer hover:text-primary hidden sm:table-cell text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('rank')}>
-                {t('table.header.rank')}<SortIcon k="rank" sortKey={sortKey} sortDir={sortDir} />
-              </th>
-              <th className="px-2 sm:px-3 py-2.5 text-left w-[72px] sm:w-24 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('brand')}>
-                {t('table.header.brand')}<SortIcon k="brand" sortKey={sortKey} sortDir={sortDir} />
-              </th>
-              <th className="px-2 sm:px-3 py-2.5 text-left cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('series')}>
-                {t('table.header.series')}<SortIcon k="series" sortKey={sortKey} sortDir={sortDir} />
-              </th>
-              <th className="hidden sm:table-cell px-3 py-2.5 text-left w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('type')}>
-                {t('table.header.type')}<SortIcon k="type" sortKey={sortKey} sortDir={sortDir} />
-              </th>
+              <SortableTh k="rank" label={t('table.header.rank')} className="px-3 py-2.5 text-left w-10 sm:w-14 hidden sm:table-cell" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
+              <SortableTh k="brand" label={t('table.header.brand')} className="px-2 sm:px-3 py-2.5 text-left w-[72px] sm:w-24" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
+              <SortableTh k="series" label={t('table.header.series')} className="px-2 sm:px-3 py-2.5 text-left" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
+              <SortableTh k="type" label={t('table.header.type')} className="hidden sm:table-cell px-3 py-2.5 text-left w-16" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
               {showDisplacement && (
-                <th className="px-1.5 sm:px-3 py-2.5 text-left w-14 sm:w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('displacement')}>
-                  {t('table.header.displacement')}<SortIcon k="displacement" sortKey={sortKey} sortDir={sortDir} />
-                </th>
+                <SortableTh k="displacement" label={t('table.header.displacement')} className="px-1.5 sm:px-3 py-2.5 text-left w-14 sm:w-16" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
               )}
-              <th className="px-2 sm:px-3 py-2.5 text-right w-20 sm:w-44 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('consumption')}>
-                {t('table.header.consumption')}<SortIcon k="consumption" sortKey={sortKey} sortDir={sortDir} />
-              </th>
-              <th className="px-2 sm:px-3 py-2.5 text-right w-14 sm:w-16 cursor-pointer hover:text-primary text-[10px] font-bold uppercase tracking-[0.08em] text-text-tertiary select-none" onClick={() => toggleSort('samples')}>
-                {t('table.header.samples')}<SortIcon k="samples" sortKey={sortKey} sortDir={sortDir} />
-              </th>
+              <SortableTh k="consumption" label={t('table.header.consumption')} className="px-2 sm:px-3 py-2.5 text-right w-20 sm:w-44" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
+              <SortableTh k="samples" label={t('table.header.samples')} className="px-2 sm:px-3 py-2.5 text-right w-14 sm:w-16" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
             </tr>
           </thead>
           <tbody>

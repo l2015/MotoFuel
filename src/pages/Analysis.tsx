@@ -117,6 +117,8 @@ export default function Analysis({ data }: Props) {
       <div className="editorial-card sticky top-14 z-40 mb-8">
         <div className="flex items-center justify-between flex-wrap gap-2 px-4 py-2.5 border-b border-border">
           <button onClick={() => setFilterCollapsed(!filterCollapsed)}
+            aria-expanded={!filterCollapsed}
+            aria-label={t('a11y.toggleFilters')}
             className="flex items-center gap-1.5 text-sm font-semibold hover:text-primary transition-colors">
             <svg className={`w-4 h-4 transition-transform ${filterCollapsed ? '-rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
             {t('analysis.brandFilter')}

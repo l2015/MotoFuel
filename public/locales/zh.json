@@ -1,4 +1,9 @@
 {
+  "a11y": {
+    "switchLanguage": "切换界面语言",
+    "toggleFilters": "展开或收起筛选条件",
+    "closePopup": "关闭详情"
+  },
   "common": {
     "loadingData": "加载数据中...",
     "dataLoadFailed": "数据加载失败",

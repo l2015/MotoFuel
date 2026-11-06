@@ -47,6 +47,7 @@ export default function Header() {
             </nav>
             <button
               onClick={toggleLang}
+              aria-label={t('a11y.switchLanguage')}
               className="ml-3 px-2 py-1 text-[11px] font-medium text-text-tertiary hover:text-text transition-colors"
             >
               {i18n.language === 'zh' ? 'EN' : '中'}
@@ -56,6 +57,7 @@ export default function Header() {
           {/* Mobile lang toggle */}
           <button
             onClick={toggleLang}
+            aria-label={t('a11y.switchLanguage')}
             className="md:hidden px-2 py-1 text-[11px] font-medium text-text-tertiary hover:text-text transition-colors"
           >
             {i18n.language === 'zh' ? 'EN' : '中'}

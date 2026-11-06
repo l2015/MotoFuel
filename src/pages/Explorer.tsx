@@ -410,6 +410,8 @@ export default function Explorer({ data }: Props) {
           <h1 className="font-serif text-base md:text-lg font-bold">{t('explorer.title')}</h1>
           <span className="text-xs md:text-sm text-text-secondary">{t('explorer.modelCount', { count: filteredData.length })}</span>
           <button onClick={() => setFilterOpen(!filterOpen)}
+            aria-expanded={filterOpen}
+            aria-label={t('a11y.toggleFilters')}
             className="text-xs px-2 py-1 bg-surface-alt text-text-secondary hover:bg-border md:hidden min-h-[44px] flex items-center">
             {filterOpen ? t('filter.collapse') : `${t('filter.titleShort')}${activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}`}
           </button>
@@ -494,7 +496,7 @@ export default function Explorer({ data }: Props) {
           >
             <div className="flex items-center justify-between mb-2">
               <span className="font-serif font-bold text-sm">{clickDetail.brand}</span>
-              <button onClick={() => setClickDetail(null)} className="text-text-tertiary hover:text-text text-xs">✕</button>
+              <button onClick={() => setClickDetail(null)} aria-label={t('a11y.closePopup')} className="text-text-tertiary hover:text-text text-xs">✕</button>
             </div>
             <div className="text-xs space-y-1 text-text-secondary">
               <div className="flex justify-between"><span>{t('explorer.detail.series')}</span><span className="text-text font-medium">{clickDetail.series}</span></div>

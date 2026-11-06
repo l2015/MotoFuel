@@ -4,6 +4,13 @@ import LanguageDetector from 'i18next-browser-languagedetector'
 import zh from '../public/locales/zh.json'
 import en from '../public/locales/en.json'
 
+function syncHtmlLang(lng: string) {
+  if (typeof document === 'undefined') return
+  document.documentElement.lang = lng.toLowerCase().startsWith('zh') ? 'zh-CN' : 'en'
+}
+
+i18n.on('languageChanged', syncHtmlLang)
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -16,5 +23,6 @@ i18n
     supportedLngs: ['zh', 'en'],
     interpolation: { escapeValue: false },
   })
+  .then(() => syncHtmlLang(i18n.language))
 
 export default i18n

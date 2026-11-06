@@ -1,4 +1,9 @@
 {
+  "a11y": {
+    "switchLanguage": "Switch interface language",
+    "toggleFilters": "Expand or collapse filters",
+    "closePopup": "Close details"
+  },
   "common": {
     "loadingData": "Loading data...",
     "dataLoadFailed": "Failed to load data",
