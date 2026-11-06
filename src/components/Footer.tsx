@@ -33,7 +33,8 @@ export default function Footer({ scrapeTime }: Props) {
             <span>v{__APP_VERSION__}</span>
             <a href="https://github.com/l2015/MotoFuel" target="_blank" rel="noopener noreferrer"
               className="hover:text-text transition-colors no-underline text-text-tertiary">GitHub</a>
-            <span>MIT</span>
+            <a href="https://github.com/l2015/MotoFuel/blob/master/LICENSE" target="_blank" rel="noopener noreferrer"
+              className="hover:text-text transition-colors no-underline text-text-tertiary">MIT</a>
           </div>
         </div>
         {formattedTime && (

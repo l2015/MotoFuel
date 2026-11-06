@@ -107,4 +107,10 @@ Motorcycle data is sourced from [xiaoxiongyouhao.com](https://www.xiaoxiongyouha
 
 ## License
 
-Private project. Data attribution: xiaoxiongyouhao.com.
+- **Code** — [MIT](./LICENSE).
+- **Data** (`public/data/motorcycles.json`) — **not** covered by the MIT license.
+  It is aggregated from user-submitted fuel consumption records on
+  [xiaoxiongyouhao.com](https://www.xiaoxiongyouhao.com/); all rights belong to the
+  original platform and its contributors. It is included here for personal,
+  non-commercial visualization and research only. If you fork this project,
+  remove the data file or obtain permission from the source.
