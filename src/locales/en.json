@@ -88,7 +88,7 @@
     "typeDistribution": {
       "kicker": "Distribution",
       "title": "Vehicle Type Distribution",
-      "description": "{{topType}} lead with {{topTypeCount}} models, followed by {{secondType}} ({{secondTypeCount}}). Manual-style bikes (street + cruiser + retro + sport + adventure) still hold the largest combined share."
+      "description": "{{topType}} ({{topTypeCount}} models) is the most common type, followed by {{secondType}} ({{secondTypeCount}}). Manual-style bikes (street + cruiser + retro + sport + adventure) still hold the largest combined share."
     },
     "brandRank": {
       "kicker": "Brand Ranking",

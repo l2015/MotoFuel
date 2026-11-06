@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useTypeLabel } from '../utils/typeLabel'
 import type { Motorcycle } from '../types'
 import { consumptionColor } from '../utils/chartTheme'
 
@@ -65,6 +66,7 @@ function SortableTh({ k, label, className = '', sortKey, sortDir, onSort }: Sort
 
 export default function DataTable({ data, showDisplacement = false, showBar = false }: DataTableProps) {
   const { t } = useTranslation()
+  const typeText = useTypeLabel()
   const [sortKey, setSortKey] = useState<SortKey>('consumption')
   const [sortDir, setSortDir] = useState<SortDir>('asc')
   const [page, setPage] = useState(0)
@@ -133,7 +135,7 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
                 <td className="px-2 sm:px-3 py-2 text-[13px] sm:text-sm font-medium">{row.brand}</td>
                 <td className="px-2 sm:px-3 py-2 text-[13px] sm:text-sm truncate">{row.series}</td>
                 <td className="hidden sm:table-cell px-3 py-2">
-                  <span className="px-1.5 py-0.5 rounded text-xs bg-surface-alt">{row.type}</span>
+                  <span className="px-1.5 py-0.5 rounded text-xs bg-surface-alt">{typeText(row.type)}</span>
                 </td>
                 {showDisplacement && <td className="px-1.5 sm:px-3 py-2 font-mono">{row.displacement}cc</td>}
                 <td className="px-2 sm:px-3 py-2">

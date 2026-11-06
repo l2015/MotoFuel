@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import EChart from './EChart'
 import { CHART_PALETTE, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
+import { typeFromLabel, useTypeLabel } from '../utils/typeLabel'
 
 interface Props {
   data: { type: string; count: number }[]
@@ -11,6 +12,7 @@ interface Props {
 
 export default function TypeDistributionPie({ data, typeSamplesMap, onTypeClick }: Props) {
   const { t } = useTranslation()
+  const typeText = useTypeLabel()
   const total = useMemo(() => data.reduce((s, d) => s + d.count, 0), [data])
   const option = useMemo(() => ({
     tooltip: {
@@ -19,7 +21,7 @@ export default function TypeDistributionPie({ data, typeSamplesMap, onTypeClick 
       borderColor: CHART_TOOLTIP.borderColor,
       textStyle: CHART_TOOLTIP.textStyle,
       formatter: (p: { name: string; value: number; percent: number }) => {
-        const samples = typeSamplesMap?.get(p.name) || 0
+        const samples = typeSamplesMap?.get(typeFromLabel(p.name)) || 0
         const base = `${p.name}: ${p.value}${t('chart.tooltip.modelsPercent', { percent: p.percent })}`
         return typeSamplesMap ? `${base}<br/>${t('chart.tooltip.sampleCount', { count: samples.toLocaleString() })}` : base
       },
@@ -33,7 +35,7 @@ export default function TypeDistributionPie({ data, typeSamplesMap, onTypeClick 
         const pct = (d.count / total) * 100
         const showLabel = pct >= 4
         return {
-          name: d.type,
+          name: typeText(d.type),
           value: d.count,
           label: showLabel ? undefined : { show: false },
           labelLine: showLabel ? undefined : { show: false },
@@ -54,13 +56,13 @@ export default function TypeDistributionPie({ data, typeSamplesMap, onTypeClick 
       itemStyle: { borderColor: CHART_TOOLTIP.backgroundColor, borderWidth: 2 },
       emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(255,107,53,0.15)' } },
     }],
-  }), [data, t, typeSamplesMap, total])
+  }), [data, t, typeSamplesMap, total, typeText])
 
   const onEvents = useMemo(() => {
     if (!onTypeClick) return undefined
     return {
       click: (params: { name?: string }) => {
-        if (params.name) onTypeClick(params.name)
+        if (params.name) onTypeClick(typeFromLabel(params.name))
       },
     } as Record<string, (params: { name?: string }) => void>
   }, [onTypeClick])

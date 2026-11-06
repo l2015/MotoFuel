@@ -4,6 +4,7 @@ import { useTranslation, Trans } from 'react-i18next'
 import type { Motorcycle } from '../types'
 import { calcSummary, weightedAvgByDisplacement, topBySamples, samplesByBrand, countByType, avgByBrand } from '../utils/stats'
 import DispBrandHeatmap from '../charts/DispBrandHeatmap'
+import { useTypeLabel } from '../utils/typeLabel'
 
 // 图表依赖 echarts（按需后仍有 ~600KB），延迟加载让首屏数字先出来
 const ConsumptionTrendLine = lazy(() => import('../charts/ConsumptionTrendLine'))
@@ -96,6 +97,7 @@ function AnimatedNumber({ target, decimals = 0, grouping = false, className }: A
 
 export default function Home({ data }: Props) {
   const { t } = useTranslation()
+  const typeText = useTypeLabel()
   const [activeTab, setActiveTab] = useState<TabKey>('brand')
   const [trendMode, setTrendMode] = useState<'simple' | 'weighted'>('simple')
 
@@ -192,9 +194,9 @@ export default function Home({ data }: Props) {
       midAvg: avgAt(MID_DISP).toFixed(2),
       plateauMin: plateauValues.length ? Math.min(...plateauValues).toFixed(2) : '—',
       plateauMax: plateauValues.length ? Math.max(...plateauValues).toFixed(2) : '—',
-      topType: typeRanked[0]?.type ?? '',
+      topType: typeRanked[0] ? typeText(typeRanked[0].type) : '',
       topTypeCount: typeRanked[0]?.count ?? 0,
-      secondType: typeRanked[1]?.type ?? '',
+      secondType: typeRanked[1] ? typeText(typeRanked[1].type) : '',
       secondTypeCount: typeRanked[1]?.count ?? 0,
       bestBrand: bestBrand?.brand ?? '',
       bestAvg: (bestBrand?.avg ?? 0).toFixed(2),
@@ -205,7 +207,7 @@ export default function Home({ data }: Props) {
       mostDispCount: mostDisp[1],
       gapPct: Math.round(gapPct),
     }
-  }, [data, summary, weightedDisp, typeCount])
+  }, [data, summary, weightedDisp, typeCount, typeText])
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -433,7 +435,7 @@ export default function Home({ data }: Props) {
             {activeTab === 'type' && typeStats.map((ty, i) => (
               <tr key={ty.type}>
                 <td className="text-text-secondary">{i + 1}</td>
-                <td className="font-medium">{ty.type}</td>
+                <td className="font-medium">{typeText(ty.type)}</td>
                 <td className="text-right">
                   <span className="font-mono text-accent-amber">{ty.samples.toLocaleString()}</span>
                 </td>

@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useTypeLabel } from '../utils/typeLabel'
 import type { FilterState, Motorcycle } from '../types'
 
 interface FilterBarProps {
@@ -21,6 +22,7 @@ const DISP_QUICK_RANGES = [
 
 export default function FilterBar({ filter, allData, types, bounds, onFilterChange, onReset }: FilterBarProps) {
   const { t } = useTranslation()
+  const typeText = useTypeLabel()
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
   const [collapsed, setCollapsed] = useState(isMobile)
   const [brandExpanded, setBrandExpanded] = useState(false)
@@ -105,7 +107,7 @@ export default function FilterBar({ filter, allData, types, bounds, onFilterChan
                 <button key={ty} onClick={() => toggleType(ty)}
                   className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
                     filter.types.includes(ty) ? 'bg-primary text-white' : 'bg-surface-alt text-text-secondary hover:bg-border'
-                  }`}>{ty}</button>
+                  }`}>{typeText(ty)}</button>
               ))}
             </div>
           </div>

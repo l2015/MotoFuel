@@ -4,6 +4,7 @@ import EChart from '../charts/EChart'
 import type { EChartHandle } from '../charts/EChart'
 import type { Motorcycle } from '../types'
 import { CHART_PALETTE, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
+import { typeFromLabel, useTypeLabel } from '../utils/typeLabel'
 
 interface Props {
   data: Motorcycle[]
@@ -55,6 +56,7 @@ interface LegendChangeParams {
 
 export default function Explorer({ data }: Props) {
   const { t } = useTranslation()
+  const typeText = useTypeLabel()
   const chartRef = useRef<EChartHandle>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [highlightType, setHighlightType] = useState<string | null>(null)
@@ -264,7 +266,10 @@ export default function Explorer({ data }: Props) {
     const selected = params?.selected
     if (!selected) return
     const deselected = Object.entries(selected).find(([, isSelected]) => !isSelected)?.[0]
-    setHighlightType(prev => prev === deselected ? null : deselected || null)
+    if (!deselected) return
+    // 图例上是翻译后的标签，高亮状态内部仍用原始类型值
+    const rawType = typeFromLabel(deselected)
+    setHighlightType(prev => (prev === rawType ? null : rawType))
   }, [])
 
   const option = useMemo(() => {
@@ -278,7 +283,7 @@ export default function Explorer({ data }: Props) {
       const isDimmed = highlightType !== null && highlightType !== type
 
       return {
-        name: type,
+        name: typeText(type),
         type: 'scatter' as const,
         triggerEvent: true,
         data: items.map((d, i) => {
@@ -339,7 +344,7 @@ export default function Explorer({ data }: Props) {
 
     const legendSelected: Record<string, boolean> = {}
     if (highlightType) {
-      allTypes.forEach(t => { legendSelected[t] = t === highlightType })
+      allTypes.forEach(ty => { legendSelected[typeText(ty)] = ty === highlightType })
     }
 
     return {
@@ -395,7 +400,7 @@ export default function Explorer({ data }: Props) {
       },
       series,
     }
-  }, [filteredData, allTypes, typeColorMap, highlightType, allDisplacements, dispLabels, sampleStats, zoomWindow, t])
+  }, [filteredData, allTypes, typeColorMap, highlightType, allDisplacements, dispLabels, sampleStats, zoomWindow, t, typeText])
 
   const chartEvents = useMemo(() => ({
     click: onChartClick,
@@ -437,7 +442,7 @@ export default function Explorer({ data }: Props) {
                       highlightType === ty ? 'ring-2 ring-offset-1 ring-primary' : 'bg-surface-alt hover:bg-border'
                     }`}>
                     <span className="w-2 h-2 inline-block" style={{ backgroundColor: typeColorMap[ty] }} />
-                    {ty}
+                    {typeText(ty)}
                   </button>
                 ))}
               </div>

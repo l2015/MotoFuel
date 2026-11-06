@@ -64,7 +64,7 @@
   },
   "home": {
     "hero": {
-      "kicker": "Data Investigation",
+      "kicker": "数据调查",
       "title": "中国摩托车油耗全景：{{models}} 款车型的真实数据",
       "subtitle": "基于小熊油耗平台 {{samplesWan}} 万条真实加油记录，覆盖 {{brands}} 个品牌，从 {{minDisp}}cc 到 {{maxDisp}}cc，逐排量级别还原真实油耗表现。"
     },
@@ -75,23 +75,23 @@
       "totalSamples": "真实样本"
     },
     "trend": {
-      "kicker": "Key Finding",
+      "kicker": "关键发现",
       "title": "排量越大，油耗越高——但增长并非线性",
       "description": "从 {{lowDisp}}cc 到 {{midDisp}}cc，油耗增长相对平缓（{{lowAvg}} → {{midAvg}} L/100km）。{{highDisp}}cc 以上开始加速攀升，到 {{plateauDisp}}cc 级别之后进入 {{plateauMin}}–{{plateauMax}} L/100km 的高位平台。",
       "caption": "数据来源：小熊油耗平台用户加油记录，按排量级别的简单平均与加权平均"
     },
     "top20": {
-      "kicker": "Efficiency Ranking",
+      "kicker": "效率排行",
       "title": "跨排量 Top 20 最省油车型",
       "description": "全系车型中样本量 ≥ 10、百公里油耗最低的 20 款，跨排量统一排名（排量越小越占优势）。样本量越大，排名越可靠。"
     },
     "typeDistribution": {
-      "kicker": "Distribution",
+      "kicker": "类型分布",
       "title": "车型类型分布",
       "description": "{{topType}}以 {{topTypeCount}} 款居首，{{secondType}}（{{secondTypeCount}} 款）次之。跨骑类（街车 + 巡航 + 复古 + 跑车 + 拉力等）合计仍占最大份额。"
     },
     "brandRank": {
-      "kicker": "Brand Ranking",
+      "kicker": "品牌排名",
       "title": "主流品牌油耗排名",
       "description": "仅展示收录 10 款以上车型的品牌。{{bestBrand}}以 {{bestAvg}} L/100km 领跑，日系合资品牌占据前列。{{widestBrand}}以 {{widestCount}} 款车型覆盖最广，平均油耗 {{widestAvg}} L/100km。"
     },
@@ -106,7 +106,7 @@
       "cite": "— MotoFuel 数据分析"
     },
     "tabSection": {
-      "kicker": "Data Tables",
+      "kicker": "数据表格",
       "title": "核心数据总览"
     },
     "tab": {
@@ -116,36 +116,36 @@
       "fullRanking": "完整排行"
     },
     "dispHeatmap": {
-      "kicker": "Cross Comparison",
+      "kicker": "交叉对比",
       "title": "同排量品牌油耗对比",
       "description": "主要排量级别中，各品牌平均油耗的横向对比。颜色越暖表示油耗越高，空白表示该品牌在该排量级别无车型收录。",
       "caption": "行为收录较多的主要品牌，列为排量级别；每格需至少 2 款车型才参与计算，空白表示该品牌在该排量级别无收录"
     }
   },
   "ranking": {
-    "kicker": "Complete Ranking",
+    "kicker": "完整排行",
     "title": "摩托车油耗排行榜",
     "filterResult": "筛选结果: {{count}} 款车型",
     "barChart": "柱状图"
   },
   "analysis": {
-    "kicker": "Data Insights",
+    "kicker": "数据洞察",
     "title": "数据洞察",
     "basedOn": "基于 {{count}} 款车型",
     "brandFilter": "品牌筛选",
     "brandRank": {
-      "kicker": "Brand Performance",
+      "kicker": "品牌表现",
       "title": "品牌平均油耗排名",
       "hint": "点击柱状条可查看该品牌详细排行",
       "caption": "按品牌平均油耗升序排列，颜色标注油耗等级（绿色=低油耗，蓝色=中等油耗，黄色=偏高油耗，红色=高油耗）"
     },
     "typeDistribution": {
-      "kicker": "Type Distribution",
+      "kicker": "类型分布",
       "title": "车型类型分布",
       "hint": "点击扇区可查看该类型排行"
     },
     "histogram": {
-      "kicker": "Consumption Distribution",
+      "kicker": "油耗分布",
       "title": "油耗分布直方图",
       "description": "各油耗区间的车型数量分布，直观展示集中趋势和离散程度"
     }
@@ -182,7 +182,7 @@
     }
   },
   "about": {
-    "kicker": "About",
+    "kicker": "关于本页",
     "title": "关于 MotoFuel",
     "subtitle": "摩托车油耗数据可视化分析平台",
     "whatTitle": "项目简介",
