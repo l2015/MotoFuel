@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import ReactECharts from 'echarts-for-react'
+import EChart from './EChart'
 import { CHART_AXIS, CHART_TOOLTIP, brandRankColor } from '../utils/chartTheme'
 
 interface Props {
@@ -66,7 +66,7 @@ export default function BrandRankBar({ data, brandSamplesMap, onBrandClick }: Pr
   }, [items, onBrandClick])
 
   return (
-    <ReactECharts
+    <EChart
       option={option}
       style={{ height: Math.max(300, Math.min(items.length, 30) * 26) }}
       onEvents={onEvents}

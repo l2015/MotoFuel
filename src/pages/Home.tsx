@@ -1,11 +1,17 @@
-import { useMemo, useState, useEffect, useRef } from 'react'
+import { useMemo, useState, useEffect, useRef, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation, Trans } from 'react-i18next'
 import type { Motorcycle } from '../types'
 import { calcSummary, weightedAvgByDisplacement, topBySamples, samplesByBrand, countByType, avgByBrand } from '../utils/stats'
-import ConsumptionTrendLine from '../charts/ConsumptionTrendLine'
-import TypeDistributionPie from '../charts/TypeDistributionPie'
 import DispBrandHeatmap from '../charts/DispBrandHeatmap'
+
+// 图表依赖 echarts（按需后仍有 ~600KB），延迟加载让首屏数字先出来
+const ConsumptionTrendLine = lazy(() => import('../charts/ConsumptionTrendLine'))
+const TypeDistributionPie = lazy(() => import('../charts/TypeDistributionPie'))
+
+function ChartSkeleton({ height }: { height: number }) {
+  return <div className="animate-pulse bg-surface-alt/60 border border-border-subtle" style={{ height }} />
+}
 
 interface Props {
   data: Motorcycle[]
@@ -170,7 +176,9 @@ export default function Home({ data }: Props) {
             </button>
           </div>
         </div>
-        <ConsumptionTrendLine data={weightedDisp} mode={trendMode} />
+        <Suspense fallback={<ChartSkeleton height={260} />}>
+          <ConsumptionTrendLine data={weightedDisp} mode={trendMode} />
+        </Suspense>
         <div className="px-4 sm:px-0 chart-caption">
           {t('home.trend.caption')}
         </div>
@@ -240,7 +248,9 @@ export default function Home({ data }: Props) {
             <p className="text-[14px] leading-relaxed text-text-secondary mb-5">
               {t('home.typeDistribution.description')}
             </p>
-            <TypeDistributionPie data={typeCount} />
+            <Suspense fallback={<ChartSkeleton height={320} />}>
+              <TypeDistributionPie data={typeCount} />
+            </Suspense>
             <div className="sidebar-box mt-5">
               <h4>{t('home.sidebar.title')}</h4>
               <ul>

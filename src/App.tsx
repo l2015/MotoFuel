@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useData } from './hooks/useData'
@@ -5,11 +6,21 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import BottomNav from './components/BottomNav'
 import ErrorBoundary from './components/ErrorBoundary'
-import Home from './pages/Home'
-import Ranking from './pages/Ranking'
-import Analysis from './pages/Analysis'
-import Explorer from './pages/Explorer'
-import About from './pages/About'
+// 路由级懒加载：首屏只需要 Home，其余页面（尤其依赖 echarts 的 Analysis/Explorer）
+// 按需加载，避免把全部图表代码塞进首屏 bundle。
+const Home = lazy(() => import('./pages/Home'))
+const Ranking = lazy(() => import('./pages/Ranking'))
+const Analysis = lazy(() => import('./pages/Analysis'))
+const Explorer = lazy(() => import('./pages/Explorer'))
+const About = lazy(() => import('./pages/About'))
+
+function PageFallback() {
+  return (
+    <div className="flex-1 flex items-center justify-center py-24">
+      <div className="w-8 h-8 border-[3px] border-primary border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
+}
 
 function App() {
   const { t } = useTranslation()
@@ -44,17 +55,21 @@ function App() {
       <div className="min-h-screen flex flex-col bg-bg">
         <Header />
         {isExplorer ? (
-          <Explorer data={data.data} />
+          <Suspense fallback={<PageFallback />}>
+            <Explorer data={data.data} />
+          </Suspense>
         ) : (
           <>
             <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 mobile-content-pad">
-              <Routes>
-                <Route path="/" element={<Home data={data.data} />} />
-                <Route path="/ranking" element={<Ranking data={data.data} scrapeTime={data.metadata.scrapedAt} />} />
-                <Route path="/analysis" element={<Analysis data={data.data} />} />
-                <Route path="/explorer" element={<></>} />
-                <Route path="/about" element={<About />} />
-              </Routes>
+              <Suspense fallback={<PageFallback />}>
+                <Routes>
+                  <Route path="/" element={<Home data={data.data} />} />
+                  <Route path="/ranking" element={<Ranking data={data.data} scrapeTime={data.metadata.scrapedAt} />} />
+                  <Route path="/analysis" element={<Analysis data={data.data} />} />
+                  <Route path="/explorer" element={<></>} />
+                  <Route path="/about" element={<About />} />
+                </Routes>
+              </Suspense>
             </main>
             <Footer scrapeTime={data.metadata.scrapedAt} />
           </>

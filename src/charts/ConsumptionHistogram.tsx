@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import ReactECharts from 'echarts-for-react'
+import EChart from './EChart'
 import { CHART_PALETTE, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
 
 interface Props {
@@ -46,5 +46,5 @@ export default function ConsumptionHistogram({ data }: Props) {
     }],
   }), [data, t])
 
-  return <ReactECharts option={option} style={{ height: 320 }} />
+  return <EChart option={option} style={{ height: 320 }} />
 }

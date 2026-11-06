@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import ReactECharts from 'echarts-for-react'
+import EChart from './EChart'
 import { CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
 
 /** hex -> rgba，模块级定义，避免每次渲染都新建函数导致 useMemo 失效 */
@@ -86,5 +86,5 @@ export default function ConsumptionTrendLine({ data, mode }: Props) {
     }],
   }), [data, mode, t, values, lineColor])
 
-  return <ReactECharts option={option} style={{ height: 260 }} />
+  return <EChart option={option} style={{ height: 260 }} />
 }

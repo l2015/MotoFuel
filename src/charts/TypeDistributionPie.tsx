@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import ReactECharts from 'echarts-for-react'
+import EChart from './EChart'
 import { CHART_PALETTE, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
 
 interface Props {
@@ -65,5 +65,5 @@ export default function TypeDistributionPie({ data, typeSamplesMap, onTypeClick 
     } as Record<string, (params: { name?: string }) => void>
   }, [onTypeClick])
 
-  return <ReactECharts option={option} style={{ height: 320 }} onEvents={onEvents} />
+  return <EChart option={option} style={{ height: 320 }} onEvents={onEvents} />
 }

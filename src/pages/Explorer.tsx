@@ -1,6 +1,7 @@
 import { useMemo, useState, useRef, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import ReactECharts from 'echarts-for-react'
+import EChart from '../charts/EChart'
+import type { EChartHandle } from '../charts/EChart'
 import type { Motorcycle } from '../types'
 import { CHART_PALETTE, CHART_AXIS, CHART_TOOLTIP } from '../utils/chartTheme'
 
@@ -54,7 +55,7 @@ interface LegendChangeParams {
 
 export default function Explorer({ data }: Props) {
   const { t } = useTranslation()
-  const chartRef = useRef<ReactECharts>(null)
+  const chartRef = useRef<EChartHandle>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [highlightType, setHighlightType] = useState<string | null>(null)
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
@@ -477,7 +478,7 @@ export default function Explorer({ data }: Props) {
 
       <div className="flex-1 min-h-0 relative" ref={containerRef}>
         {chartSize.height > 0 && (
-          <ReactECharts ref={chartRef} option={option} style={{ width: chartSize.width, height: chartSize.height }} onEvents={chartEvents} />
+          <EChart ref={chartRef} option={option} style={{ width: chartSize.width, height: chartSize.height }} onEvents={chartEvents} />
         )}
 
         {/* Click detail popup */}
