@@ -29,7 +29,14 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        # 仓库根目录 .npmrc 已设置 legacy-peer-deps（vite-plugin-pwa 的 peer 上限是 vite 7）
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test
 
       - name: Build
         run: npm run build
