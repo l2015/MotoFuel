@@ -6,6 +6,8 @@ interface FilterBarProps {
   filter: FilterState
   allData: Motorcycle[]
   types: string[]
+  /** 筛选项的物理上限，来自数据集（油耗上界、样本量上界） */
+  bounds: { maxConsumption: number; maxSamples: number }
   onFilterChange: (partial: Partial<FilterState>) => void
   onReset: () => void
 }
@@ -17,7 +19,7 @@ const DISP_QUICK_RANGES = [
   { label: '600+', min: 600, max: 9999 },
 ]
 
-export default function FilterBar({ filter, allData, types, onFilterChange, onReset }: FilterBarProps) {
+export default function FilterBar({ filter, allData, types, bounds, onFilterChange, onReset }: FilterBarProps) {
   const { t } = useTranslation()
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
   const [collapsed, setCollapsed] = useState(isMobile)
@@ -90,7 +92,7 @@ export default function FilterBar({ filter, allData, types, onFilterChange, onRe
         onClick={() => setCollapsed(!collapsed)}
         className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium hover:bg-surface-alt transition-colors"
       >
-        <span>{t('filter.title')} {filter.types.length + filter.brands.length + filter.displacements.length + (filter.minSamples > 0 ? 1 : 0) + (filter.consumptionRange[1] < 6 ? 1 : 0) + (filter.searchText ? 1 : 0) > 0 ? t('filter.active') : ''}</span>
+        <span>{t('filter.title')} {filter.types.length + filter.brands.length + filter.displacements.length + (filter.minSamples > 0 ? 1 : 0) + (filter.consumptionRange[1] < bounds.maxConsumption ? 1 : 0) + (filter.searchText ? 1 : 0) > 0 ? t('filter.active') : ''}</span>
         <svg className={`w-4 h-4 transition-transform ${collapsed ? '' : 'rotate-180'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
       </button>
 
@@ -165,10 +167,10 @@ export default function FilterBar({ filter, allData, types, onFilterChange, onRe
           <div className="flex items-center gap-5 flex-wrap">
             <div className="flex items-center gap-2">
               <label className="text-xs font-medium text-text-secondary">{t('filter.label.minSamples')}</label>
-              <input type="range" min={0} max={5000} step={50} value={filter.minSamples}
+              <input type="range" min={0} max={bounds.maxSamples} step={bounds.maxSamples > 5000 ? 100 : 50} value={filter.minSamples}
                 onChange={e => onFilterChange({ minSamples: parseInt(e.target.value) })}
                 className="w-28 accent-primary" />
-              <span className="text-xs font-mono w-10">{filter.minSamples}</span>
+              <span className="text-xs font-mono w-14">{filter.minSamples}</span>
             </div>
             <div className="flex items-center gap-2">
               <label className="text-xs font-medium text-text-secondary">{t('filter.label.consumption')}</label>
@@ -177,7 +179,7 @@ export default function FilterBar({ filter, allData, types, onFilterChange, onRe
                 onPointerDown={e => {
                   const rect = e.currentTarget.getBoundingClientRect()
                   const ratio = (e.clientX - rect.left) / rect.width
-                  const clickVal = ratio * 6
+                  const clickVal = ratio * bounds.maxConsumption
                   const distMin = Math.abs(clickVal - filter.consumptionRange[0])
                   const distMax = Math.abs(clickVal - filter.consumptionRange[1])
                   if (distMin <= distMax) {
@@ -189,14 +191,14 @@ export default function FilterBar({ filter, allData, types, onFilterChange, onRe
                   }
                 }}
               >
-                <input ref={minRef} type="range" min={0} max={6} step={0.1}
+                <input ref={minRef} type="range" min={0} max={bounds.maxConsumption} step={0.1}
                   value={filter.consumptionRange[0]}
                   onChange={e => {
                     const v = parseFloat(e.target.value)
                     if (v < filter.consumptionRange[1]) onFilterChange({ consumptionRange: [v, filter.consumptionRange[1]] })
                   }}
                   className="dual-range-min" />
-                <input ref={maxRef} type="range" min={0} max={6} step={0.1}
+                <input ref={maxRef} type="range" min={0} max={bounds.maxConsumption} step={0.1}
                   value={filter.consumptionRange[1]}
                   onChange={e => {
                     const v = parseFloat(e.target.value)

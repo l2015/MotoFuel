@@ -19,6 +19,14 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
   const [page, setPage] = useState(0)
   const pageSize = 50
 
+  // 数据集或排序变化后回到第一页。用"渲染期同步 state"（React 官方推荐模式），
+  // 比在 effect 里 setState 少一次提交，也避免级联渲染。
+  const [pagedFor, setPagedFor] = useState({ data, sortKey, sortDir })
+  if (pagedFor.data !== data || pagedFor.sortKey !== sortKey || pagedFor.sortDir !== sortDir) {
+    setPagedFor({ data, sortKey, sortDir })
+    setPage(0)
+  }
+
   const sorted = useMemo(() => {
     return [...data].sort((a, b) => {
       const av = a[sortKey]
@@ -31,8 +39,10 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
     })
   }, [data, sortKey, sortDir])
 
-  const paged = sorted.slice(page * pageSize, (page + 1) * pageSize)
-  const totalPages = Math.ceil(data.length / pageSize)
+  const totalPages = Math.max(1, Math.ceil(data.length / pageSize))
+  // 兜底：即使 page 因为某些路径越界，也不会渲染出空白表格
+  const safePage = Math.min(page, totalPages - 1)
+  const paged = sorted.slice(safePage * pageSize, (safePage + 1) * pageSize)
 
   const maxConsumption = useMemo(
     () => data.length > 0 ? data.reduce((m, d) => d.consumption > m ? d.consumption : m, 0) : 1,
@@ -131,12 +141,12 @@ export default function DataTable({ data, showDisplacement = false, showBar = fa
       </div>
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-3 text-xs sm:text-sm">
-          <span className="text-text-secondary">{t('table.pagination.status', { total: data.length, page: page + 1, totalPages })}</span>
+          <span className="text-text-secondary">{t('table.pagination.status', { total: data.length, page: safePage + 1, totalPages })}</span>
           <div className="flex gap-1">
-            <button disabled={page === 0} onClick={() => setPage(0)} className="px-1.5 sm:px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.first')}</button>
-            <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="px-1.5 sm:px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.prev')}</button>
-            <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="px-1.5 sm:px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.next')}</button>
-            <button disabled={page >= totalPages - 1} onClick={() => setPage(totalPages - 1)} className="px-1.5 sm:px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.last')}</button>
+            <button disabled={safePage === 0} onClick={() => setPage(0)} className="px-1.5 sm:px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.first')}</button>
+            <button disabled={safePage === 0} onClick={() => setPage(Math.max(0, safePage - 1))} className="px-1.5 sm:px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.prev')}</button>
+            <button disabled={safePage >= totalPages - 1} onClick={() => setPage(Math.min(totalPages - 1, safePage + 1))} className="px-1.5 sm:px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.next')}</button>
+            <button disabled={safePage >= totalPages - 1} onClick={() => setPage(totalPages - 1)} className="px-1.5 sm:px-2 py-1 rounded border border-border disabled:opacity-30 hover:bg-surface-alt">{t('table.pagination.last')}</button>
           </div>
         </div>
       )}

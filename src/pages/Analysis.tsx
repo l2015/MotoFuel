@@ -36,6 +36,11 @@ export default function Analysis({ data }: Props) {
   }, [selectedBrands, minBrandSamples])
 
   const brandSampleStats = useMemo(() => samplesByBrand(data), [data])
+  // 样本量滑块上限取数据集真实最大值（当前数据里最大 34303，写死 5000 会筛不到高样本车型）
+  const maxSamples = useMemo(
+    () => data.reduce((m, d) => (d.samples > m ? d.samples : m), 1),
+    [data]
+  )
   const topBrands = useMemo(
     () => brandSampleStats.filter(b => b.totalSamples >= minBrandSamples),
     [brandSampleStats, minBrandSamples]
@@ -117,7 +122,7 @@ export default function Analysis({ data }: Props) {
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-2">
               <label className="text-xs text-text-secondary">{t('filter.label.minSamples')}</label>
-              <input type="range" min={0} max={5000} step={100} value={minBrandSamples}
+              <input type="range" min={0} max={maxSamples} step={maxSamples > 5000 ? 100 : 50} value={minBrandSamples}
                 onChange={e => { setMinBrandSamples(parseInt(e.target.value)); setSelectedBrands([]) }}
                 className="w-20 sm:w-28 accent-primary" />
               <span className="text-xs font-mono w-12">{minBrandSamples}</span>

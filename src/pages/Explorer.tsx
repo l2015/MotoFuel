@@ -447,13 +447,13 @@ export default function Explorer({ data }: Props) {
               <input
                 type="range"
                 min={0}
-                max={5000}
-                step={10}
+                max={sampleStats.max}
+                step={sampleStats.max > 5000 ? 100 : 10}
                 value={minSamples}
                 onChange={e => setMinSamples(Number(e.target.value))}
                 className="w-28 accent-primary"
               />
-              <span className="text-xs font-mono text-text w-10 text-right">{minSamples}</span>
+              <span className="text-xs font-mono text-text w-14 text-right">{minSamples}</span>
             </div>
           </div>
         )}

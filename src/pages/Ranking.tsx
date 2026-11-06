@@ -14,7 +14,7 @@ interface Props {
 
 export default function Ranking({ data, scrapeTime }: Props) {
   const { t, i18n } = useTranslation()
-  const { filter, updateFilter, resetFilter, filtered, brands, types } = useFilter(data)
+  const { filter, updateFilter, resetFilter, filtered, brands, types, bounds } = useFilter(data)
   const [searchParams, setSearchParams] = useSearchParams()
   const [showBar, setShowBar] = useState(false)
 
@@ -58,6 +58,7 @@ export default function Ranking({ data, scrapeTime }: Props) {
         filter={filter}
         allData={data}
         types={types}
+        bounds={bounds}
         onFilterChange={updateFilter}
         onReset={resetFilter}
       />
