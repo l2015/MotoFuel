@@ -7,6 +7,8 @@ interface Props {
 
 const DISPS = [110, 125, 150, 200, 250, 300, 400, 500, 600, 800, 1000]
 
+// 硬编码一份“主要品牌”清单：数据里品牌太多（163 个），全画会失去可读性。
+// 渲染时会再过滤掉在所有档位都凑不够 2 款车型的品牌，避免出现整行空白。
 const BRANDS = [
   '五羊本田', '新大洲本田', '建设雅马哈', '济南铃木',
   '豪爵', '豪爵铃木', '钱江', '春风', '无极',
@@ -61,7 +63,7 @@ export default function DispBrandHeatmap({ data }: Props) {
           </tr>
         </thead>
         <tbody>
-          {BRANDS.map(brand => (
+          {BRANDS.filter(brand => DISPS.some(disp => cells.has(brand + '|' + disp))).map(brand => (
             <tr key={brand}>
               <td className="heatmap-brand-cell">{brand}</td>
               {DISPS.map(disp => {

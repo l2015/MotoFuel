@@ -19,6 +19,12 @@ interface Props {
 
 type TabKey = 'brand' | 'model' | 'type'
 
+// 趋势图文案引用的排量档位（这些档位在当前数据中稳定存在；缺失时回退到 0.00）
+const LOW_DISP = 125
+const MID_DISP = 300
+const HIGH_DISP = 400
+const PLATEAU_DISP = 600
+
 interface AnimatedNumberProps {
   target: number
   decimals?: number
@@ -27,41 +33,63 @@ interface AnimatedNumberProps {
 }
 
 /**
- * 数字滚动组件：IntersectionObserver 进入视口时从 0 递增到 target。
- * 之前是一个 hook 同时返回 ref 和 value，会让值在 render 期被读取而触发
- * react-hooks/refs；改成组件后 ref 只在自身 effect 内部使用。
+ * 数字滚动组件：进入视口时从 0 递增到 target。
+ *
+ * value 初值为 null，此时直接渲染 target —— 这样即使 IntersectionObserver
+ * 不回调（打印、无头渲染、旧浏览器、用户开了「减少动态效果」）也不会永远停在 0，
+ * 首屏和无动画场景都能直接看到正确数字。
  */
 function AnimatedNumber({ target, decimals = 0, grouping = false, className }: AnimatedNumberProps) {
-  const [value, setValue] = useState(0)
+  const [value, setValue] = useState<number | null>(null)
   const ref = useRef<HTMLSpanElement>(null)
   const animated = useRef(false)
   const duration = 1200
 
   useEffect(() => {
     const el = ref.current
-    if (!el) return
+    if (!el || !target) return
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    if (reduceMotion || typeof IntersectionObserver === 'undefined') return
+
+    let frame = 0
+    let fallback = 0
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting || animated.current) return
         animated.current = true
+        window.clearTimeout(fallback)
         const start = performance.now()
         const step = (now: number) => {
           const progress = Math.min((now - start) / duration, 1)
           const eased = 1 - Math.pow(1 - progress, 3)
-          setValue(Number((eased * target).toFixed(decimals)))
-          if (progress < 1) requestAnimationFrame(step)
+          setValue(progress < 1 ? Number((eased * target).toFixed(decimals)) : target)
+          if (progress < 1) frame = requestAnimationFrame(step)
         }
-        requestAnimationFrame(step)
+        frame = requestAnimationFrame(step)
       },
       { threshold: 0.3 }
     )
     observer.observe(el)
-    return () => observer.disconnect()
+    // 兜底：2.5s 内没进入视口就当它已经展示过（例如被容器裁剪），保持渲染终值
+    fallback = window.setTimeout(() => {
+      if (!animated.current) {
+        animated.current = true
+        observer.disconnect()
+      }
+    }, 2500)
+
+    return () => {
+      observer.disconnect()
+      window.clearTimeout(fallback)
+      cancelAnimationFrame(frame)
+    }
   }, [target, decimals])
+
+  const shown = value ?? target
 
   return (
     <span ref={ref} className={className}>
-      {grouping ? Math.round(value).toLocaleString() : value.toFixed(decimals)}
+      {grouping ? Math.round(shown).toLocaleString() : shown.toFixed(decimals)}
     </span>
   )
 }
@@ -102,6 +130,83 @@ export default function Home({ data }: Props) {
   }, [data])
 
 
+  // 首页文案里的数字全部从数据算出：此前语言包硬编码了 1,779 款 / 47 万条 / 173 品牌 等，
+  // 数据每周更新后 H1 会和下方统计栏自相矛盾；部分描述（Top20 口径、热力图说明）也与实际计算不符。
+  const copyVars = useMemo(() => {
+    const avgAt = (disp: number) => weightedDisp.find(d => d.displacement === disp)?.avg ?? 0
+    const minDisp = weightedDisp[0]?.displacement ?? 0
+    const maxDisp = weightedDisp[weightedDisp.length - 1]?.displacement ?? 0
+    const minDispAvg = weightedDisp[0]?.avg ?? 0
+    const maxDispAvg = weightedDisp[weightedDisp.length - 1]?.avg ?? 0
+
+    const plateauValues = weightedDisp
+      .filter(d => d.displacement >= PLATEAU_DISP)
+      .map(d => d.avg)
+
+    const typeRanked = [...typeCount].sort((a, b) => b.count - a.count)
+    const brandsWithTen = avgByBrand(data).filter(b => b.count >= 10)
+    const bestBrand = [...brandsWithTen].sort((a, b) => a.avg - b.avg)[0]
+    const widestBrand = [...brandsWithTen].sort((a, b) => b.count - a.count)[0]
+
+    const dispCounts = new Map<number, number>()
+    for (const row of data) {
+      dispCounts.set(row.displacement, (dispCounts.get(row.displacement) ?? 0) + 1)
+    }
+    const mostDisp = [...dispCounts.entries()].sort((a, b) => b[1] - a[1])[0] ?? [0, 0]
+
+    // 同一排量内，品牌平均油耗的最大相对差距（品牌在该排量至少 2 款车型）
+    const brandConsumption = new Map<number, Map<string, number[]>>()
+    for (const row of data) {
+      const byBrand = brandConsumption.get(row.displacement) ?? new Map<string, number[]>()
+      const values = byBrand.get(row.brand) ?? []
+      values.push(row.consumption)
+      byBrand.set(row.brand, values)
+      brandConsumption.set(row.displacement, byBrand)
+    }
+    let gapPct = 0
+    for (const byBrand of brandConsumption.values()) {
+      const avgs = [...byBrand.values()]
+        .filter(values => values.length >= 2)
+        .map(values => values.reduce((sum, value) => sum + value, 0) / values.length)
+      if (avgs.length < 2) continue
+      const lo = Math.min(...avgs)
+      const hi = Math.max(...avgs)
+      if (lo > 0) gapPct = Math.max(gapPct, ((hi - lo) / lo) * 100)
+    }
+
+    return {
+      models: summary.totalModels.toLocaleString('en-US'),
+      brands: summary.totalBrands.toLocaleString('en-US'),
+      samplesWan: Math.round(summary.totalSamples / 10000),
+      samplesTotal: summary.totalSamples.toLocaleString('en-US'),
+      minDisp,
+      maxDisp,
+      minDispAvg: minDispAvg.toFixed(2),
+      maxDispAvg: maxDispAvg.toFixed(2),
+      ratio: (maxDispAvg / (minDispAvg || 1)).toFixed(1),
+      lowDisp: LOW_DISP,
+      midDisp: MID_DISP,
+      highDisp: HIGH_DISP,
+      plateauDisp: PLATEAU_DISP,
+      lowAvg: avgAt(LOW_DISP).toFixed(2),
+      midAvg: avgAt(MID_DISP).toFixed(2),
+      plateauMin: plateauValues.length ? Math.min(...plateauValues).toFixed(2) : '—',
+      plateauMax: plateauValues.length ? Math.max(...plateauValues).toFixed(2) : '—',
+      topType: typeRanked[0]?.type ?? '',
+      topTypeCount: typeRanked[0]?.count ?? 0,
+      secondType: typeRanked[1]?.type ?? '',
+      secondTypeCount: typeRanked[1]?.count ?? 0,
+      bestBrand: bestBrand?.brand ?? '',
+      bestAvg: (bestBrand?.avg ?? 0).toFixed(2),
+      widestBrand: widestBrand?.brand ?? '',
+      widestCount: widestBrand?.count ?? 0,
+      widestAvg: (widestBrand?.avg ?? 0).toFixed(2),
+      mostDisp: mostDisp[0],
+      mostDispCount: mostDisp[1],
+      gapPct: Math.round(gapPct),
+    }
+  }, [data, summary, weightedDisp, typeCount])
+
   return (
     <div className="max-w-4xl mx-auto">
       {/* HERO */}
@@ -110,10 +215,10 @@ export default function Home({ data }: Props) {
           {t('home.hero.kicker')}
         </div>
         <h1 className="font-serif text-[40px] md:text-[56px] font-black leading-[1.05] tracking-tight mb-4 text-text max-w-[700px]">
-          {t('home.hero.title')}
+          {t('home.hero.title', copyVars)}
         </h1>
         <p className="text-[17px] leading-relaxed text-text-secondary max-w-[600px] mb-0">
-          {t('home.hero.subtitle')}
+          {t('home.hero.subtitle', copyVars)}
         </p>
       </section>
 
@@ -155,7 +260,7 @@ export default function Home({ data }: Props) {
             {t('home.trend.title')}
           </h2>
           <p className="text-[15px] leading-relaxed text-text-secondary max-w-[600px] mb-3">
-            {t('home.trend.description')}
+            {t('home.trend.description', copyVars)}
           </p>
           <div className="flex items-center gap-2 mb-3">
             <button
@@ -198,7 +303,7 @@ export default function Home({ data }: Props) {
               {t('home.brandRank.title')}
             </h2>
             <p className="text-[14px] leading-relaxed text-text-secondary mb-5">
-              {t('home.brandRank.description')}
+              {t('home.brandRank.description', copyVars)}
             </p>
             <table className="data-table">
               <thead>
@@ -246,7 +351,7 @@ export default function Home({ data }: Props) {
               {t('home.typeDistribution.title')}
             </h2>
             <p className="text-[14px] leading-relaxed text-text-secondary mb-5">
-              {t('home.typeDistribution.description')}
+              {t('home.typeDistribution.description', copyVars)}
             </p>
             <Suspense fallback={<ChartSkeleton height={320} />}>
               <TypeDistributionPie data={typeCount} />
@@ -254,9 +359,9 @@ export default function Home({ data }: Props) {
             <div className="sidebar-box mt-5">
               <h4>{t('home.sidebar.title')}</h4>
               <ul>
-                <li><Trans i18nKey="home.sidebar.fact1" components={{ strong: <strong /> }} /></li>
-                <li><Trans i18nKey="home.sidebar.fact2" components={{ strong: <strong /> }} /></li>
-                <li><Trans i18nKey="home.sidebar.fact3" components={{ strong: <strong /> }} /></li>
+                <li><Trans i18nKey="home.sidebar.fact1" values={copyVars} components={{ strong: <strong /> }} /></li>
+                <li><Trans i18nKey="home.sidebar.fact2" values={copyVars} components={{ strong: <strong /> }} /></li>
+                <li><Trans i18nKey="home.sidebar.fact3" values={copyVars} components={{ strong: <strong /> }} /></li>
               </ul>
             </div>
           </div>
@@ -265,7 +370,7 @@ export default function Home({ data }: Props) {
 
       {/* PULL QUOTE */}
       <div className="pull-quote">
-        <p>{t('home.pullQuote.text')}</p>
+        <p>{t('home.pullQuote.text', copyVars)}</p>
         <cite>{t('home.pullQuote.cite')}</cite>
       </div>
 

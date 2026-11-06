@@ -65,8 +65,8 @@
   "home": {
     "hero": {
       "kicker": "Data Investigation",
-      "title": "中国摩托车油耗全景：1,779 款车型的真实数据",
-      "subtitle": "基于小熊油耗平台 47 万条真实加油记录，覆盖 173 个品牌，揭示从 125cc 到 1000cc+ 各排量级别的真实油耗表现。"
+      "title": "中国摩托车油耗全景：{{models}} 款车型的真实数据",
+      "subtitle": "基于小熊油耗平台 {{samplesWan}} 万条真实加油记录，覆盖 {{brands}} 个品牌，从 {{minDisp}}cc 到 {{maxDisp}}cc，逐排量级别还原真实油耗表现。"
     },
     "stat": {
       "lowestConsumption": "最低油耗",
@@ -77,32 +77,32 @@
     "trend": {
       "kicker": "Key Finding",
       "title": "排量越大，油耗越高——但增长并非线性",
-      "description": "从 125cc 到 300cc，油耗增长相对平缓（2.54 → 3.65 L/100km）。400cc 以上油耗开始加速攀升，进入 600cc 级别后稳定在 4.8–4.9 L/100km 的高位平台。",
+      "description": "从 {{lowDisp}}cc 到 {{midDisp}}cc，油耗增长相对平缓（{{lowAvg}} → {{midAvg}} L/100km）。{{highDisp}}cc 以上开始加速攀升，到 {{plateauDisp}}cc 级别之后进入 {{plateauMin}}–{{plateauMax}} L/100km 的高位平台。",
       "caption": "数据来源：小熊油耗平台用户加油记录，按排量级别的简单平均与加权平均"
     },
     "top20": {
       "kicker": "Efficiency Ranking",
       "title": "跨排量 Top 20 最省油车型",
-      "description": "样本量 ≥ 10 的车型中，各排量级别油耗最低的车型。样本量越大，排名的统计可靠性越高。"
+      "description": "全系车型中样本量 ≥ 10、百公里油耗最低的 20 款，跨排量统一排名（排量越小越占优势）。样本量越大，排名越可靠。"
     },
     "typeDistribution": {
       "kicker": "Distribution",
       "title": "车型类型分布",
-      "description": "踏板车以 789 款居首，街车（343 款）次之。跨骑类（街车+巡航+复古+跑车+拉力等）合计仍占最大份额。"
+      "description": "{{topType}}以 {{topTypeCount}} 款居首，{{secondType}}（{{secondTypeCount}} 款）次之。跨骑类（街车 + 巡航 + 复古 + 跑车 + 拉力等）合计仍占最大份额。"
     },
     "brandRank": {
       "kicker": "Brand Ranking",
       "title": "主流品牌油耗排名",
-      "description": "仅展示收录 10 款以上车型的品牌。五羊本田以 2.29 L/100km 领跑，日系合资品牌占据前五。豪爵以 102 款车型覆盖最广，平均油耗 2.47 L/100km。"
+      "description": "仅展示收录 10 款以上车型的品牌。{{bestBrand}}以 {{bestAvg}} L/100km 领跑，日系合资品牌占据前列。{{widestBrand}}以 {{widestCount}} 款车型覆盖最广，平均油耗 {{widestAvg}} L/100km。"
     },
     "sidebar": {
       "title": "关键数据",
-      "fact1": "<strong>125cc</strong> 是收录车型最多的排量级别（477 款）",
-      "fact2": "从 125cc 到 1000cc，油耗差距接近 <strong>2 倍</strong>（2.54 vs 4.83）",
-      "fact3": "豪爵以 <strong>102 款</strong>车型成为覆盖最广的品牌"
+      "fact1": "<strong>{{mostDisp}}cc</strong> 是收录车型最多的排量级别（{{mostDispCount}} 款）",
+      "fact2": "从 {{minDisp}}cc 到 {{maxDisp}}cc，油耗差距接近 <strong>{{ratio}} 倍</strong>（{{minDispAvg}} vs {{maxDispAvg}} L/100km）",
+      "fact3": "{{widestBrand}}以 <strong>{{widestCount}} 款</strong>车型成为覆盖最广的品牌"
     },
     "pullQuote": {
-      "text": "排量并非油耗的唯一决定因素。在相同排量条件下，不同品牌之间的油耗差距可超过 40%。",
+      "text": "排量并非油耗的唯一决定因素。在相同排量条件下，不同品牌之间的油耗差距最高可达 {{gapPct}}%。",
       "cite": "— MotoFuel 数据分析"
     },
     "tabSection": {
@@ -118,8 +118,8 @@
     "dispHeatmap": {
       "kicker": "Cross Comparison",
       "title": "同排量品牌油耗对比",
-      "description": "主要排量级别中，各品牌平均油耗的横向对比。颜色越深表示油耗越高，空白表示该品牌在该排量级别无车型收录。",
-      "caption": "仅展示 5 款以上车型的品牌，每个排量级别至少 2 款车型才参与计算"
+      "description": "主要排量级别中，各品牌平均油耗的横向对比。颜色越暖表示油耗越高，空白表示该品牌在该排量级别无车型收录。",
+      "caption": "行为收录较多的主要品牌，列为排量级别；每格需至少 2 款车型才参与计算，空白表示该品牌在该排量级别无收录"
     }
   },
   "ranking": {

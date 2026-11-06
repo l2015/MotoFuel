@@ -65,8 +65,8 @@
   "home": {
     "hero": {
       "kicker": "Data Investigation",
-      "title": "China's Motorcycle Fuel Economy: 1,779 Models, Real-World Data",
-      "subtitle": "Based on 470,000 real refueling records from XiaoXiong Youhao, spanning 173 brands, revealing the true fuel consumption across 125cc to 1000cc+ displacement classes."
+      "title": "China's Motorcycle Fuel Economy: {{models}} Models, Real-World Data",
+      "subtitle": "Based on {{samplesTotal}} real refueling records from XiaoXiong Youhao, covering {{brands}} brands from {{minDisp}}cc to {{maxDisp}}cc, class by class."
     },
     "stat": {
       "lowestConsumption": "Lowest Fuel",
@@ -77,32 +77,32 @@
     "trend": {
       "kicker": "Key Finding",
       "title": "Larger displacement correlates with higher consumption — but the growth is nonlinear",
-      "description": "From 125cc to 300cc, consumption grows gradually (2.54 → 3.65 L/100km). Above 400cc it accelerates, and from 600cc onwards it plateaus around 4.8–4.9 L/100km.",
+      "description": "From {{lowDisp}}cc to {{midDisp}}cc, consumption rises gradually ({{lowAvg}} → {{midAvg}} L/100km). Above {{highDisp}}cc it accelerates, and from {{plateauDisp}}cc onwards it plateaus around {{plateauMin}}–{{plateauMax}} L/100km.",
       "caption": "Source: XiaoXiong Youhao user refueling records, simple and weighted averages by displacement class"
     },
     "top20": {
       "kicker": "Efficiency Ranking",
       "title": "Top 20 Most Fuel-Efficient Across Displacements",
-      "description": "Among models with 10+ samples, the most fuel-efficient in each displacement class. Larger sample sizes yield more statistically reliable rankings."
+      "description": "The 20 lowest-consumption models overall among those with 10+ samples — a single cross-displacement ranking, so smaller engines naturally have an edge."
     },
     "typeDistribution": {
       "kicker": "Distribution",
       "title": "Vehicle Type Distribution",
-      "description": "Scooters lead with 789 models, followed by street bikes (343). Manual-style bikes (street + cruiser + retro + sport + adventure) collectively hold the largest share."
+      "description": "{{topType}} lead with {{topTypeCount}} models, followed by {{secondType}} ({{secondTypeCount}}). Manual-style bikes (street + cruiser + retro + sport + adventure) still hold the largest combined share."
     },
     "brandRank": {
       "kicker": "Brand Ranking",
       "title": "Major Brand Fuel Efficiency Ranking",
-      "description": "Only brands with 10+ models shown. Wuyang Honda leads at 2.29 L/100km. Japanese JV brands dominate the top five. Haojue covers the widest range with 102 models at an average of 2.47 L/100km."
+      "description": "Only brands with 10+ models shown. {{bestBrand}} leads at {{bestAvg}} L/100km, with Japanese joint-venture brands near the top. {{widestBrand}} has the widest coverage with {{widestCount}} models, averaging {{widestAvg}} L/100km."
     },
     "sidebar": {
       "title": "Key Data",
-      "fact1": "<strong>125cc</strong> is the most represented displacement (477 models)",
-      "fact2": "From 125cc to 1000cc, fuel consumption can differ by nearly <strong>2x</strong> (2.54 vs 4.83)",
-      "fact3": "<strong>Haojue</strong> has the widest coverage with 102 models"
+      "fact1": "<strong>{{mostDisp}}cc</strong> is the most represented displacement ({{mostDispCount}} models)",
+      "fact2": "From {{minDisp}}cc to {{maxDisp}}cc, fuel consumption differs by roughly <strong>{{ratio}}x</strong> ({{minDispAvg}} vs {{maxDispAvg}} L/100km)",
+      "fact3": "<strong>{{widestBrand}}</strong> has the widest coverage with {{widestCount}} models"
     },
     "pullQuote": {
-      "text": "Displacement is not the sole determinant of fuel consumption. Within the same class, inter-brand differences can exceed 40%.",
+      "text": "Displacement is not the sole determinant of fuel consumption. Within the same class, inter-brand differences reach up to {{gapPct}}%.",
       "cite": "— MotoFuel Data Analysis"
     },
     "tabSection": {
@@ -118,8 +118,8 @@
     "dispHeatmap": {
       "kicker": "Cross Comparison",
       "title": "Brand Fuel Consumption by Displacement",
-      "description": "Average fuel consumption comparison across brands within major displacement classes. Darker colors indicate higher consumption. Empty cells indicate no models for that brand in the given class.",
-      "caption": "Only brands with 5+ models shown; each displacement class requires 2+ models to be included"
+      "description": "Average fuel consumption across major brands within each displacement class. Warmer colors indicate higher consumption. Empty cells mean no models for that brand in that class.",
+      "caption": "Rows are the most-represented brands, columns are displacement classes. Each cell requires at least 2 models; empty cells mean no models for that brand in that class."
     }
   },
   "ranking": {
