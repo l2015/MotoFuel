@@ -32,6 +32,12 @@ jobs:
         # 仓库根目录 .npmrc 已设置 legacy-peer-deps（vite-plugin-pwa 的 peer 上限是 vite 7）
         run: npm ci
 
+      - name: Install scraper dependencies
+        # 根目录 `npm test` 会一并跑 scraper/*.test.js，其中 parser.test.js 依赖 cheerio。
+        # scraper 是独立 package（自带 lockfile），所以单独装一次。
+        run: npm ci
+        working-directory: scraper
+
       - name: Lint
         run: npm run lint
 
