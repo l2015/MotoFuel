@@ -47,7 +47,7 @@
     },
     {
       "brand": "本田",
-      "series": "C 50 Super Cub<span class=\"moto-chexi-nickname\">（超级幼兽）</span>",
+      "series": "C 50 Super Cub（超级幼兽）",
       "type": "街车",
       "displacement": 50,
       "consumption": 2.22,
@@ -137,7 +137,7 @@
     },
     {
       "brand": "本田",
-      "series": "C 100 Super Cub (Scooter)<span class=\"moto-chexi-nickname\">（超级幼兽）</span>",
+      "series": "C 100 Super Cub (Scooter)（超级幼兽）",
       "type": "街车",
       "displacement": 50,
       "consumption": 2.59,
@@ -167,7 +167,7 @@
     },
     {
       "brand": "标致",
-      "series": "DJANGO 50<span class=\"moto-chexi-nickname\">（姜戈）</span>",
+      "series": "DJANGO 50（姜戈）",
       "type": "踏板",
       "displacement": 50,
       "consumption": 2.84,
@@ -737,7 +737,7 @@
     },
     {
       "brand": "新大洲本田",
-      "series": "Cross Cub<span class=\"moto-chexi-nickname\">（幼兽）</span>",
+      "series": "Cross Cub（幼兽）",
       "type": "弯梁",
       "displacement": 110,
       "consumption": 1.74,
@@ -747,7 +747,7 @@
     },
     {
       "brand": "本田",
-      "series": "Cross Cub(海外)<span class=\"moto-chexi-nickname\">（幼兽）</span>",
+      "series": "Cross Cub(海外)（幼兽）",
       "type": "街车",
       "displacement": 110,
       "consumption": 1.75,
@@ -807,7 +807,7 @@
     },
     {
       "brand": "本田",
-      "series": "C 110 Super Cub<span class=\"moto-chexi-nickname\">（超级幼兽）</span>",
+      "series": "C 110 Super Cub（超级幼兽）",
       "type": "街车",
       "displacement": 110,
       "consumption": 1.82,
@@ -1527,7 +1527,7 @@
     },
     {
       "brand": "五羊本田",
-      "series": "SCR110 佳御<span class=\"moto-chexi-nickname\">（甲鱼）</span>",
+      "series": "SCR110 佳御（甲鱼）",
       "type": "踏板",
       "displacement": 110,
       "consumption": 2.42,
@@ -2437,7 +2437,7 @@
     },
     {
       "brand": "豪爵",
-      "series": "GN125<span class=\"moto-chexi-nickname\">（铃木太子）</span>",
+      "series": "GN125（铃木太子）",
       "type": "复古",
       "displacement": 125,
       "consumption": 2.12,
@@ -2897,7 +2897,7 @@
     },
     {
       "brand": "济南铃木",
-      "series": "UY125<span class=\"moto-chexi-nickname\">（神车UY）</span>",
+      "series": "UY125（神车UY）",
       "type": "踏板",
       "displacement": 125,
       "consumption": 2.22,
@@ -3057,7 +3057,7 @@
     },
     {
       "brand": "豪爵",
-      "series": "GN125<span class=\"moto-chexi-nickname\">（铃木太子）</span>",
+      "series": "GN125（铃木太子）",
       "type": "街车",
       "displacement": 125,
       "consumption": 2.26,
@@ -3387,7 +3387,7 @@
     },
     {
       "brand": "本田",
-      "series": "CT125<span class=\"moto-chexi-nickname\">（猎人幼兽）</span>",
+      "series": "CT125（猎人幼兽）",
       "type": "弯梁",
       "displacement": 125,
       "consumption": 2.32,
@@ -3597,7 +3597,7 @@
     },
     {
       "brand": "铃木",
-      "series": "Burgman 125<span class=\"moto-chexi-nickname\">（汉堡人）</span>",
+      "series": "Burgman 125（汉堡人）",
       "type": "踏板",
       "displacement": 125,
       "consumption": 2.35,
@@ -3867,7 +3867,7 @@
     },
     {
       "brand": "本田",
-      "series": "C 125 Super Cub <span class=\"moto-chexi-nickname\">（超级幼兽）</span>",
+      "series": "C 125 Super Cub（超级幼兽）",
       "type": "弯梁",
       "displacement": 125,
       "consumption": 2.38,
@@ -4307,7 +4307,7 @@
     },
     {
       "brand": "豪爵铃木",
-      "series": "GN125-2F<span class=\"moto-chexi-nickname\">（铃木太子）</span>",
+      "series": "GN125-2F（铃木太子）",
       "type": "街车",
       "displacement": 125,
       "consumption": 2.44,
@@ -4507,7 +4507,7 @@
     },
     {
       "brand": "雅马哈",
-      "series": "Vino 125<span class=\"moto-chexi-nickname\">（小龟）</span>",
+      "series": "Vino 125（小龟）",
       "type": "踏板",
       "displacement": 125,
       "consumption": 2.5,
@@ -5287,7 +5287,7 @@
     },
     {
       "brand": "标致",
-      "series": "DJANGO COMPACT<span class=\"moto-chexi-nickname\">（姜戈）</span>",
+      "series": "DJANGO COMPACT（姜戈）",
       "type": "踏板",
       "displacement": 125,
       "consumption": 2.7,
@@ -7337,7 +7337,7 @@
     },
     {
       "brand": "铃木",
-      "series": "GSX 150 Bandit<span class=\"moto-chexi-nickname\">（盗匪）</span>",
+      "series": "GSX 150 Bandit（盗匪）",
       "type": "街车",
       "displacement": 150,
       "consumption": 2.42,
@@ -9697,7 +9697,7 @@
     },
     {
       "brand": "标致",
-      "series": "DJANGO<span class=\"moto-chexi-nickname\">（姜戈）</span>",
+      "series": "DJANGO（姜戈）",
       "type": "踏板",
       "displacement": 150,
       "consumption": 2.99,
@@ -9817,7 +9817,7 @@
     },
     {
       "brand": "VESPA",
-      "series": "150 Sprint<span class=\"moto-chexi-nickname\">（冲刺）</span>",
+      "series": "150 Sprint（冲刺）",
       "type": "踏板",
       "displacement": 150,
       "consumption": 3.03,
@@ -9837,7 +9837,7 @@
     },
     {
       "brand": "标致",
-      "series": "DJANGO EVO<span class=\"moto-chexi-nickname\">（姜戈）</span>",
+      "series": "DJANGO EVO（姜戈）",
       "type": "踏板",
       "displacement": 150,
       "consumption": 3.05,
@@ -9877,7 +9877,7 @@
     },
     {
       "brand": "标致",
-      "series": "Django 120<span class=\"moto-chexi-nickname\">（姜戈）</span>",
+      "series": "Django 120（姜戈）",
       "type": "踏板",
       "displacement": 150,
       "consumption": 3.08,
@@ -10007,7 +10007,7 @@
     },
     {
       "brand": "VESPA",
-      "series": "Primavera<span class=\"moto-chexi-nickname\">（春天）</span>",
+      "series": "Primavera（春天）",
       "type": "踏板",
       "displacement": 150,
       "consumption": 3.16,
@@ -10507,7 +10507,7 @@
     },
     {
       "brand": "VESPA",
-      "series": "Sprint<span class=\"moto-chexi-nickname\">（冲刺）</span>",
+      "series": "Sprint（冲刺）",
       "type": "踏板",
       "displacement": 160,
       "consumption": 3.05,
@@ -10517,7 +10517,7 @@
     },
     {
       "brand": "VESPA",
-      "series": "Primavera<span class=\"moto-chexi-nickname\">（春天）</span>",
+      "series": "Primavera（春天）",
       "type": "踏板",
       "displacement": 160,
       "consumption": 3.09,
@@ -10757,7 +10757,7 @@
     },
     {
       "brand": "阿普利亚",
-      "series": "Scarabeo 200<span class=\"moto-chexi-nickname\">（圣甲虫）</span>",
+      "series": "Scarabeo 200（圣甲虫）",
       "type": "踏板",
       "displacement": 190,
       "consumption": 3.74,
@@ -11747,7 +11747,7 @@
     },
     {
       "brand": "豪爵铃木",
-      "series": "GSX250R<span class=\"moto-chexi-nickname\">（小小R）</span>",
+      "series": "GSX250R（小小R）",
       "type": "跑车",
       "displacement": 250,
       "consumption": 3.31,
@@ -12007,7 +12007,7 @@
     },
     {
       "brand": "川崎",
-      "series": "Ninja 250SL<span class=\"moto-chexi-nickname\">（小忍者）</span>",
+      "series": "Ninja 250SL（小忍者）",
       "type": "跑车",
       "displacement": 250,
       "consumption": 3.46,
@@ -12037,7 +12037,7 @@
     },
     {
       "brand": "KTMR2R",
-      "series": "250 Duke<span class=\"moto-chexi-nickname\">（小钢炮）</span>",
+      "series": "250 Duke（小钢炮）",
       "type": "街车",
       "displacement": 250,
       "consumption": 3.48,
@@ -12057,7 +12057,7 @@
     },
     {
       "brand": "铃木",
-      "series": "GW 250 Inazuma<span class=\"moto-chexi-nickname\">（闪电）</span>",
+      "series": "GW 250 Inazuma（闪电）",
       "type": "街车",
       "displacement": 250,
       "consumption": 3.49,
@@ -12207,7 +12207,7 @@
     },
     {
       "brand": "光阳",
-      "series": "Xciting 250i<span class=\"moto-chexi-nickname\">（赛艇）</span>",
+      "series": "Xciting 250i（赛艇）",
       "type": "踏板",
       "displacement": 250,
       "consumption": 3.55,
@@ -12227,7 +12227,7 @@
     },
     {
       "brand": "铃木",
-      "series": "GW 250F Inazuma <span class=\"moto-chexi-nickname\">（闪电）</span>",
+      "series": "GW 250F Inazuma（闪电）",
       "type": "旅行",
       "displacement": 250,
       "consumption": 3.55,
@@ -12567,7 +12567,7 @@
     },
     {
       "brand": "川崎",
-      "series": "Ninja 250<span class=\"moto-chexi-nickname\">（小忍者）</span>",
+      "series": "Ninja 250（小忍者）",
       "type": "跑车",
       "displacement": 250,
       "consumption": 3.96,
@@ -12707,7 +12707,7 @@
     },
     {
       "brand": "川崎",
-      "series": "Ninja 250R <span class=\"moto-chexi-nickname\">（小忍者）</span>",
+      "series": "Ninja 250R（小忍者）",
       "type": "跑车",
       "displacement": 250,
       "consumption": 4.7,
@@ -12767,7 +12767,7 @@
     },
     {
       "brand": "本田",
-      "series": "CM300<span class=\"moto-chexi-nickname\">（叛逆者）</span>",
+      "series": "CM300（叛逆者）",
       "type": "巡航太子",
       "displacement": 300,
       "consumption": 3.1,
@@ -12997,7 +12997,7 @@
     },
     {
       "brand": "光阳",
-      "series": "Xciting 300 <span class=\"moto-chexi-nickname\">（赛艇）</span>",
+      "series": "Xciting 300（赛艇）",
       "type": "踏板",
       "displacement": 300,
       "consumption": 3.47,
@@ -13067,7 +13067,7 @@
     },
     {
       "brand": "川崎",
-      "series": "Versys-X 300 <span class=\"moto-chexi-nickname\">（异兽）</span>",
+      "series": "Versys-X 300（异兽）",
       "type": "拉力",
       "displacement": 300,
       "consumption": 3.64,
@@ -13127,7 +13127,7 @@
     },
     {
       "brand": "VESPA",
-      "series": "Sei Giorni<span class=\"moto-chexi-nickname\">（六日）</span>",
+      "series": "Sei Giorni（六日）",
       "type": "踏板",
       "displacement": 300,
       "consumption": 3.7,
@@ -13137,7 +13137,7 @@
     },
     {
       "brand": "VESPA",
-      "series": "GTS 300<span class=\"moto-chexi-nickname\">（铁壳羊）</span>",
+      "series": "GTS 300（铁壳羊）",
       "type": "踏板",
       "displacement": 300,
       "consumption": 3.7,
@@ -13177,7 +13177,7 @@
     },
     {
       "brand": "VESPA",
-      "series": "GTS 300 Super<span class=\"moto-chexi-nickname\">（铁壳羊）</span>",
+      "series": "GTS 300 Super（铁壳羊）",
       "type": "踏板",
       "displacement": 300,
       "consumption": 3.78,
@@ -13187,7 +13187,7 @@
     },
     {
       "brand": "光阳",
-      "series": "Xciting 300i<span class=\"moto-chexi-nickname\">（赛艇）</span>",
+      "series": "Xciting 300i（赛艇）",
       "type": "踏板",
       "displacement": 300,
       "consumption": 3.79,
@@ -13257,7 +13257,7 @@
     },
     {
       "brand": "VESPA",
-      "series": "GTS 300 4V ABS ASR<span class=\"moto-chexi-nickname\">（铁壳羊）</span>",
+      "series": "GTS 300 4V ABS ASR（铁壳羊）",
       "type": "踏板",
       "displacement": 300,
       "consumption": 3.89,
@@ -13437,7 +13437,7 @@
     },
     {
       "brand": "本田",
-      "series": "NSS350(进口)<span class=\"moto-chexi-nickname\">（佛沙）</span>",
+      "series": "NSS350(进口)（佛沙）",
       "type": "踏板",
       "displacement": 350,
       "consumption": 3.49,
@@ -13447,7 +13447,7 @@
     },
     {
       "brand": "本田",
-      "series": "NSS350<span class=\"moto-chexi-nickname\">（佛沙）</span>",
+      "series": "NSS350（佛沙）",
       "type": "踏板",
       "displacement": 350,
       "consumption": 3.57,
@@ -13537,7 +13537,7 @@
     },
     {
       "brand": "宝马",
-      "series": "G 310 GS<span class=\"moto-chexi-nickname\">（小小鸟）</span>",
+      "series": "G 310 GS（小小鸟）",
       "type": "拉力",
       "displacement": 350,
       "consumption": 3.67,
@@ -14227,7 +14227,7 @@
     },
     {
       "brand": "川崎",
-      "series": "Ninja 400<span class=\"moto-chexi-nickname\">（小忍者）</span>",
+      "series": "Ninja 400（小忍者）",
       "type": "跑车",
       "displacement": 400,
       "consumption": 3.9,
@@ -14327,7 +14327,7 @@
     },
     {
       "brand": "光阳",
-      "series": "Xciting S400<span class=\"moto-chexi-nickname\">（赛艇）</span>",
+      "series": "Xciting S400（赛艇）",
       "type": "踏板",
       "displacement": 400,
       "consumption": 4.04,
@@ -14477,7 +14477,7 @@
     },
     {
       "brand": "KTMR2R",
-      "series": "390 Duke<span class=\"moto-chexi-nickname\">（小钢炮）</span>",
+      "series": "390 Duke（小钢炮）",
       "type": "街车",
       "displacement": 400,
       "consumption": 4.24,
@@ -14697,7 +14697,7 @@
     },
     {
       "brand": "川崎",
-      "series": "ZX-4R<span class=\"moto-chexi-nickname\">（忍者）</span>",
+      "series": "ZX-4R（忍者）",
       "type": "跑车",
       "displacement": 400,
       "consumption": 4.83,
@@ -14867,7 +14867,7 @@
     },
     {
       "brand": "本田",
-      "series": "CM500<span class=\"moto-chexi-nickname\">（叛逆者）</span>",
+      "series": "CM500（叛逆者）",
       "type": "巡航太子",
       "displacement": 500,
       "consumption": 3.71,
@@ -15037,7 +15037,7 @@
     },
     {
       "brand": "川崎",
-      "series": "Eliminator 500<span class=\"moto-chexi-nickname\">（终结者）</span>",
+      "series": "Eliminator 500（终结者）",
       "type": "巡航太子",
       "displacement": 500,
       "consumption": 4.04,
@@ -15537,7 +15537,7 @@
     },
     {
       "brand": "雅马哈",
-      "series": "TMAX<span class=\"moto-chexi-nickname\">（羊王）</span>",
+      "series": "TMAX（羊王）",
       "type": "踏板",
       "displacement": 600,
       "consumption": 4.67,
@@ -15637,7 +15637,7 @@
     },
     {
       "brand": "贝纳利",
-      "series": "TNT600i<span class=\"moto-chexi-nickname\">（黄龙600）</span>",
+      "series": "TNT600i（黄龙600）",
       "type": "街车",
       "displacement": 600,
       "consumption": 5.17,
@@ -15667,7 +15667,7 @@
     },
     {
       "brand": "雅马哈",
-      "series": "TMAX 530<span class=\"moto-chexi-nickname\">（羊王）</span>",
+      "series": "TMAX 530（羊王）",
       "type": "踏板",
       "displacement": 600,
       "consumption": 5.28,
@@ -15867,7 +15867,7 @@
     },
     {
       "brand": "川崎",
-      "series": "Ninja 650 <span class=\"moto-chexi-nickname\">（忍者）</span>",
+      "series": "Ninja 650（忍者）",
       "type": "跑车",
       "displacement": 700,
       "consumption": 4.59,
@@ -15917,7 +15917,7 @@
     },
     {
       "brand": "川崎",
-      "series": "Versys 650 <span class=\"moto-chexi-nickname\">（异兽）</span>",
+      "series": "Versys 650（异兽）",
       "type": "拉力",
       "displacement": 700,
       "consumption": 4.73,
@@ -15947,7 +15947,7 @@
     },
     {
       "brand": "川崎",
-      "series": "Vulcan S <span class=\"moto-chexi-nickname\">（小火神）</span>",
+      "series": "Vulcan S（小火神）",
       "type": "巡航太子",
       "displacement": 700,
       "consumption": 4.84,
@@ -16017,7 +16017,7 @@
     },
     {
       "brand": "川崎",
-      "series": "VN 650 Vulcan S<span class=\"moto-chexi-nickname\">（小火神）</span>",
+      "series": "VN 650 Vulcan S（小火神）",
       "type": "街车",
       "displacement": 700,
       "consumption": 4.91,
@@ -16107,7 +16107,7 @@
     },
     {
       "brand": "凯旋",
-      "series": "Trident 660<span class=\"moto-chexi-nickname\">（三叉戟）</span>",
+      "series": "Trident 660（三叉戟）",
       "type": "复古",
       "displacement": 700,
       "consumption": 5.02,
@@ -16187,7 +16187,7 @@
     },
     {
       "brand": "春风",
-      "series": "650TR-G<span class=\"moto-chexi-nickname\">（国宾车）</span>",
+      "series": "650TR-G（国宾车）",
       "type": "旅行",
       "displacement": 700,
       "consumption": 5.16,
@@ -16327,7 +16327,7 @@
     },
     {
       "brand": "川崎",
-      "series": "Ninja ZX-6R <span class=\"moto-chexi-nickname\">（小牛）</span>",
+      "series": "Ninja ZX-6R（小牛）",
       "type": "跑车",
       "displacement": 700,
       "consumption": 5.4,
@@ -16377,7 +16377,7 @@
     },
     {
       "brand": "本田",
-      "series": "NSS750<span class=\"moto-chexi-nickname\">（佛沙）</span>",
+      "series": "NSS750（佛沙）",
       "type": "踏板",
       "displacement": 800,
       "consumption": 4,
@@ -16397,7 +16397,7 @@
     },
     {
       "brand": "杜卡迪",
-      "series": "Monster 797<span class=\"moto-chexi-nickname\">（怪兽）</span>",
+      "series": "Monster 797（怪兽）",
       "type": "街车",
       "displacement": 800,
       "consumption": 4.08,
@@ -16437,7 +16437,7 @@
     },
     {
       "brand": "杜卡迪",
-      "series": "Scrambler 800 Desert Sled<span class=\"moto-chexi-nickname\">（自游）</span>",
+      "series": "Scrambler 800 Desert Sled（自游）",
       "type": "街车",
       "displacement": 800,
       "consumption": 4.31,
@@ -16577,7 +16577,7 @@
     },
     {
       "brand": "杜卡迪",
-      "series": "Scrambler 800<span class=\"moto-chexi-nickname\">（自游）</span>",
+      "series": "Scrambler 800（自游）",
       "type": "复古",
       "displacement": 800,
       "consumption": 4.96,
@@ -16597,7 +16597,7 @@
     },
     {
       "brand": "凯旋",
-      "series": "Street Triple  765S<span class=\"moto-chexi-nickname\">（小青蛙）</span>",
+      "series": "Street Triple 765S（小青蛙）",
       "type": "街车",
       "displacement": 800,
       "consumption": 5.04,
@@ -16637,7 +16637,7 @@
     },
     {
       "brand": "KTMR2R",
-      "series": "790 Duke<span class=\"moto-chexi-nickname\">（手术刀）</span>",
+      "series": "790 Duke（手术刀）",
       "type": "街车",
       "displacement": 800,
       "consumption": 5.17,
@@ -16667,7 +16667,7 @@
     },
     {
       "brand": "杜卡迪",
-      "series": "Scrambler 800 Icon<span class=\"moto-chexi-nickname\">（自游）</span>",
+      "series": "Scrambler 800 Icon（自游）",
       "type": "街车",
       "displacement": 800,
       "consumption": 5.24,
@@ -16687,7 +16687,7 @@
     },
     {
       "brand": "凯旋",
-      "series": "Street Triple 765<span class=\"moto-chexi-nickname\">（小青蛙）</span>",
+      "series": "Street Triple 765（小青蛙）",
       "type": "街车",
       "displacement": 800,
       "consumption": 5.39,
@@ -16737,7 +16737,7 @@
     },
     {
       "brand": "凯旋",
-      "series": "Scrambler 900<span class=\"moto-chexi-nickname\">（攀爬者）</span>",
+      "series": "Scrambler 900（攀爬者）",
       "type": "复古",
       "displacement": 900,
       "consumption": 4.04,
@@ -16777,7 +16777,7 @@
     },
     {
       "brand": "宝马",
-      "series": "F 750 GS<span class=\"moto-chexi-nickname\">（小水鸟）</span>",
+      "series": "F 750 GS（小水鸟）",
       "type": "拉力",
       "displacement": 900,
       "consumption": 4.48,
@@ -16797,7 +16797,7 @@
     },
     {
       "brand": "宝马",
-      "series": "F 850 GS<span class=\"moto-chexi-nickname\">（小水鸟）</span>",
+      "series": "F 850 GS（小水鸟）",
       "type": "拉力",
       "displacement": 900,
       "consumption": 4.64,
@@ -16807,7 +16807,7 @@
     },
     {
       "brand": "雅马哈",
-      "series": "MT-09<span class=\"moto-chexi-nickname\">（扭矩大师）</span>",
+      "series": "MT-09（扭矩大师）",
       "type": "街车",
       "displacement": 900,
       "consumption": 4.8,
@@ -16877,7 +16877,7 @@
     },
     {
       "brand": "哈雷戴维森",
-      "series": "883L SuperLow<span class=\"moto-chexi-nickname\">（硬汉883）</span>",
+      "series": "883L SuperLow（硬汉883）",
       "type": "巡航太子",
       "displacement": 900,
       "consumption": 5.05,
@@ -16957,7 +16957,7 @@
     },
     {
       "brand": "KTMR2R",
-      "series": "890 Duke<span class=\"moto-chexi-nickname\">（手术刀）</span>",
+      "series": "890 Duke（手术刀）",
       "type": "街车",
       "displacement": 900,
       "consumption": 5.45,
@@ -16967,7 +16967,7 @@
     },
     {
       "brand": "杜卡迪",
-      "series": "Monster 821<span class=\"moto-chexi-nickname\">（怪兽）</span>",
+      "series": "Monster 821（怪兽）",
       "type": "街车",
       "displacement": 900,
       "consumption": 5.46,
@@ -17027,7 +17027,7 @@
     },
     {
       "brand": "本田",
-      "series": "CRF1100L Africa Twin<span class=\"moto-chexi-nickname\">（非双）</span>",
+      "series": "CRF1100L Africa Twin（非双）",
       "type": "拉力",
       "displacement": 1000,
       "consumption": 4.86,
@@ -17037,7 +17037,7 @@
     },
     {
       "brand": "杜卡迪",
-      "series": "Multistrada 950<span class=\"moto-chexi-nickname\">（揽途）</span>",
+      "series": "Multistrada 950（揽途）",
       "type": "拉力",
       "displacement": 1000,
       "consumption": 4.91,
@@ -17047,7 +17047,7 @@
     },
     {
       "brand": "川崎",
-      "series": "Versys 1000 <span class=\"moto-chexi-nickname\">（异兽）</span>",
+      "series": "Versys 1000（异兽）",
       "type": "拉力",
       "displacement": 1000,
       "consumption": 5.08,
@@ -17067,7 +17067,7 @@
     },
     {
       "brand": "哈雷戴维森",
-      "series": "Nightster<span class=\"moto-chexi-nickname\">（运动者）</span>",
+      "series": "Nightster（运动者）",
       "type": "巡航太子",
       "displacement": 1000,
       "consumption": 5.11,
@@ -17097,7 +17097,7 @@
     },
     {
       "brand": "杜卡迪",
-      "series": "Monster 950<span class=\"moto-chexi-nickname\">（怪兽）</span>",
+      "series": "Monster 950（怪兽）",
       "type": "街车",
       "displacement": 1000,
       "consumption": 5.36,
@@ -17117,7 +17117,7 @@
     },
     {
       "brand": "川崎",
-      "series": "Ninja 1000SX<span class=\"moto-chexi-nickname\">（忍者）</span>",
+      "series": "Ninja 1000SX（忍者）",
       "type": "旅行",
       "displacement": 1000,
       "consumption": 5.44,
@@ -17127,7 +17127,7 @@
     },
     {
       "brand": "杜卡迪",
-      "series": "SuperSport<span class=\"moto-chexi-nickname\">（鸰速）</span>",
+      "series": "SuperSport（鸰速）",
       "type": "跑车",
       "displacement": 1000,
       "consumption": 5.44,

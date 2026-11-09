@@ -6,6 +6,27 @@ const DISPLACEMENT_MAP = {
   13: 500, 14: 600, 15: 700, 16: 800, 17: 900, 18: 1000,
 }
 
+/**
+ * 把源站字段转成纯文本。
+ *
+ * 源站的车型名里带昵称标记，例如
+ *   `Cross Cub<span class="moto-chexi-nickname">（幼兽）</span>`
+ * 直接 trim 会把整段标签存进数据，前端按纯文本渲染就会显示成字面量
+ * `<span class="moto-chexi-nickname">（幼兽）</span>`。
+ * 这里用 cheerio 去掉标签、还原 `&amp;` 之类的实体，只保留可见文字。
+ */
+export function toPlainText(value) {
+  const raw = String(value ?? '')
+  if (!/[<&]/.test(raw)) return raw.trim()
+  return cheerio.load(raw, undefined, false)
+    .root()
+    .text()
+    .replace(/\s+/g, ' ')
+    // 标签被移除后会在「」（昵称）前留下一个分隔空格，属于剥离副产物，一并去掉
+    .replace(/\s+（/g, '（')
+    .trim()
+}
+
 export function parsePage(html, levelId) {
   const $ = cheerio.load(html)
   const displacement = DISPLACEMENT_MAP[levelId]
@@ -35,9 +56,9 @@ export function parsePage(html, levelId) {
     void imgHtml
 
     return {
-      brand: String(brand).trim(),
-      series: String(series).trim(),
-      type: String(type).trim(),
+      brand: toPlainText(brand),
+      series: toPlainText(series),
+      type: toPlainText(type),
       displacement,
       consumption: parseFloat(consumption),
       samples: parseInt(samples, 10),
